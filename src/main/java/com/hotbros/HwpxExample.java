@@ -119,97 +119,9 @@ public class HwpxExample {
         hwpxFile = addParagraph(hwpxFile, 0, "안녕하세요! 이것은 HWPX 라이브러리 테스트입니다.");
         hwpxFile = addParagraph(hwpxFile, 0, "이것은 두 번째 단락입니다.");
 
-        
         try {
-            System.out.println("전달된 인자들:");
-            for (int i = 0; i < args.length; i++) {
-                System.out.println("args[" + i + "]: " + args[i]);
-            }
-            // HWPX 파일 생성
-            hwpxFile = new HWPXFile();
-            
-            // 버전 정보 설정
-            hwpxFile.versionXMLFile()
-                    .applicationAnd("hwpxlib_test")
-                    .appVersion("1.0");
-            hwpxFile.versionXMLFile().version()
-                    .majorAnd(5)
-                    .minorAnd(0)
-                    .microAnd(5)
-                    .buildNumber(0);
-
-            // 컨테이너 정보 초기화
-            hwpxFile.containerXMLFile().createRootFiles();
-            hwpxFile.containerXMLFile().rootFiles().addNew()
-                    .fullPathAnd("Contents/content.hpf")
-                    .mediaType("application/hwpml-package+xml");
-
-            // 컨텐츠 정보 초기화
-            hwpxFile.contentHPFFile().createManifest();
-            hwpxFile.contentHPFFile().createMetaData();
-            hwpxFile.contentHPFFile().metaData().createTitle();
-            hwpxFile.contentHPFFile().metaData().createLanguage();
-            hwpxFile.contentHPFFile().metaData().language().addText("ko");
-            hwpxFile.contentHPFFile().metaData().addNewMeta()
-                    .nameAnd("creator")
-                    .contentAnd("hwpxlib 테스트");
-
-            // header.xml 설정
-            hwpxFile.headerXMLFile()
-                    .versionAnd("1.4")
-                    .secCnt((short) 1);
-
-            // header 필수 요소 생성
-            hwpxFile.headerXMLFile().createBeginNum();
-            hwpxFile.headerXMLFile().beginNum()
-                    .pageAnd(1)
-                    .footnoteAnd(1)
-                    .endnoteAnd(1)
-                    .picAnd(1)
-                    .tblAnd(1)
-                    .equation(1);
-
-            // 참조 목록 생성 (글꼴, 테두리, 스타일 등)
-            hwpxFile.headerXMLFile().createRefList();
-
-            hwpxFile.contentHPFFile().manifest().addNew()
-                    .idAnd("header")
-                    .hrefAnd("Contents/header.xml")
-                    .mediaType("application/xml");
-
-            // 섹션 추가 (section0.xml 파일 생성 설정)
-            hwpxFile.contentHPFFile().manifest().addNew()
-                    .idAnd("section0")
-                    .hrefAnd("Contents/section0.xml")
-                    .mediaType("application/xml");
-
-            // 설정 파일 추가
-            hwpxFile.contentHPFFile().manifest().addNew()
-                    .idAnd("settings")
-                    .hrefAnd("settings.xml")
-                    .mediaType("application/xml");
-
-            // spine 정보 추가
-            hwpxFile.contentHPFFile().createSpine();
-            hwpxFile.contentHPFFile().spine().addNew()
-                    .idref("header");
-            hwpxFile.contentHPFFile().spine().addNew()
-                    .idref("section0");
-
-            // 섹션 생성
-            SectionXMLFile section = new SectionXMLFile();
-            hwpxFile.sectionXMLFileList().add(section);
-            
-            // 첫 번째 단락 생성 및 텍스트 추가
-            Para paragraph = section.addNewPara();
-            paragraph.addNewRun().addNewT().addText("안녕하세요! 이것은 HWPX 라이브러리 테스트입니다.");
-            
-            // 두 번째 단락 추가
-            Para paragraph2 = section.addNewPara();
-            paragraph2.addNewRun().addNewT().addText("이것은 두 번째 단락입니다.");
-            
             // HWPX 파일 저장
-            String baseDir = "D:\\junyong\\OneDrives\\OneDrive - DEV\\Develop\\Projects\\capstone\\hwpx_converter";
+            String baseDir = "./";
             String absolutePath = Paths.get(baseDir, outputPath).toAbsolutePath().toString();
             System.out.println("파일 저장 경로: " + absolutePath);
 
