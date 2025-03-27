@@ -4,18 +4,19 @@ import kr.dogfoot.hwpxlib.object.HWPXFile;
 import kr.dogfoot.hwpxlib.object.content.section_xml.SectionXMLFile;
 import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.Para;
 import kr.dogfoot.hwpxlib.writer.HWPXWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Paths;
-import java.util.Enumeration;
-import java.util.zip.CRC32;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-import java.util.zip.ZipOutputStream;
-import java.nio.charset.StandardCharsets;
+
+// import java.io.File;
+// import java.io.FileOutputStream;
+// import java.io.IOException;
+// import java.io.InputStream;
+// import java.io.OutputStream;
+// import java.nio.file.Paths;
+// import java.util.Enumeration;
+// import java.util.zip.CRC32;
+// import java.util.zip.ZipEntry;
+// import java.util.zip.ZipFile;
+// import java.util.zip.ZipOutputStream;
+// import java.nio.charset.StandardCharsets;
 
 public class HwpxExample {
     public static HWPXFile createEmptyHwpx() {
@@ -120,81 +121,9 @@ public class HwpxExample {
         hwpxFile = addParagraph(hwpxFile, 0, "이것은 두 번째 단락입니다.");
 
         try {
-            // HWPX 파일 저장
-            String baseDir = "./";
-            String absolutePath = Paths.get(baseDir, outputPath).toAbsolutePath().toString();
-            System.out.println("파일 저장 경로: " + absolutePath);
-
-            // 직접 ZIP 파일 생성하여 mimetype 설정
-            try (FileOutputStream fos = new FileOutputStream(absolutePath);
-                 ZipOutputStream zos = new ZipOutputStream(fos)) {
-                
-                // mimetype 파일을 첫 번째로 저장 (압축하지 않음)
-                zos.setMethod(ZipOutputStream.STORED);
-                byte[] mimetypeBytes = "application/hwp+zip".getBytes(StandardCharsets.UTF_8);
-                ZipEntry mimetypeEntry = new ZipEntry("mimetype");
-                mimetypeEntry.setSize(mimetypeBytes.length);
-                mimetypeEntry.setCompressedSize(mimetypeBytes.length);
-                
-                // CRC 계산
-                CRC32 crc = new CRC32();
-                crc.update(mimetypeBytes);
-                mimetypeEntry.setCrc(crc.getValue());
-                
-                zos.putNextEntry(mimetypeEntry);
-                zos.write(mimetypeBytes);
-                zos.closeEntry();
-                
-                // 나머지 파일들은 HWPXWriter를 사용하여 임시 파일에 저장 후 복사
-                File tempFile = File.createTempFile("hwpx", ".tmp");
-                tempFile.deleteOnExit();
-                
-                HWPXWriter.toFilepath(hwpxFile, tempFile.getAbsolutePath());
-                
-                // 임시 파일에서 mimetype을 제외한 나머지 항목들을 복사
-                try (ZipFile zipFile = new ZipFile(tempFile)) {
-                    Enumeration<? extends ZipEntry> entries = zipFile.entries();
-                    
-                    while (entries.hasMoreElements()) {
-                        ZipEntry entry = entries.nextElement();
-                        if (!entry.getName().equals("mimetype")) {
-                            // 일반 압축 모드로 전환
-                            zos.setMethod(ZipOutputStream.DEFLATED);
-                            
-                            // 원본 항목 데이터 읽기
-                            try (InputStream is = zipFile.getInputStream(entry)) {
-                                // 새 ZipEntry 생성
-                                ZipEntry newEntry = new ZipEntry(entry.getName());
-                                zos.putNextEntry(newEntry);
-                                
-                                // 데이터 복사
-                                byte[] buffer = new byte[1024];
-                                int len;
-                                while ((len = is.read(buffer)) > 0) {
-                                    zos.write(buffer, 0, len);
-                                }
-                                zos.closeEntry();
-                            }
-                        }
-                    }
-                }
-                
-                // 임시 파일 삭제
-                tempFile.delete();
-            }
-
-            System.out.println("HWPX 파일이 성공적으로 생성되었습니다: " + absolutePath);
-            
-        } catch (IOException e) {
-            System.err.println("파일 저장 중 오류가 발생했습니다: " + e.getMessage());
-            e.printStackTrace();
+            HWPXWriter.toFilepath(hwpxFile, outputPath);
         } catch (Exception e) {
-            System.err.println("HWPX 문서 생성 중 오류가 발생했습니다: " + e.getMessage());
             e.printStackTrace();
-        } finally {
-            if (hwpxFile != null) {
-                // 만약 HWPXFile에 close나 dispose 같은 메서드가 있다면 여기서 호출
-            }
         }
     }
 } 
