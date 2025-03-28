@@ -1,4 +1,4 @@
-package com.hotbros;
+package com.hotbros.sejong;
 
 import kr.dogfoot.hwpxlib.object.HWPXFile;
 import kr.dogfoot.hwpxlib.object.content.section_xml.SectionXMLFile;
@@ -98,7 +98,7 @@ public class Sejong {
                 hwpxFile.containerXMLFile().rootFiles().addNew()
                                 .fullPathAnd("Contents/content.hpf")
                                 .mediaType("application/hwpml-package+xml");
->>>>>>> Stashed changes:src/main/java/com/hotbros/sejong/Sejong.java
+>>>>>>> Stashed changes:src/main/java/com/hotbros/sejong/com.hotbros.sejong.java
 
                 // 컨텐츠 정보 초기화
                 hwpxFile.contentHPFFile().createManifest();
