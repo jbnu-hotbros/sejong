@@ -1,27 +1,16 @@
-package com.hotbros;
+package com.hotbros.sejong;
 
 import kr.dogfoot.hwpxlib.object.HWPXFile;
 import kr.dogfoot.hwpxlib.object.content.section_xml.SectionXMLFile;
 import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.Para;
 import kr.dogfoot.hwpxlib.writer.HWPXWriter;
 
-// import java.io.File;
-// import java.io.FileOutputStream;
-// import java.io.IOException;
-// import java.io.InputStream;
-// import java.io.OutputStream;
-// import java.nio.file.Paths;
-// import java.util.Enumeration;
-// import java.util.zip.CRC32;
-// import java.util.zip.ZipEntry;
-// import java.util.zip.ZipFile;
-// import java.util.zip.ZipOutputStream;
-// import java.nio.charset.StandardCharsets;
+public class Sejong {
+    private HWPXFile hwpxFile;
+    
+    public void createEmptyHwpx() {
+        hwpxFile = new HWPXFile();
 
-public class HwpxExample {
-    public static HWPXFile createEmptyHwpx() {
-        HWPXFile hwpxFile = new HWPXFile();
-        
         // 버전 정보 설정
         hwpxFile.versionXMLFile()
                 .applicationAnd("hwpxlib_test")
@@ -65,12 +54,10 @@ public class HwpxExample {
 
         // 참조 목록 생성 (글꼴, 테두리, 스타일 등)
         hwpxFile.headerXMLFile().createRefList();
-        hwpxFile = createSection(hwpxFile);
-
-        return hwpxFile;
+        createSection();
     }
 
-    public static HWPXFile createSection(HWPXFile hwpxFile) {
+    private void createSection() {
         hwpxFile.contentHPFFile().manifest().addNew()
                 .idAnd("header")
                 .hrefAnd("Contents/header.xml")
@@ -91,39 +78,28 @@ public class HwpxExample {
         // 섹션 생성
         SectionXMLFile section = new SectionXMLFile();
         hwpxFile.sectionXMLFileList().add(section);
-        
+
         // spine 정보 추가
         hwpxFile.contentHPFFile().createSpine();
         hwpxFile.contentHPFFile().spine().addNew()
                 .idref("header");
         hwpxFile.contentHPFFile().spine().addNew()
                 .idref("section0");
-        
-        return hwpxFile;
     }
 
-    // test용 임시 함수
-    public static HWPXFile addParagraph(HWPXFile hwpxFile, int sid, String text) {
-        SectionXMLFile section = hwpxFile.sectionXMLFileList().get(sid);
-        
-        // 첫 번째 단락 생성 및 텍스트 추가
+    public void addParagraph(int sectionIndex, String text) {
+        SectionXMLFile section = hwpxFile.sectionXMLFileList().get(sectionIndex);
+
+        // 단락 생성 및 텍스트 추가
         Para paragraph = section.addNewPara();
         paragraph.addNewRun().addNewT().addText(text);
-
-        return hwpxFile;
     }
-
-    public static void main(String[] args) {
-        String outputPath = args.length > 0 ? args[0] : "example.hwpx";
-        HWPXFile hwpxFile = createEmptyHwpx();
-        
-        hwpxFile = addParagraph(hwpxFile, 0, "안녕하세요! 이것은 HWPX 라이브러리 테스트입니다.");
-        hwpxFile = addParagraph(hwpxFile, 0, "이것은 두 번째 단락입니다.");
-
-        try {
-            HWPXWriter.toFilepath(hwpxFile, outputPath);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    
+    public void saveToFile(String outputPath) throws Exception {
+        HWPXWriter.toFilepath(hwpxFile, outputPath);
+    }
+    
+    public HWPXFile getHwpxFile() {
+        return hwpxFile;
     }
 } 
