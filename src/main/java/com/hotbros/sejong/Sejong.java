@@ -1,38 +1,10 @@
-package com.hotbros;
+package com.hotbros.sejong;
 
 import kr.dogfoot.hwpxlib.object.HWPXFile;
 import kr.dogfoot.hwpxlib.object.content.section_xml.SectionXMLFile;
 import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.Para;
 import kr.dogfoot.hwpxlib.writer.HWPXWriter;
 
-<<<<<<< Updated upstream:src/main/java/com/hotbros/HwpxExample.java
-// import java.io.File;
-// import java.io.FileOutputStream;
-// import java.io.IOException;
-// import java.io.InputStream;
-// import java.io.OutputStream;
-// import java.nio.file.Paths;
-// import java.util.Enumeration;
-// import java.util.zip.CRC32;
-// import java.util.zip.ZipEntry;
-// import java.util.zip.ZipFile;
-// import java.util.zip.ZipOutputStream;
-// import java.nio.charset.StandardCharsets;
-
-public class HwpxExample {
-    public static HWPXFile createEmptyHwpx() {
-        HWPXFile hwpxFile = new HWPXFile();
-        
-        // 버전 정보 설정
-        hwpxFile.versionXMLFile()
-                .applicationAnd("hwpxlib_test")
-                .appVersion("1.0");
-        hwpxFile.versionXMLFile().version()
-                .majorAnd(5)
-                .minorAnd(0)
-                .microAnd(5)
-                .buildNumber(0);
-=======
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Arrays;
@@ -47,7 +19,6 @@ public class Sejong {
                         "Outline 4", "Outline 5", "Outline 6", "Outline 7", "Outline 8", "Outline 9", "Outline 10",
                         "Page Number", "Footnote", "Endnote", "Memo", "TOC Heading", "TOC 1", "TOC 2", "TOC 3",
                         "Caption"));
->>>>>>> Stashed changes:src/main/java/com/hotbros/sejong/Sejong.java
 
         private HWPXFile hwpxFile;
 
@@ -69,20 +40,6 @@ public class Sejong {
         public void createEmptyHwpx() {
                 hwpxFile = new HWPXFile();
 
-<<<<<<< Updated upstream:src/main/java/com/hotbros/HwpxExample.java
-        // 참조 목록 생성 (글꼴, 테두리, 스타일 등)
-        hwpxFile.headerXMLFile().createRefList();
-        hwpxFile = createSection(hwpxFile);
-
-        return hwpxFile;
-    }
-
-    public static HWPXFile createSection(HWPXFile hwpxFile) {
-        hwpxFile.contentHPFFile().manifest().addNew()
-                .idAnd("header")
-                .hrefAnd("Contents/header.xml")
-                .mediaType("application/xml");
-=======
                 // 버전 정보 설정
                 hwpxFile.versionXMLFile()
                                 .applicationAnd("hwpxlib_test")
@@ -98,7 +55,6 @@ public class Sejong {
                 hwpxFile.containerXMLFile().rootFiles().addNew()
                                 .fullPathAnd("Contents/content.hpf")
                                 .mediaType("application/hwpml-package+xml");
->>>>>>> Stashed changes:src/main/java/com/hotbros/sejong/Sejong.java
 
                 // 컨텐츠 정보 초기화
                 hwpxFile.contentHPFFile().createManifest();
@@ -115,47 +71,6 @@ public class Sejong {
                                 .versionAnd("1.4")
                                 .secCnt((short) 1);
 
-<<<<<<< Updated upstream:src/main/java/com/hotbros/HwpxExample.java
-        // 섹션 생성
-        SectionXMLFile section = new SectionXMLFile();
-        hwpxFile.sectionXMLFileList().add(section);
-        
-        // spine 정보 추가
-        hwpxFile.contentHPFFile().createSpine();
-        hwpxFile.contentHPFFile().spine().addNew()
-                .idref("header");
-        hwpxFile.contentHPFFile().spine().addNew()
-                .idref("section0");
-        
-        return hwpxFile;
-    }
-
-    // test용 임시 함수
-    public static HWPXFile addParagraph(HWPXFile hwpxFile, int sid, String text) {
-        SectionXMLFile section = hwpxFile.sectionXMLFileList().get(sid);
-        
-        // 첫 번째 단락 생성 및 텍스트 추가
-        Para paragraph = section.addNewPara();
-        paragraph.addNewRun().addNewT().addText(text);
-
-        return hwpxFile;
-    }
-
-    public static void main(String[] args) {
-        String outputPath = args.length > 0 ? args[0] : "example.hwpx";
-        HWPXFile hwpxFile = createEmptyHwpx();
-        
-        hwpxFile = addParagraph(hwpxFile, 0, "안녕하세요! 이것은 HWPX 라이브러리 테스트입니다.");
-        hwpxFile = addParagraph(hwpxFile, 0, "이것은 두 번째 단락입니다.");
-
-        try {
-            HWPXWriter.toFilepath(hwpxFile, outputPath);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-} 
-=======
                 // header 필수 요소 생성
                 hwpxFile.headerXMLFile().createBeginNum();
                 hwpxFile.headerXMLFile().beginNum()
@@ -221,4 +136,3 @@ public class Sejong {
                 return hwpxFile;
         }
 }
->>>>>>> Stashed changes:src/main/java/com/hotbros/sejong/Sejong.java
