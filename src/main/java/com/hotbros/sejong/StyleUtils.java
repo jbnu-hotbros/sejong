@@ -48,7 +48,7 @@ public class StyleUtils {
      * 리스트에서 최대 ID 값을 찾습니다.
      */
     public static <T> int getMaxID(Iterable<T> items, Function<T, String> idExtractor) {
-        int maxID = -1;
+        int maxID = 0;
         
         if (items == null) {
             return maxID;

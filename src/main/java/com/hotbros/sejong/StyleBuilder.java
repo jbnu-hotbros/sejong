@@ -5,6 +5,8 @@ import kr.dogfoot.hwpxlib.object.content.header_xml.RefList;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.CharPr;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.ParaPr;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.Style;
+import kr.dogfoot.hwpxlib.object.content.header_xml.references.Bullet;
+import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.ParaHeadingType;
 import java.util.function.Consumer;
 
 /**
@@ -19,7 +21,7 @@ public class StyleBuilder {
     
     private Consumer<CharPr> charPrModifications;
     private Consumer<ParaPr> paraPrModifications;
-    // 필요에 따라 Numbering, Bullet 등의 수정 함수 추가 가능
+    private Bullet bullet; // 불렛 객체를 직접 저장 (null이면 불렛 미사용)
     
     StyleBuilder(HWPXFile hwpxFile, String styleName, String styleEngName) {
         this.hwpxFile = hwpxFile;
@@ -84,6 +86,53 @@ public class StyleBuilder {
     }
     
     /**
+     * 기본 불렛 설정 추가
+     * @return 현재 빌더 인스턴스
+     */
+    public StyleBuilder withBullet() {
+        // 필요한 경우 불렛 목록 생성
+        if (hwpxFile.headerXMLFile().refList().bullets() == null) {
+            hwpxFile.headerXMLFile().refList().createBullets();
+        }
+        
+        // 새 불렛 ID 생성
+        int maxBulletId = StyleUtils.getMaxID(hwpxFile.headerXMLFile().refList().bullets().items(), item -> item.id());
+        String bulletId = String.valueOf(maxBulletId + 1);
+        
+        // 불렛 객체 생성 및 설정
+        this.bullet = hwpxFile.headerXMLFile().refList().bullets().addNew()
+                .idAnd(bulletId)
+                ._charAnd("K")
+                .useImageAnd(false);
+                
+        return this;
+    }
+    
+    /**
+     * 커스텀 불렛 문자로 불렛 설정 추가
+     * @param bulletChar 불렛 문자
+     * @return 현재 빌더 인스턴스
+     */
+    public StyleBuilder withBullet(String bulletChar) {
+        withBullet(); // 기본 불렛 생성
+        this.bullet._charAnd(bulletChar); // 문자만 변경
+        return this;
+    }
+    
+    /**
+     * 커스텀 불렛 설정 추가 (문자와 체크 문자 지정)
+     * @param bulletChar 불렛 문자
+     * @param checkedChar 체크 문자
+     * @return 현재 빌더 인스턴스
+     */
+    public StyleBuilder withBullet(String bulletChar, String checkedChar) {
+        withBullet(); // 기본 불렛 생성
+        this.bullet._charAnd(bulletChar)
+                   .checkedCharAnd(checkedChar);
+        return this;
+    }
+    
+    /**
      * 스타일 구성 완료 및 생성
      * @return 생성된 스타일 객체
      */
@@ -99,8 +148,8 @@ public class StyleBuilder {
         
         // 문단 모양 생성 (설정되어 있는 경우)
         String paraPrIDRef = baseParaPrIDRef;
-        if (paraPrModifications != null) {
-            paraPrIDRef = createNewParaPr(refList, baseParaPrIDRef, paraPrModifications);
+        if (paraPrModifications != null || bullet != null) {
+            paraPrIDRef = createNewParaPrWithBullet(refList, baseParaPrIDRef);
         }
         
         // 새 스타일 ID 생성
@@ -152,10 +201,9 @@ public class StyleBuilder {
     }
 
     /**
-     * 새로운 문단 모양을 생성합니다.
+     * 불렛을 포함한 새 문단 모양을 생성합니다.
      */
-    private String createNewParaPr(RefList refList, String baseParaPrIDRef,
-            Consumer<ParaPr> modifications) {
+    private String createNewParaPrWithBullet(RefList refList, String baseParaPrIDRef) {
         if (baseParaPrIDRef == null) {
             throw new IllegalArgumentException("기본 문단 모양 ID가 null입니다");
         }
@@ -171,7 +219,24 @@ public class StyleBuilder {
             if (paraPr.id().equals(baseParaPrIDRef)) {
                 var newParaPr = paraPr.clone();
                 newParaPr.id(newParaPrID);
-                modifications.accept(newParaPr);
+                
+                // 1. 사용자 지정 수정 적용 (있는 경우)
+                if (paraPrModifications != null) {
+                    paraPrModifications.accept(newParaPr);
+                }
+                
+                // 2. 불렛 설정 적용 (있는 경우)
+                if (bullet != null) {
+                    // heading이 없으면 생성
+                    if (newParaPr.heading() == null) {
+                        newParaPr.createHeading();
+                    }
+                    // 불렛 설정
+                    newParaPr.heading().typeAnd(ParaHeadingType.BULLET);
+                    newParaPr.heading().idRefAnd(bullet.id());
+                    newParaPr.heading().level((byte) 1); // 기본 레벨
+                }
+                
                 refList.paraProperties().add(newParaPr);
                 return newParaPrID;
             }

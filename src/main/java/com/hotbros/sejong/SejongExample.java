@@ -20,22 +20,6 @@ public class SejongExample {
         // hwpxlib의 BlankFileMaker로 빈 HWPX 파일 생성
         HWPXFile hwpxFile = BlankFileMaker.make();
         
-        // 불렛 생성
-        if (hwpxFile.headerXMLFile().refList().bullets() == null) {
-            hwpxFile.headerXMLFile().refList().createBullets();
-        }
-        
-        // 새로운 불렛 객체 생성
-        int maxBulletId = StyleUtils.getMaxID(hwpxFile.headerXMLFile().refList().bullets().items(), item -> item.id());
-        String bulletId = String.valueOf(maxBulletId + 1);
-        
-        Bullet bullet = hwpxFile.headerXMLFile().refList().bullets().addNew()
-                .idAnd(bulletId)
-                ._charAnd("•")           // 불렛 문자
-                .checkedCharAnd("✓")     // 체크 문자
-                .useImageAnd(false);     // 이미지 사용 여부
-    
-
         // 1. 스타일 생성
         // 1.1 커스텀 스타일 (파란색, 중앙 정렬) 생성
         Style customStyle = StyleBuilder.create(hwpxFile, "커스텀 스타일", "Custom Style")
@@ -86,31 +70,24 @@ public class SejongExample {
             throw new IllegalArgumentException("스타일 ID '3'을 찾을 수 없습니다.");
         }
         
-        Style copiedStyle = StyleBuilder.create(hwpxFile, "3번 복사 불렛 스타일", "Copied Style 3 with Bullet")
+        // StyleBuilder의 withBullet() 메소드를 사용하여 불렛 설정
+        Style bulletStyle = StyleBuilder.create(hwpxFile, "불렛 스타일", "Bullet Style")
                 .fromBaseStyle(style3)
+                .withBullet("◆") // 불렛 문자 지정
                 .withCharPr(charPr -> {
                     // 선택적으로 글자 모양 수정 가능
                     charPr.textColor("#FF0000"); // 빨간색으로 변경
                 })
-                .withParaPr(paraPr -> {
-                    // 불렛 설정 추가
-                    paraPr.createHeading(); // void를 반환하므로 별도 변수에 할당하지 않음
-                    Heading heading = paraPr.heading(); // 생성된 heading 객체 가져오기
-                    heading.typeAnd(ParaHeadingType.BULLET);
-                    heading.idRefAnd(bulletId);
-                    heading.level((byte) 1);
-                })
                 .build();
-                
+        
         // 2. 생성된 스타일을 사용하여 문단 추가
         addNewParagraph(hwpxFile, 0, customStyle, "새로운 스타일이 적용된 텍스트입니다!");
         addNewParagraph(hwpxFile, 0, titleStyle, "제목 스타일이 적용된 텍스트입니다!");
-        addNewParagraph(hwpxFile, 0, copiedStyle, "3번 스타일을 복사하여 만든 스타일입니다!");
         
         // 불렛이 적용된 문단 추가
-        addNewParagraph(hwpxFile, 0, copiedStyle, "첫 번째 불렛 항목입니다.");
-        addNewParagraph(hwpxFile, 0, copiedStyle, "두 번째 불렛 항목입니다.");
-        addNewParagraph(hwpxFile, 0, copiedStyle, "세 번째 불렛 항목입니다.");
+        addNewParagraph(hwpxFile, 0, bulletStyle, "첫 번째 불렛 항목입니다.");
+        addNewParagraph(hwpxFile, 0, bulletStyle, "두 번째 불렛 항목입니다.");
+        addNewParagraph(hwpxFile, 0, bulletStyle, "세 번째 불렛 항목입니다.");
 
         // 3. 파일 저장
         HWPXWriter.toFilepath(hwpxFile, "example_hwpxlib.hwpx");
