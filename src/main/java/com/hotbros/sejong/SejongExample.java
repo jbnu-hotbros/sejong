@@ -2,162 +2,341 @@ package com.hotbros.sejong;
 
 import kr.dogfoot.hwpxlib.object.HWPXFile;
 import kr.dogfoot.hwpxlib.object.content.section_xml.SectionXMLFile;
+import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.Para;
 import kr.dogfoot.hwpxlib.writer.HWPXWriter;
 import kr.dogfoot.hwpxlib.tool.blankfilemaker.BlankFileMaker;
+import kr.dogfoot.hwpxlib.object.content.header_xml.RefList;
+import kr.dogfoot.hwpxlib.object.content.header_xml.references.CharPr;
+import kr.dogfoot.hwpxlib.object.content.header_xml.references.ParaPr;
+import kr.dogfoot.hwpxlib.object.content.header_xml.references.Style;
+import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.HorizontalAlign2;
 import com.hotbros.sejong.RefListManager;
+import java.util.function.Consumer;
 
 public class SejongExample {
 
-    // public static void main(String[] args) throws Exception {
-    //     Sejong sejong = new Sejong();
-    //     String outputPath = args.length > 0 ? args[0] : "example.hwpx";
+    public static void main(String[] args) throws Exception {
+
+        // hwpxlib의 BlankFileMaker로 빈 HWPX 파일 생성
+        HWPXFile hwpxFile = BlankFileMaker.make();
+
+        // RefList에 접근하여 스타일 및 관련 속성 수정
+        modifyStyles(hwpxFile);
+
+        // 파일 저장
+        HWPXWriter.toFilepath(hwpxFile, "example_hwpxlib.hwpx");
+        System.out.println("파일이 성공적으로 저장되었습니다: example_hwpxlib.hwpx");
+
+    }
+
+    /**
+     * RefList에서 현재 사용 중인 최대 CharPr ID 값을 찾습니다.
+     * 
+     * @param refList RefList 객체
+     * @return 최대 ID 값
+     * @throws IllegalArgumentException RefList의 charProperties가 null인 경우
+     */
+    private static int getMaxCharPrID(RefList refList) {
+        int maxID = -1;
         
-    //     sejong.createEmptyHwpx();
-    //     sejong.addParagraph(0, "안녕하세요! 이것은 HWPX 라이브러리 테스트입니다.");
-    //     sejong.addParagraph(0, "이것은 두 번째 단락입니다.");
-
-
-    //     // var hwpxFile= sejong.getHwpxFile();
-         
-    //     System.out.println("outputPath: " + outputPath);
-        
-    //     sejong.saveToFile(outputPath);
-    // }
-
-    // public static void main(String[] args) {
-    //     // BlankFileMaker를 사용하여 빈 HWPX 파일 생성
-    //     HWPXFile hwpxFile = BlankFileMaker.createBlankHwpx("SejongExample");
-        
-    //     // 첫 번째 섹션의 참조를 가져옴
-    //     SectionXMLFile section = hwpxFile.sectionXMLFileList().get(0);
-        
-    //     // 단락 추가 및 텍스트 설정
-    //     section.addNewPara().addNewRun().addNewT().addText("안녕하세요!");
-
-    //     try {
-    //         // 파일로 저장
-    //         HWPXWriter.toFilepath(hwpxFile, "example1234.hwpx");
-    //         System.out.println("파일이 성공적으로 저장되었습니다: example1234.hwpx");
-    //     } catch (Exception e) {
-    //         e.printStackTrace();
-    //     }
-    // }
-
-    
-    public static void main(String[] args) {
-        try {
-            // hwpxlib의 BlankFileMaker로 빈 HWPX 파일 생성
-            HWPXFile hwpxFile = BlankFileMaker.make();
-            
-            // RefList에 접근하여 스타일 및 관련 속성 수정
-            modifyStyles(hwpxFile);
-            
-            // 파일 저장
-            HWPXWriter.toFilepath(hwpxFile, "example_hwpxlib.hwpx");
-            System.out.println("파일이 성공적으로 저장되었습니다: example_hwpxlib.hwpx");
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (refList.charProperties() == null) {
+            throw new IllegalArgumentException("RefList.charProperties가 null입니다");
         }
+        
+        for (var charPr : refList.charProperties().items()) {
+            try {
+                int id = Integer.parseInt(charPr.id());
+                maxID = Math.max(maxID, id);
+            } catch (NumberFormatException e) {
+                // 숫자가 아닌 ID는 무시
+            }
+        }
+        
+        return maxID;
     }
     
     /**
-     * HWPXFile의 RefList에 접근하여 스타일 및 관련 속성을 수정하는 메서드
+     * RefList에서 현재 사용 중인 최대 ParaPr ID 값을 찾습니다.
+     * 
+     * @param refList RefList 객체
+     * @return 최대 ID 값
+     * @throws IllegalArgumentException RefList의 paraProperties가 null인 경우
+     */
+    private static int getMaxParaPrID(RefList refList) {
+        int maxID = -1;
+        
+        if (refList.paraProperties() == null) {
+            throw new IllegalArgumentException("RefList.paraProperties가 null입니다");
+        }
+        
+        for (var paraPr : refList.paraProperties().items()) {
+            try {
+                int id = Integer.parseInt(paraPr.id());
+                maxID = Math.max(maxID, id);
+            } catch (NumberFormatException e) {
+                // 숫자가 아닌 ID는 무시
+            }
+        }
+        
+        return maxID;
+    }
+    
+    /**
+     * RefList에서 현재 사용 중인 최대 Style ID 값을 찾습니다.
+     * 
+     * @param refList RefList 객체
+     * @return 최대 ID 값
+     * @throws IllegalArgumentException RefList의 styles가 null인 경우
+     */
+    private static int getMaxStyleID(RefList refList) {
+        int maxID = -1;
+        
+        if (refList.styles() == null) {
+            throw new IllegalArgumentException("RefList.styles가 null입니다");
+        }
+        
+        for (var style : refList.styles().items()) {
+            try {
+                int id = Integer.parseInt(style.id());
+                maxID = Math.max(maxID, id);
+            } catch (NumberFormatException e) {
+                // 숫자가 아닌 ID는 무시
+            }
+        }
+        
+        return maxID;
+    }
+
+    /**
+     * 새로운 글자 모양을 생성합니다.
+     * 
+     * @param refList         RefList 객체
+     * @param baseCharPrIDRef 복사할 기본 글자 모양 ID
+     * @param modifications   글자 모양 수정사항을 정의하는 함수
+     * @return 생성된 새로운 글자 모양 ID
+     * @throws IllegalArgumentException 기본 글자 모양을 찾을 수 없는 경우
+     */
+    private static String createNewCharPr(RefList refList, String baseCharPrIDRef, 
+            Consumer<CharPr> modifications) {
+        if (baseCharPrIDRef == null) {
+            throw new IllegalArgumentException("기본 글자 모양 ID가 null입니다");
+        }
+        if (refList.charProperties() == null) {
+            throw new IllegalArgumentException("RefList.charProperties가 null입니다");
+        }
+
+        // 최대 ID 찾기
+        int maxID = getMaxCharPrID(refList);
+        String newCharPrID = String.valueOf(maxID + 1);
+
+        for (var charPr : refList.charProperties().items()) {
+            if (charPr.id().equals(baseCharPrIDRef)) {
+                var newCharPr = charPr.clone();
+                newCharPr.id(newCharPrID);
+                modifications.accept(newCharPr);
+                refList.charProperties().add(newCharPr);
+                return newCharPrID;
+            }
+        }
+
+        throw new IllegalArgumentException("ID가 " + baseCharPrIDRef + "인 기본 글자 모양을 찾을 수 없습니다");
+    }
+
+    /**
+     * 새로운 문단 모양을 생성합니다.
+     * 
+     * @param refList         RefList 객체
+     * @param baseParaPrIDRef 복사할 기본 문단 모양 ID
+     * @param modifications   문단 모양 수정사항을 정의하는 함수
+     * @return 생성된 새로운 문단 모양 ID
+     * @throws IllegalArgumentException 기본 문단 모양을 찾을 수 없는 경우
+     */
+    private static String createNewParaPr(RefList refList, String baseParaPrIDRef,
+            Consumer<ParaPr> modifications) {
+        if (baseParaPrIDRef == null) {
+            throw new IllegalArgumentException("기본 문단 모양 ID가 null입니다");
+        }
+        if (refList.paraProperties() == null) {
+            throw new IllegalArgumentException("RefList.paraProperties가 null입니다");
+        }
+
+        // 최대 ID 찾기
+        int maxID = getMaxParaPrID(refList);
+        String newParaPrID = String.valueOf(maxID + 1);
+
+        for (var paraPr : refList.paraProperties().items()) {
+            if (paraPr.id().equals(baseParaPrIDRef)) {
+                var newParaPr = paraPr.clone();
+                newParaPr.id(newParaPrID);
+                modifications.accept(newParaPr);
+                refList.paraProperties().add(newParaPr);
+                return newParaPrID;
+            }
+        }
+
+        throw new IllegalArgumentException("ID가 " + baseParaPrIDRef + "인 기본 문단 모양을 찾을 수 없습니다");
+    }
+
+    /**
+     * 새로운 스타일을 생성합니다.
+     * 
+     * @param refList         RefList 객체
+     * @param baseStyle       복사할 기본 스타일
+     * @param newStyleName    새로운 스타일 이름
+     * @param newStyleEngName 새로운 스타일 영문 이름
+     * @param charPrIDRef     참조할 글자 모양 ID
+     * @param paraPrIDRef     참조할 문단 모양 ID
+     * @return 생성된 새로운 스타일
+     * @throws IllegalArgumentException 스타일이 null인 경우
+     */
+    private static Style createNewStyle(RefList refList, Style baseStyle,
+            String newStyleName, String newStyleEngName, String charPrIDRef, String paraPrIDRef) {
+        if (baseStyle == null) {
+            throw new IllegalArgumentException("복사할 기본 스타일이 null입니다");
+        }
+        if (refList.styles() == null) {
+            throw new IllegalArgumentException("RefList.styles가 null입니다");
+        }
+
+        // 최대 ID 찾기
+        int maxID = getMaxStyleID(refList);
+        String newStyleID = String.valueOf(maxID + 1);
+
+        var newStyle = baseStyle.clone();
+        newStyle.idAnd(newStyleID)
+                .nameAnd(newStyleName)
+                .engNameAnd(newStyleEngName)
+                .paraPrIDRefAnd(paraPrIDRef)
+                .charPrIDRefAnd(charPrIDRef);
+
+        refList.styles().add(newStyle);
+        return newStyle;
+    }
+
+    /**
+     * 문서에 새로운 문단을 추가합니다.
+     * 
+     * @param hwpxFile     HWPX 파일 객체
+     * @param sectionIndex 섹션 인덱스
+     * @param styleIDRef   적용할 스타일 ID
+     * @param text         문단에 추가할 텍스트
+     * @return 생성된 문단
+     * @throws IllegalArgumentException 섹션 인덱스가 유효하지 않은 경우
+     */
+    private static Para addNewParagraph(HWPXFile hwpxFile, int sectionIndex, String styleIDRef, String text) {
+        if (hwpxFile.sectionXMLFileList().count() <= sectionIndex) {
+            throw new IllegalArgumentException("유효하지 않은 섹션 인덱스: " + sectionIndex);
+        }
+
+        var section = hwpxFile.sectionXMLFileList().get(sectionIndex);
+        var para = section.addNewPara();
+        
+        // 스타일 ID 설정
+        para.styleIDRef(styleIDRef);
+        
+        // 스타일에서 문단 모양 ID와 글자 모양 ID 가져와서 직접 설정
+        RefList refList = hwpxFile.headerXMLFile().refList();
+        if (refList == null) {
+            throw new IllegalArgumentException("headerXMLFile.refList가 null입니다");
+        }
+        if (refList.styles() == null) {
+            throw new IllegalArgumentException("headerXMLFile.refList.styles가 null입니다");
+        }
+        
+        for (var style : refList.styles().items()) {
+            if (styleIDRef.equals(style.id())) {
+                // 문단 모양 ID 직접 설정
+                String paraPrIDRef = style.paraPrIDRef();
+                if (paraPrIDRef != null) {
+                    para.paraPrIDRef(paraPrIDRef);
+                }
+                
+                // 글자 모양 ID 설정을 위한 Run 추가시 charPrIDRef 설정
+                String charPrIDRef = style.charPrIDRef();
+                var run = para.addNewRun();
+                
+                if (charPrIDRef != null) {
+                    // Run에 직접 charPrIDRef 설정
+                    run.charPrIDRef(charPrIDRef);
+                }
+                
+                run.addNewT().addText(text);
+                return para;
+            }
+        }
+        
+        // 스타일을 찾지 못한 경우 기본 텍스트 추가
+        para.addNewRun().addNewT().addText(text);
+        return para;
+    }
+
+    /**
+     * 스타일을 수정하고 새로운 스타일을 적용하는 예시
      */
     private static void modifyStyles(HWPXFile hwpxFile) {
-        // 기본 스타일 가져오기 (일반적으로 ID가 "0"인 스타일이 "바탕글" 스타일)
         var refList = hwpxFile.headerXMLFile().refList();
         var styles = refList.styles();
-        
+
         if (styles != null && styles.count() > 0) {
-            // 첫 번째 스타일 가져오기 (보통 바탕글 스타일)
             var baseStyle = styles.get(0);
-            System.out.println("기본 스타일 이름: " + baseStyle.name());
-            
-            // 스타일이 참조하는 글자 모양과 문단 모양 ID 확인
             String baseCharPrIDRef = baseStyle.charPrIDRef();
             String baseParaPrIDRef = baseStyle.paraPrIDRef();
-            
-            System.out.println("기본 글자 모양 ID: " + baseCharPrIDRef);
-            System.out.println("기본 문단 모양 ID: " + baseParaPrIDRef);
-            
-            // 1. 새로운 글자 모양 만들기 (기존 것 복사)
-            String newCharPrID = "custom_char_1";
-            if (baseCharPrIDRef != null && refList.charProperties() != null) {
-                for (var charPr : refList.charProperties().items()) {
-                    if (charPr.id().equals(baseCharPrIDRef)) {
-                        // 글자 모양 복제 - clone() 메서드 사용
-                        var newCharPr = charPr.clone();
-                        
-                        // ID 설정
-                        newCharPr.id(newCharPrID);
-                        
-                        // 글자 모양 변경
-                        newCharPr.height(1200);  // 12pt로 변경
-                        newCharPr.textColor("#0000FF");  // 파란색으로 변경
-                        
-                        // 복제한 글자 모양 추가
-                        refList.charProperties().add(newCharPr);
-                        
-                        System.out.println("새 글자 모양 생성: ID=" + newCharPrID);
-                        break;
-                    }
+
+            // 1. 새로운 글자 모양 생성 (12pt, 파란색)
+            String newCharPrID = createNewCharPr(refList, baseCharPrIDRef, charPr -> {
+                charPr.height(1200);
+                charPr.textColor("#0000FF");
+            });
+
+            // 2. 새로운 문단 모양 생성 (중앙 정렬)
+            String newParaPrID = createNewParaPr(refList, baseParaPrIDRef, paraPr -> {
+                if (paraPr.align() != null) {
+                    paraPr.align().horizontal(HorizontalAlign2.CENTER);
                 }
-            }
-            
-            // 2. 새로운 문단 모양 만들기 (기존 것 복사)
-            String newParaPrID = "custom_para_1";
-            if (baseParaPrIDRef != null && refList.paraProperties() != null) {
-                for (var paraPr : refList.paraProperties().items()) {
-                    if (paraPr.id().equals(baseParaPrIDRef)) {
-                        // 문단 모양 복제 - clone() 메서드 사용
-                        var newParaPr = paraPr.clone();
-                        
-                        // ID 설정
-                        newParaPr.id(newParaPrID);
-                        
-                        // 문단 정렬 수정 (중앙 정렬)
-                        if (newParaPr.align() != null) {
-                            newParaPr.align().horizontal(kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.HorizontalAlign2.CENTER);
-                        }
-                        
-                        // 복제한 문단 모양 추가
-                        refList.paraProperties().add(newParaPr);
-                        
-                        System.out.println("새 문단 모양 생성: ID=" + newParaPrID);
-                        break;
-                    }
+            });
+
+            // 3. 새로운 스타일 생성
+            var newStyle = createNewStyle(refList, baseStyle,
+                    "커스텀 스타일", "Custom Style", newCharPrID, newParaPrID);
+
+            // 4. 새 스타일을 적용한 문단 추가
+            addNewParagraph(hwpxFile, 0, newStyle.id(), "새로운 스타일이 적용된 텍스트입니다!");
+
+            // 추가 예시: 제목 스타일 생성
+            String titleCharPrID = createNewCharPr(refList, baseCharPrIDRef, charPr -> {
+                charPr.height(2000);
+                // 글자 모양에 대한 bold 속성은 별도의 객체로 생성하여 처리
+                if (charPr.bold() == null) {
+                    charPr.createBold();
                 }
-            }
-            
-            // 3. 새로운 스타일 만들기
-            // 기본 스타일 복제
-            var newStyle = baseStyle.clone();
-            newStyle.idAnd("custom_style_1")
-                   .nameAnd("커스텀 스타일")
-                   .engNameAnd("Custom Style")
-                   .paraPrIDRefAnd(newParaPrID)
-                   .charPrIDRefAnd(newCharPrID);
-            
-            // 복제한 스타일 추가
-            styles.add(newStyle);
-            
-            System.out.println("새 스타일 생성 완료: " + newStyle.name());
-            
-            // 4. 첫 번째 섹션에 텍스트 추가하여 새 스타일 적용
-            if (hwpxFile.sectionXMLFileList().count() > 0) {
-                var section = hwpxFile.sectionXMLFileList().get(0);
-                var para = section.addNewPara();
+            });
+
+            String titleParaPrID = createNewParaPr(refList, baseParaPrIDRef, paraPr -> {
+                if (paraPr.align() != null) {
+                    paraPr.align().horizontal(HorizontalAlign2.CENTER);
+                }
+                // 문단 간격 속성을 올바르게 설정
+                if (paraPr.margin() == null) {
+                    paraPr.createMargin();
+                }
                 
-                // 새 스타일 적용
-                para.styleIDRef(newStyle.id());
+                // 위쪽 여백 설정 (이전 문단과의 간격)
+                if (paraPr.margin().prev() == null) {
+                    paraPr.margin().createPrev();
+                }
+                paraPr.margin().prev().value(400);
                 
-                // 텍스트 추가
-                para.addNewRun().addNewT().addText("새로운 스타일이 적용된 텍스트입니다!");
-                
-                System.out.println("문서에 새 스타일 적용된 문단 추가 완료");
-            }
-        } else {
-            System.out.println("RefList에 스타일이 없습니다.");
+                // 아래쪽 여백 설정 (다음 문단과의 간격)
+                if (paraPr.margin().next() == null) {
+                    paraPr.margin().createNext();
+                }
+                paraPr.margin().next().value(200);
+            });
+
+            var titleStyle = createNewStyle(refList, baseStyle,
+                    "제목 스타일", "Title Style", titleCharPrID, titleParaPrID);
+
+            addNewParagraph(hwpxFile, 0, titleStyle.id(), "제목 스타일이 적용된 텍스트입니다!");
         }
     }
 }
