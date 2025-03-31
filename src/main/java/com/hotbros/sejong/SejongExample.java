@@ -1,7 +1,6 @@
 package com.hotbros.sejong;
 
 import kr.dogfoot.hwpxlib.object.HWPXFile;
-import kr.dogfoot.hwpxlib.object.content.section_xml.SectionXMLFile;
 import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.Para;
 import kr.dogfoot.hwpxlib.writer.HWPXWriter;
 import kr.dogfoot.hwpxlib.tool.blankfilemaker.BlankFileMaker;
@@ -10,7 +9,6 @@ import kr.dogfoot.hwpxlib.object.content.header_xml.references.CharPr;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.ParaPr;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.Style;
 import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.HorizontalAlign2;
-import com.hotbros.sejong.RefListManager;
 import java.util.function.Consumer;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,11 +21,11 @@ public class SejongExample {
         HWPXFile hwpxFile = BlankFileMaker.make();
 
         // 스타일 및 관련 요소 생성
-        Map<String, String> styleIds = createStyles(hwpxFile);
+        Map<String, Style> styles = createStyles(hwpxFile);
         
         // 생성된 스타일을 사용하여 문단 추가
-        addNewParagraph(hwpxFile, 0, styleIds.get("customStyle"), "새로운 스타일이 적용된 텍스트입니다!");
-        addNewParagraph(hwpxFile, 0, styleIds.get("titleStyle"), "제목 스타일이 적용된 텍스트입니다!");
+        addNewParagraph(hwpxFile, 0, styles.get("customStyle"), "새로운 스타일이 적용된 텍스트입니다!");
+        addNewParagraph(hwpxFile, 0, styles.get("titleStyle"), "제목 스타일이 적용된 텍스트입니다!");
 
         // 파일 저장
         HWPXWriter.toFilepath(hwpxFile, "example_hwpxlib.hwpx");
@@ -224,55 +222,42 @@ public class SejongExample {
      * 
      * @param hwpxFile     HWPX 파일 객체
      * @param sectionIndex 섹션 인덱스
-     * @param styleIDRef   적용할 스타일 ID
+     * @param style        적용할 스타일 객체
      * @param text         문단에 추가할 텍스트
      * @return 생성된 문단
      * @throws IllegalArgumentException 섹션 인덱스가 유효하지 않은 경우
      */
-    private static Para addNewParagraph(HWPXFile hwpxFile, int sectionIndex, String styleIDRef, String text) {
+    private static Para addNewParagraph(HWPXFile hwpxFile, int sectionIndex, Style style, String text) {
         if (hwpxFile.sectionXMLFileList().count() <= sectionIndex) {
             throw new IllegalArgumentException("유효하지 않은 섹션 인덱스: " + sectionIndex);
+        }
+        
+        if (style == null) {
+            throw new IllegalArgumentException("스타일 객체가 null입니다");
         }
 
         var section = hwpxFile.sectionXMLFileList().get(sectionIndex);
         var para = section.addNewPara();
         
         // 스타일 ID 설정
-        para.styleIDRef(styleIDRef);
+        para.styleIDRef(style.id());
         
-        // 스타일에서 문단 모양 ID와 글자 모양 ID 가져와서 직접 설정
-        RefList refList = hwpxFile.headerXMLFile().refList();
-        if (refList == null) {
-            throw new IllegalArgumentException("headerXMLFile.refList가 null입니다");
-        }
-        if (refList.styles() == null) {
-            throw new IllegalArgumentException("headerXMLFile.refList.styles가 null입니다");
+        // 스타일에서 직접 문단 모양 ID와 글자 모양 ID 가져오기
+        String paraPrIDRef = style.paraPrIDRef();
+        if (paraPrIDRef != null) {
+            para.paraPrIDRef(paraPrIDRef);
         }
         
-        for (var style : refList.styles().items()) {
-            if (styleIDRef.equals(style.id())) {
-                // 문단 모양 ID 직접 설정
-                String paraPrIDRef = style.paraPrIDRef();
-                if (paraPrIDRef != null) {
-                    para.paraPrIDRef(paraPrIDRef);
-                }
-                
-                // 글자 모양 ID 설정을 위한 Run 추가시 charPrIDRef 설정
-                String charPrIDRef = style.charPrIDRef();
-                var run = para.addNewRun();
-                
-                if (charPrIDRef != null) {
-                    // Run에 직접 charPrIDRef 설정
-                    run.charPrIDRef(charPrIDRef);
-                }
-                
-                run.addNewT().addText(text);
-                return para;
-            }
+        // 글자 모양 ID 설정을 위한 Run 추가
+        var run = para.addNewRun();
+        
+        String charPrIDRef = style.charPrIDRef();
+        if (charPrIDRef != null) {
+            // Run에 직접 charPrIDRef 설정
+            run.charPrIDRef(charPrIDRef);
         }
         
-        // 스타일을 찾지 못한 경우 기본 텍스트 추가
-        para.addNewRun().addNewT().addText(text);
+        run.addNewT().addText(text);
         return para;
     }
 
@@ -280,10 +265,10 @@ public class SejongExample {
      * 스타일 및 관련 요소를 생성합니다.
      * 
      * @param hwpxFile HWPX 파일 객체
-     * @return 생성된 스타일 ID들의 맵 (키: 스타일 이름, 값: 스타일 ID)
+     * @return 생성된 스타일 객체들의 맵 (키: 스타일 이름, 값: 스타일 객체)
      * @throws IllegalArgumentException RefList 또는 스타일 관련 요소가 null인 경우
      */
-    private static Map<String, String> createStyles(HWPXFile hwpxFile) {
+    private static Map<String, Style> createStyles(HWPXFile hwpxFile) {
         var refList = hwpxFile.headerXMLFile().refList();
         if (refList == null) {
             throw new IllegalArgumentException("hwpxFile.headerXMLFile().refList가 null입니다");
@@ -294,7 +279,7 @@ public class SejongExample {
             throw new IllegalArgumentException("styles가 null이거나 비어 있습니다");
         }
 
-        Map<String, String> styleIds = new HashMap<>();
+        Map<String, Style> styleMap = new HashMap<>();
         
         var baseStyle = styles.get(0);
         String baseCharPrIDRef = baseStyle.charPrIDRef();
@@ -350,13 +335,15 @@ public class SejongExample {
         // 2.1 커스텀 스타일 생성
         var customStyle = createNewStyle(refList, baseStyle,
                 "커스텀 스타일", "Custom Style", customCharPrID, customParaPrID);
-        styleIds.put("customStyle", customStyle.id());
+        // 스타일 맵에 스타일 객체의 복제본 저장 (방어적 복사)
+        styleMap.put("customStyle", customStyle.clone());
         
         // 2.2 제목 스타일 생성
         var titleStyle = createNewStyle(refList, baseStyle,
                 "제목 스타일", "Title Style", titleCharPrID, titleParaPrID);
-        styleIds.put("titleStyle", titleStyle.id());
+        // 스타일 맵에 스타일 객체의 복제본 저장 (방어적 복사)
+        styleMap.put("titleStyle", titleStyle.clone());
         
-        return styleIds;
+        return styleMap;
     }
 }
