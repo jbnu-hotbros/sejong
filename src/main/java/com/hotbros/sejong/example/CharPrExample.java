@@ -27,6 +27,9 @@ public class CharPrExample {
                 .build();
         System.out.println("기본 글자 모양 ID: " + normalCharPrId);
         
+        // 새 빌더 상태로 초기화
+        charPrBuilder.reset();
+        
         // 2. 굵은 글자 모양
         String boldCharPrId = charPrBuilder
                 .withFontName("한글", "맑은 고딕")
@@ -36,6 +39,9 @@ public class CharPrExample {
                 .build();
         System.out.println("굵은 글자 모양 ID: " + boldCharPrId);
         
+        // 새 빌더 상태로 초기화
+        charPrBuilder.reset();
+        
         // 3. 기울임 글자 모양
         String italicCharPrId = charPrBuilder
                 .withFontName("한글", "맑은 고딕")
@@ -44,6 +50,9 @@ public class CharPrExample {
                 .withItalic(true)
                 .build();
         System.out.println("기울임 글자 모양 ID: " + italicCharPrId);
+        
+        // 새 빌더 상태로 초기화
+        charPrBuilder.reset();
         
         // 4. 굵은 기울임 글자 모양
         String boldItalicCharPrId = charPrBuilder
@@ -55,6 +64,9 @@ public class CharPrExample {
                 .build();
         System.out.println("굵은 기울임 글자 모양 ID: " + boldItalicCharPrId);
         
+        // 새 빌더 상태로 초기화
+        charPrBuilder.reset();
+        
         // 5. 색상이 있는 글자 모양
         String redCharPrId = charPrBuilder
                 .withFontName("한글", "맑은 고딕")
@@ -64,6 +76,9 @@ public class CharPrExample {
                 .build();
         System.out.println("빨간색 글자 모양 ID: " + redCharPrId);
         
+        // 새 빌더 상태로 초기화
+        charPrBuilder.reset();
+        
         // 6. 큰 글자 모양
         String largeCharPrId = charPrBuilder
                 .withFontName("한글", "맑은 고딕")
@@ -72,10 +87,40 @@ public class CharPrExample {
                 .build();
         System.out.println("큰 글자 모양 ID: " + largeCharPrId);
         
+        // 캐싱 테스트 - 동일한 속성으로 다시 생성하면 기존 ID가 반환되어야 함
+        System.out.println("\n[캐싱 기능 테스트]");
+        
+        // 새 빌더 상태로 초기화
+        charPrBuilder.reset();
+        
+        // 기본 글자 모양과 동일한 속성으로 다시 생성
+        String normalCharPrId2 = charPrBuilder
+                .withFontName("한글", "맑은 고딕")
+                .withFontName("영문", "맑은 고딕")
+                .withFontSize(10.0)
+                .build();
+        System.out.println("기본 글자 모양 캐싱 테스트: " + 
+                           normalCharPrId + " == " + normalCharPrId2 + " -> " + 
+                           (normalCharPrId.equals(normalCharPrId2) ? "캐싱 성공" : "캐싱 실패"));
+        
+        // 새 빌더 상태로 초기화
+        charPrBuilder.reset();
+        
+        // 굵은 글자 모양과 동일한 속성으로 다시 생성
+        String boldCharPrId2 = charPrBuilder
+                .withFontName("한글", "맑은 고딕")
+                .withFontName("영문", "맑은 고딕")
+                .withFontSize(10.0)
+                .withBold(true)
+                .build();
+        System.out.println("굵은 글자 모양 캐싱 테스트: " + 
+                           boldCharPrId + " == " + boldCharPrId2 + " -> " + 
+                           (boldCharPrId.equals(boldCharPrId2) ? "캐싱 성공" : "캐싱 실패"));
+        
         // 파일 저장
         HWPXWriter.toFilepath(hwpxFile, "example_charpr.hwpx");
         
-        System.out.println("글자 모양 예제 파일이 생성되었습니다: example_charpr.hwpx");
+        System.out.println("\n글자 모양 예제 파일이 생성되었습니다: example_charpr.hwpx");
     }
     
     // HWPX 파일 초기화 메서드
@@ -94,7 +139,7 @@ public class CharPrExample {
         hwpxFile.contentHPFFile().metaData().language().addText("ko");
         hwpxFile.contentHPFFile().metaData().addNewMeta()
                 .nameAnd("creator")
-                .contentAnd("CharPrBuilder 예제");
+                .contentAnd("CharPrBuilder 예제 (캐싱 기능 시연)");
 
         // header.xml 설정
         hwpxFile.headerXMLFile()
