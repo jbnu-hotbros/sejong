@@ -11,16 +11,6 @@ public class Sejong {
     public void createEmptyHwpx() {
         hwpxFile = new HWPXFile();
 
-        // 버전 정보 설정
-        hwpxFile.versionXMLFile()
-                .applicationAnd("hwpxlib_test")
-                .appVersion("1.0");
-        hwpxFile.versionXMLFile().version()
-                .majorAnd(5)
-                .minorAnd(0)
-                .microAnd(5)
-                .buildNumber(0);
-
         // 컨테이너 정보 초기화
         hwpxFile.containerXMLFile().createRootFiles();
         hwpxFile.containerXMLFile().rootFiles().addNew()
@@ -54,9 +44,16 @@ public class Sejong {
 
         // 참조 목록 생성 (글꼴, 테두리, 스타일 등)
         hwpxFile.headerXMLFile().createRefList();
+        
+        // 참조 목록을 위한 컨테이너 초기화
+        hwpxFile.headerXMLFile().refList().createParaProperties();
+        hwpxFile.headerXMLFile().refList().createCharProperties();
+        hwpxFile.headerXMLFile().refList().createStyles();
+
+        // 섹션 생성
         createSection();
     }
-
+    
     private void createSection() {
         hwpxFile.contentHPFFile().manifest().addNew()
                 .idAnd("header")
