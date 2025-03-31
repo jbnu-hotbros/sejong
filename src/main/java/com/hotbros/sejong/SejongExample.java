@@ -12,6 +12,8 @@ import kr.dogfoot.hwpxlib.object.content.header_xml.references.Style;
 import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.HorizontalAlign2;
 import com.hotbros.sejong.RefListManager;
 import java.util.function.Consumer;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SejongExample {
 
@@ -20,8 +22,12 @@ public class SejongExample {
         // hwpxlib의 BlankFileMaker로 빈 HWPX 파일 생성
         HWPXFile hwpxFile = BlankFileMaker.make();
 
-        // RefList에 접근하여 스타일 및 관련 속성 수정
-        modifyStyles(hwpxFile);
+        // 스타일 및 관련 요소 생성
+        Map<String, String> styleIds = createStyles(hwpxFile);
+        
+        // 생성된 스타일을 사용하여 문단 추가
+        addNewParagraph(hwpxFile, 0, styleIds.get("customStyle"), "새로운 스타일이 적용된 텍스트입니다!");
+        addNewParagraph(hwpxFile, 0, styleIds.get("titleStyle"), "제목 스타일이 적용된 텍스트입니다!");
 
         // 파일 저장
         HWPXWriter.toFilepath(hwpxFile, "example_hwpxlib.hwpx");
@@ -271,72 +277,86 @@ public class SejongExample {
     }
 
     /**
-     * 스타일을 수정하고 새로운 스타일을 적용하는 예시
+     * 스타일 및 관련 요소를 생성합니다.
+     * 
+     * @param hwpxFile HWPX 파일 객체
+     * @return 생성된 스타일 ID들의 맵 (키: 스타일 이름, 값: 스타일 ID)
+     * @throws IllegalArgumentException RefList 또는 스타일 관련 요소가 null인 경우
      */
-    private static void modifyStyles(HWPXFile hwpxFile) {
+    private static Map<String, String> createStyles(HWPXFile hwpxFile) {
         var refList = hwpxFile.headerXMLFile().refList();
-        var styles = refList.styles();
-
-        if (styles != null && styles.count() > 0) {
-            var baseStyle = styles.get(0);
-            String baseCharPrIDRef = baseStyle.charPrIDRef();
-            String baseParaPrIDRef = baseStyle.paraPrIDRef();
-
-            // 1. 새로운 글자 모양 생성 (12pt, 파란색)
-            String newCharPrID = createNewCharPr(refList, baseCharPrIDRef, charPr -> {
-                charPr.height(1200);
-                charPr.textColor("#0000FF");
-            });
-
-            // 2. 새로운 문단 모양 생성 (중앙 정렬)
-            String newParaPrID = createNewParaPr(refList, baseParaPrIDRef, paraPr -> {
-                if (paraPr.align() != null) {
-                    paraPr.align().horizontal(HorizontalAlign2.CENTER);
-                }
-            });
-
-            // 3. 새로운 스타일 생성
-            var newStyle = createNewStyle(refList, baseStyle,
-                    "커스텀 스타일", "Custom Style", newCharPrID, newParaPrID);
-
-            // 4. 새 스타일을 적용한 문단 추가
-            addNewParagraph(hwpxFile, 0, newStyle.id(), "새로운 스타일이 적용된 텍스트입니다!");
-
-            // 추가 예시: 제목 스타일 생성
-            String titleCharPrID = createNewCharPr(refList, baseCharPrIDRef, charPr -> {
-                charPr.height(2000);
-                // 글자 모양에 대한 bold 속성은 별도의 객체로 생성하여 처리
-                if (charPr.bold() == null) {
-                    charPr.createBold();
-                }
-            });
-
-            String titleParaPrID = createNewParaPr(refList, baseParaPrIDRef, paraPr -> {
-                if (paraPr.align() != null) {
-                    paraPr.align().horizontal(HorizontalAlign2.CENTER);
-                }
-                // 문단 간격 속성을 올바르게 설정
-                if (paraPr.margin() == null) {
-                    paraPr.createMargin();
-                }
-                
-                // 위쪽 여백 설정 (이전 문단과의 간격)
-                if (paraPr.margin().prev() == null) {
-                    paraPr.margin().createPrev();
-                }
-                paraPr.margin().prev().value(400);
-                
-                // 아래쪽 여백 설정 (다음 문단과의 간격)
-                if (paraPr.margin().next() == null) {
-                    paraPr.margin().createNext();
-                }
-                paraPr.margin().next().value(200);
-            });
-
-            var titleStyle = createNewStyle(refList, baseStyle,
-                    "제목 스타일", "Title Style", titleCharPrID, titleParaPrID);
-
-            addNewParagraph(hwpxFile, 0, titleStyle.id(), "제목 스타일이 적용된 텍스트입니다!");
+        if (refList == null) {
+            throw new IllegalArgumentException("hwpxFile.headerXMLFile().refList가 null입니다");
         }
+        
+        var styles = refList.styles();
+        if (styles == null || styles.count() <= 0) {
+            throw new IllegalArgumentException("styles가 null이거나 비어 있습니다");
+        }
+
+        Map<String, String> styleIds = new HashMap<>();
+        
+        var baseStyle = styles.get(0);
+        String baseCharPrIDRef = baseStyle.charPrIDRef();
+        String baseParaPrIDRef = baseStyle.paraPrIDRef();
+
+        // 1. 먼저 모든 CharPr 및 ParaPr 생성
+        // 1.1 커스텀 스타일용 글자 모양 (파란색) 생성
+        String customCharPrID = createNewCharPr(refList, baseCharPrIDRef, charPr -> {
+            charPr.height(1200);
+            charPr.textColor("#0000FF");
+        });
+
+        // 1.2 커스텀 스타일용 문단 모양 (중앙 정렬) 생성
+        String customParaPrID = createNewParaPr(refList, baseParaPrIDRef, paraPr -> {
+            if (paraPr.align() != null) {
+                paraPr.align().horizontal(HorizontalAlign2.CENTER);
+            }
+        });
+
+        // 1.3 제목 스타일용 글자 모양 (굵게, 크게) 생성
+        String titleCharPrID = createNewCharPr(refList, baseCharPrIDRef, charPr -> {
+            charPr.height(2000);
+            // 글자 모양에 대한 bold 속성은 별도의 객체로 생성하여 처리
+            if (charPr.bold() == null) {
+                charPr.createBold();
+            }
+        });
+
+        // 1.4 제목 스타일용 문단 모양 (중앙 정렬, 여백) 생성
+        String titleParaPrID = createNewParaPr(refList, baseParaPrIDRef, paraPr -> {
+            if (paraPr.align() != null) {
+                paraPr.align().horizontal(HorizontalAlign2.CENTER);
+            }
+            // 문단 간격 속성을 올바르게 설정
+            if (paraPr.margin() == null) {
+                paraPr.createMargin();
+            }
+            
+            // 위쪽 여백 설정 (이전 문단과의 간격)
+            if (paraPr.margin().prev() == null) {
+                paraPr.margin().createPrev();
+            }
+            paraPr.margin().prev().value(400);
+            
+            // 아래쪽 여백 설정 (다음 문단과의 간격)
+            if (paraPr.margin().next() == null) {
+                paraPr.margin().createNext();
+            }
+            paraPr.margin().next().value(200);
+        });
+
+        // 2. 생성된 ID를 사용하여 스타일 생성
+        // 2.1 커스텀 스타일 생성
+        var customStyle = createNewStyle(refList, baseStyle,
+                "커스텀 스타일", "Custom Style", customCharPrID, customParaPrID);
+        styleIds.put("customStyle", customStyle.id());
+        
+        // 2.2 제목 스타일 생성
+        var titleStyle = createNewStyle(refList, baseStyle,
+                "제목 스타일", "Title Style", titleCharPrID, titleParaPrID);
+        styleIds.put("titleStyle", titleStyle.id());
+        
+        return styleIds;
     }
 }
