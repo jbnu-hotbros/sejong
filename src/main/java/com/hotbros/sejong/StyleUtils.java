@@ -65,4 +65,25 @@ public class StyleUtils {
         
         return maxID;
     }
+
+    /**
+     * RefList에서 특정 ID를 가진 Style 객체를 찾습니다.
+     * 
+     * @param refList 스타일을 찾을 RefList
+     * @param styleId 찾을 스타일 ID
+     * @return 찾은 Style 객체, 없으면 null 반환
+     */
+    public static Style findStyleById(RefList refList, String styleId) {
+        if (refList.styles() == null) {
+            throw new IllegalArgumentException("RefList.styles가 null입니다");
+        }
+        
+        for (Style style : refList.styles().items()) {
+            if (styleId.equals(style.id())) {
+                return style;
+            }
+        }
+        
+        return null;
+    }
 } 
