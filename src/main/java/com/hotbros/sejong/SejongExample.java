@@ -20,7 +20,7 @@ public class SejongExample {
 
         // 1. 스타일 생성
         // 1.1 커스텀 스타일 (파란색, 중앙 정렬) 생성
-        Style customStyle = createStyle(hwpxFile, "customStyle", "커스텀 스타일", "Custom Style")
+        Style customStyle = createStyle(hwpxFile, "커스텀 스타일", "Custom Style")
                 .withCharPr(charPr -> {
                     charPr.height(1200);
                     charPr.textColor("#0000FF");
@@ -33,7 +33,7 @@ public class SejongExample {
                 .build();
         
         // 1.2 제목 스타일 (굵게, 크게, 중앙 정렬, 여백) 생성
-        Style titleStyle = createStyle(hwpxFile, "titleStyle", "제목 스타일", "Title Style")
+        Style titleStyle = createStyle(hwpxFile, "제목 스타일", "Title Style")
                 .withCharPr(charPr -> {
                     charPr.height(2000);
                     if (charPr.bold() == null) {
@@ -177,13 +177,12 @@ public class SejongExample {
      * 새로운 스타일을 생성하기 위한 빌더를 반환합니다.
      * 
      * @param hwpxFile HWPX 파일 객체
-     * @param styleKey 스타일 키
      * @param styleName 스타일 이름
      * @param styleEngName 스타일 영문 이름
      * @return 스타일 빌더 객체
      */
-    public static StyleBuilder createStyle(HWPXFile hwpxFile, String styleKey, String styleName, String styleEngName) {
-        return new StyleBuilder(hwpxFile, styleKey, styleName, styleEngName);
+    public static StyleBuilder createStyle(HWPXFile hwpxFile, String styleName, String styleEngName) {
+        return new StyleBuilder(hwpxFile, styleName, styleEngName);
     }
 
     /**
@@ -192,7 +191,6 @@ public class SejongExample {
     public static class StyleBuilder {
         private final HWPXFile hwpxFile;
         private final RefList refList;
-        private final String styleKey;
         private final String styleName;
         private final String styleEngName;
         private Style baseStyle;
@@ -201,10 +199,9 @@ public class SejongExample {
         private Consumer<ParaPr> paraPrModifications;
         // 필요에 따라 Numbering, Bullet 등의 수정 함수 추가 가능
         
-        public StyleBuilder(HWPXFile hwpxFile, String styleKey, String styleName, String styleEngName) {
+        public StyleBuilder(HWPXFile hwpxFile, String styleName, String styleEngName) {
             this.hwpxFile = hwpxFile;
             this.refList = hwpxFile.headerXMLFile().refList();
-            this.styleKey = styleKey;
             this.styleName = styleName;
             this.styleEngName = styleEngName;
             
