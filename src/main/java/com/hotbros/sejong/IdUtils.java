@@ -49,8 +49,12 @@ public class IdUtils {
      * @return 찾은 Style 객체, 없으면 null 반환
      */
     public static Style findStyleById(RefList refList, String styleId) {
+        if (refList == null || styleId == null) {
+            return null;
+        }
+        
         if (refList.styles() == null) {
-            throw new IllegalArgumentException("RefList.styles가 null입니다");
+            return null;
         }
         
         for (Style style : refList.styles().items()) {
