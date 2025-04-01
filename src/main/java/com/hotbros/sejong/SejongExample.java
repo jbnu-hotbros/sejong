@@ -7,17 +7,117 @@ import kr.dogfoot.hwpxlib.tool.blankfilemaker.BlankFileMaker;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.Style;
 import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.HorizontalAlign2;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Arrays;
+
 /**
  * 리팩토링된 StyleBuilder와 StyleService를 사용한 예제 클래스
  */
 public class SejongExample {
+    // 스타일셋 이름 상수
+    public static final String BASIC_STYLE_SET = "기본";
+    public static final String MODERN_STYLE_SET = "모던";
+    
+    // 스타일셋 관리를 위한 Map 
+    private static final Map<String, StyleSet> styleSets = new HashMap<>();
 
     public static void main(String[] args) throws Exception {
         // hwpxlib의 BlankFileMaker로 빈 HWPX 파일 생성
         HWPXFile hwpxFile = BlankFileMaker.make();
         
-        // 1. 스타일 생성 및 등록
-        // 1.1 커스텀 스타일 (파란색, 중앙 정렬) 생성 및 등록
+        // 스타일셋 초기화
+        initializeStyleSets(hwpxFile);
+        
+        // 사용 가능한 스타일셋 목록 출력
+        System.out.println("사용 가능한 스타일셋:");
+        for (String name : styleSets.keySet()) {
+            System.out.println(" - " + name);
+        }
+        
+        // 기본 스타일셋 사용 예제
+        useBasicStyleSet(hwpxFile);
+        
+        // 모던 스타일셋 사용 예제
+        useModernStyleSet(hwpxFile);
+        
+        // 동적 스타일셋 선택 예제
+        String userSelectedStyleSetName = "모던"; // 사용자 입력이나 설정에서 가져올 수 있음
+        useSelectedStyleSet(hwpxFile, userSelectedStyleSetName);
+        
+        // 개별 스타일 생성 예제 (기존 방식 예시)
+        useIndividualStyles(hwpxFile);
+        
+        // 파일 저장
+        HWPXWriter.toFilepath(hwpxFile, "style_set_example.hwpx");
+        System.out.println("파일이 성공적으로 저장되었습니다: style_set_example.hwpx");
+    }
+    
+    /**
+     * 스타일셋 맵을 초기화합니다.
+     */
+    private static void initializeStyleSets(HWPXFile hwpxFile) {
+        styleSets.put(BASIC_STYLE_SET, new BasicStyleSet(hwpxFile));
+        styleSets.put(MODERN_STYLE_SET, new ModernStyleSet(hwpxFile));
+    }
+    
+    /**
+     * 스타일셋을 이름으로 가져옵니다.
+     */
+    public static StyleSet getStyleSet(String name) {
+        StyleSet styleSet = styleSets.get(name);
+        if (styleSet == null) {
+            throw new IllegalArgumentException("등록되지 않은 스타일셋 이름: " + name);
+        }
+        return styleSet;
+    }
+    
+    /**
+     * 사용 가능한 스타일셋 이름 배열을 반환합니다.
+     */
+    public static String[] getAvailableStyleSetNames() {
+        return styleSets.keySet().toArray(new String[0]);
+    }
+    
+    /**
+     * 기본 스타일셋을 사용하는 예제
+     */
+    private static void useBasicStyleSet(HWPXFile hwpxFile) {
+        StyleSet basicStyleSet = styleSets.get(BASIC_STYLE_SET);
+        
+        addNewParagraph(hwpxFile, 0, basicStyleSet.title(), "기본 스타일셋 예제");
+        addNewParagraph(hwpxFile, 0, basicStyleSet.outline1(), "1. 기본 스타일셋 특징");
+        addNewParagraph(hwpxFile, 0, basicStyleSet.outline2(), "1.1 간결한 디자인");
+    }
+    
+    /**
+     * 모던 스타일셋을 사용하는 예제
+     */
+    private static void useModernStyleSet(HWPXFile hwpxFile) {
+        StyleSet modernStyleSet = styleSets.get(MODERN_STYLE_SET);
+        
+        addNewParagraph(hwpxFile, 0, modernStyleSet.title(), "모던 스타일셋 예제");
+        addNewParagraph(hwpxFile, 0, modernStyleSet.outline1(), "2. 모던 스타일셋 특징");
+        addNewParagraph(hwpxFile, 0, modernStyleSet.outline2(), "2.1 현대적인 색상");
+    }
+    
+    /**
+     * 동적으로 선택된 스타일셋을 사용하는 예제
+     */
+    private static void useSelectedStyleSet(HWPXFile hwpxFile, String styleSetName) {
+        StyleSet selectedStyleSet = getStyleSet(styleSetName);
+        
+        addNewParagraph(hwpxFile, 0, selectedStyleSet.title(), "동적 선택 스타일셋 예제 (" + styleSetName + ")");
+        addNewParagraph(hwpxFile, 0, selectedStyleSet.outline1(), "3. 동적 스타일셋 선택");
+        addNewParagraph(hwpxFile, 0, selectedStyleSet.outline2(), "3.1 사용자 선택에 따른 스타일 적용");
+        addNewParagraph(hwpxFile, 0, selectedStyleSet.outline3(), "3.1.1 맵 기반 스타일셋 관리");
+    }
+    
+    /**
+     * 기존 방식대로 개별 스타일을 생성하고 사용하는 예제
+     */
+    private static void useIndividualStyles(HWPXFile hwpxFile) {
+        // 커스텀 스타일 생성 및 등록
         StyleResult customStyleResult = StyleBuilder.create("커스텀 스타일", "Custom Style")
                 .withCharPr(charPr -> {
                     charPr.heightAnd(1200)
@@ -31,88 +131,8 @@ public class SejongExample {
         
         Style customStyle = StyleService.registerResult(hwpxFile, customStyleResult);
         
-        // 1.2 제목 스타일 (굵게, 크게, 중앙 정렬, 여백) 생성 및 등록
-        StyleResult titleStyleResult = StyleBuilder.create("제목 스타일", "Title Style")
-                .withCharPr(charPr -> {
-                    charPr.heightAnd(2000)
-                        .createBold();
-                })
-                .withParaPr(paraPr -> {
-                    paraPr.createAlign();
-                    paraPr.align().horizontal(HorizontalAlign2.CENTER);
-                    
-                    paraPr.createMargin();
-                    paraPr.margin().createPrev();
-                    paraPr.margin().prev().value(400);
-                    
-                    paraPr.margin().createNext();
-                    paraPr.margin().next().value(200);
-                })
-                .buildResult();
-                
-        Style titleStyle = StyleService.registerResult(hwpxFile, titleStyleResult);
-        
-        // 1.3 3번 스타일을 기반으로 불렛 스타일 생성 및 등록
-        Style style3 = StyleService.findStyleById(hwpxFile, "3");
-        if (style3 == null) {
-            throw new IllegalArgumentException("스타일 ID '3'을 찾을 수 없습니다.");
-        }
-        
-        // StyleBuilder의 withBullet() 메소드를 사용하여 불렛 설정
-        StyleResult bulletStyleResult = StyleBuilder.create("불렛 스타일", "Bullet Style")
-                .fromBaseStyle(style3)
-                .withBullet("•")
-                .withCharPr(charPr -> {
-                    charPr.textColor("#FF0000");
-                })
-                .buildResult();
-        
-        Style bulletStyle = StyleService.registerResult(hwpxFile, bulletStyleResult);
-        
-        // 1.4 여백과 정렬을 모두 갖춘 스타일 생성 및 등록
-        StyleResult complexStyleResult = StyleBuilder.create("복합 스타일", "Complex Style")
-                .withCharPr(charPr -> {
-                    charPr.createBold();
-                    charPr.heightAnd(1500)
-                        .textColor("#006600");
-                })
-                .withParaPr(paraPr -> {
-                    paraPr.createAlign();
-                    paraPr.align().horizontal(HorizontalAlign2.JUSTIFY);
-                    
-                    paraPr.createMargin();
-                    paraPr.margin().createIntent();
-                    paraPr.margin().intent().value(500);
-                    
-                    paraPr.margin().createLeft();
-                    paraPr.margin().left().value(800);
-                    
-                    paraPr.margin().createPrev();
-                    paraPr.margin().prev().value(300);
-                    
-                    paraPr.margin().createNext();
-                    paraPr.margin().next().value(300);
-                })
-                .buildResult();
-        
-        Style complexStyle = StyleService.registerResult(hwpxFile, complexStyleResult);
-        
-        // 2. 생성된 스타일을 사용하여 문단 추가
-        addNewParagraph(hwpxFile, 0, customStyle, "새로운 스타일이 적용된 텍스트입니다!");
-        addNewParagraph(hwpxFile, 0, titleStyle, "제목 스타일이 적용된 텍스트입니다!");
-        
-        // 불렛이 적용된 문단 추가
-        addNewParagraph(hwpxFile, 0, bulletStyle, "첫 번째 불렛 항목입니다.");
-        addNewParagraph(hwpxFile, 0, bulletStyle, "두 번째 불렛 항목입니다.");
-        addNewParagraph(hwpxFile, 0, bulletStyle, "세 번째 불렛 항목입니다.");
-
-        // 복합 스타일 적용 문단 추가
-        addNewParagraph(hwpxFile, 0, complexStyle, "복합 스타일이 적용된 문단입니다.");
-        addNewParagraph(hwpxFile, 0, complexStyle, "불필요한 null 체크 없이 코드를 작성했습니다.");
-        
-        // 3. 파일 저장
-        HWPXWriter.toFilepath(hwpxFile, "example_hwpxlib.hwpx");
-        System.out.println("파일이 성공적으로 저장되었습니다: example_hwpxlib.hwpx");
+        // 문단 추가
+        addNewParagraph(hwpxFile, 0, customStyle, "기존 방식으로 생성한 스타일 예제");
     }
 
     /**

@@ -281,7 +281,7 @@ public class StyleService {
      * ID로 스타일을 찾습니다.
      * 
      * @param hwpxFile HWPX 파일
-     * @param styleId 찾을 스타일 ID
+     * @param styleId 스타일 ID
      * @return 찾은 스타일 객체, 없으면 null
      */
     public static Style findStyleById(HWPXFile hwpxFile, String styleId) {
