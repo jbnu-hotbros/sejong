@@ -9,7 +9,6 @@ import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.HorizontalAlign2;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Arrays;
 
 /**
  * 리팩토링된 StyleBuilder와 StyleService를 사용한 예제 클래스
@@ -18,6 +17,7 @@ public class SejongExample {
     // 스타일셋 이름 상수
     public static final String BASIC_STYLE_SET = "기본";
     public static final String MODERN_STYLE_SET = "모던";
+    public static final String BULLET_STYLE_SET = "불렛";
     
     // 스타일셋 관리를 위한 Map 
     private static final Map<String, StyleSet> styleSets = new HashMap<>();
@@ -41,6 +41,9 @@ public class SejongExample {
         // 모던 스타일셋 사용 예제
         useModernStyleSet(hwpxFile);
         
+        // 불렛 스타일셋 사용 예제
+        useBulletStyleSet(hwpxFile);
+        
         // 동적 스타일셋 선택 예제
         String userSelectedStyleSetName = "모던"; // 사용자 입력이나 설정에서 가져올 수 있음
         useSelectedStyleSet(hwpxFile, userSelectedStyleSetName);
@@ -59,6 +62,7 @@ public class SejongExample {
     private static void initializeStyleSets(HWPXFile hwpxFile) {
         styleSets.put(BASIC_STYLE_SET, new BasicStyleSet(hwpxFile));
         styleSets.put(MODERN_STYLE_SET, new ModernStyleSet(hwpxFile));
+        styleSets.put(BULLET_STYLE_SET, new BulletStyleSet(hwpxFile));
     }
     
     /**
@@ -99,6 +103,20 @@ public class SejongExample {
         addNewParagraph(hwpxFile, 0, modernStyleSet.title(), "모던 스타일셋 예제");
         addNewParagraph(hwpxFile, 0, modernStyleSet.outline1(), "2. 모던 스타일셋 특징");
         addNewParagraph(hwpxFile, 0, modernStyleSet.outline2(), "2.1 현대적인 색상");
+    }
+    
+    /**
+     * 불렛 스타일셋을 사용하는 예제
+     */
+    private static void useBulletStyleSet(HWPXFile hwpxFile) {
+        StyleSet bulletStyleSet = styleSets.get(BULLET_STYLE_SET);
+        
+        addNewParagraph(hwpxFile, 0, bulletStyleSet.title(), "불렛 스타일셋 예제");
+        addNewParagraph(hwpxFile, 0, bulletStyleSet.outline1(), "불렛 개요 레벨 1");
+        addNewParagraph(hwpxFile, 0, bulletStyleSet.outline2(), "불렛 개요 레벨 2");
+        addNewParagraph(hwpxFile, 0, bulletStyleSet.outline3(), "불렛 개요 레벨 3");
+        addNewParagraph(hwpxFile, 0, bulletStyleSet.outline4(), "불렛 개요 레벨 4");
+        addNewParagraph(hwpxFile, 0, bulletStyleSet.outline5(), "불렛 개요 레벨 5");
     }
     
     /**
