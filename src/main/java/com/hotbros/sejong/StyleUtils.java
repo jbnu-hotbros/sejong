@@ -1,8 +1,6 @@
 package com.hotbros.sejong;
 
 import kr.dogfoot.hwpxlib.object.content.header_xml.RefList;
-import kr.dogfoot.hwpxlib.object.content.header_xml.references.CharPr;
-import kr.dogfoot.hwpxlib.object.content.header_xml.references.ParaPr;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.Style;
 import java.util.function.Function;
 

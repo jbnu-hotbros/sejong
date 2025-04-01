@@ -6,9 +6,6 @@ import kr.dogfoot.hwpxlib.writer.HWPXWriter;
 import kr.dogfoot.hwpxlib.tool.blankfilemaker.BlankFileMaker;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.Style;
 import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.HorizontalAlign2;
-import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.ParaHeadingType;
-import kr.dogfoot.hwpxlib.object.content.header_xml.references.Bullet;
-import kr.dogfoot.hwpxlib.object.content.header_xml.references.parapr.Heading;
 
 /**
  * hwpxlib를 사용한 예제 클래스
@@ -24,8 +21,8 @@ public class SejongExample {
         // 1.1 커스텀 스타일 (파란색, 중앙 정렬) 생성
         Style customStyle = StyleBuilder.create(hwpxFile, "커스텀 스타일", "Custom Style")
                 .withCharPr(charPr -> {
-                    charPr.height(1200);
-                    charPr.textColor("#0000FF");
+                    charPr.heightAnd(1200)
+                        .textColor("#0000FF");
                 })
                 .withParaPr(paraPr -> {
                     paraPr.createAlign();
@@ -36,8 +33,8 @@ public class SejongExample {
         // 1.2 제목 스타일 (굵게, 크게, 중앙 정렬, 여백) 생성
         Style titleStyle = StyleBuilder.create(hwpxFile, "제목 스타일", "Title Style")
                 .withCharPr(charPr -> {
-                    charPr.height(2000);
-                    charPr.createBold();
+                    charPr.heightAnd(2000)
+                        .createBold();
                 })
                 .withParaPr(paraPr -> {
                     paraPr.createAlign();
@@ -70,9 +67,9 @@ public class SejongExample {
         // 1.4 여백과 정렬을 모두 갖춘 스타일 - 불필요한 null 체크 없이 작성
         Style complexStyle = StyleBuilder.create(hwpxFile, "복합 스타일", "Complex Style")
                 .withCharPr(charPr -> {
-                    charPr.height(1500);
                     charPr.createBold();
-                    charPr.textColor("#006600");
+                    charPr.heightAnd(1500)
+                        .textColor("#006600");
                 })
                 .withParaPr(paraPr -> {
                     paraPr.createAlign();
