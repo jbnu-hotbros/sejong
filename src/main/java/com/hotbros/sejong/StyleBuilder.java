@@ -102,7 +102,7 @@ public class StyleBuilder {
         // 불렛 객체 생성 및 설정
         this.bullet = hwpxFile.headerXMLFile().refList().bullets().addNew()
                 .idAnd(bulletId)
-                ._charAnd("K")
+                ._charAnd("●")
                 .useImageAnd(false);
                 
         return this;

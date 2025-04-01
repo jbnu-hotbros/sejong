@@ -23,15 +23,13 @@ public class SejongExample {
         // 1. 스타일 생성
         // 1.1 커스텀 스타일 (파란색, 중앙 정렬) 생성
         Style customStyle = StyleBuilder.create(hwpxFile, "커스텀 스타일", "Custom Style")
-        
                 .withCharPr(charPr -> {
                     charPr.height(1200);
                     charPr.textColor("#0000FF");
                 })
                 .withParaPr(paraPr -> {
-                    if (paraPr.align() != null) {
-                        paraPr.align().horizontal(HorizontalAlign2.CENTER);
-                    }
+                    paraPr.createAlign();
+                    paraPr.align().horizontal(HorizontalAlign2.CENTER);
                 })
                 .build();
         
@@ -39,27 +37,17 @@ public class SejongExample {
         Style titleStyle = StyleBuilder.create(hwpxFile, "제목 스타일", "Title Style")
                 .withCharPr(charPr -> {
                     charPr.height(2000);
-                    if (charPr.bold() == null) {
-                        charPr.createBold();
-                    }
+                    charPr.createBold();
                 })
                 .withParaPr(paraPr -> {
-                    if (paraPr.align() != null) {
-                        paraPr.align().horizontal(HorizontalAlign2.CENTER);
-                    }
+                    paraPr.createAlign();
+                    paraPr.align().horizontal(HorizontalAlign2.CENTER);
                     
-                    if (paraPr.margin() == null) {
-                        paraPr.createMargin();
-                    }
-                    
-                    if (paraPr.margin().prev() == null) {
-                        paraPr.margin().createPrev();
-                    }
+                    paraPr.createMargin();
+                    paraPr.margin().createPrev();
                     paraPr.margin().prev().value(400);
                     
-                    if (paraPr.margin().next() == null) {
-                        paraPr.margin().createNext();
-                    }
+                    paraPr.margin().createNext();
                     paraPr.margin().next().value(200);
                 })
                 .build();
@@ -73,10 +61,35 @@ public class SejongExample {
         // StyleBuilder의 withBullet() 메소드를 사용하여 불렛 설정
         Style bulletStyle = StyleBuilder.create(hwpxFile, "불렛 스타일", "Bullet Style")
                 .fromBaseStyle(style3)
-                .withBullet("◆") // 불렛 문자 지정
+                .withBullet("•")
                 .withCharPr(charPr -> {
-                    // 선택적으로 글자 모양 수정 가능
-                    charPr.textColor("#FF0000"); // 빨간색으로 변경
+                    charPr.textColor("#FF0000");
+                })
+                .build();
+        
+        // 1.4 여백과 정렬을 모두 갖춘 스타일 - 불필요한 null 체크 없이 작성
+        Style complexStyle = StyleBuilder.create(hwpxFile, "복합 스타일", "Complex Style")
+                .withCharPr(charPr -> {
+                    charPr.height(1500);
+                    charPr.createBold();
+                    charPr.textColor("#006600");
+                })
+                .withParaPr(paraPr -> {
+                    paraPr.createAlign();
+                    paraPr.align().horizontal(HorizontalAlign2.JUSTIFY);
+                    
+                    paraPr.createMargin();
+                    paraPr.margin().createIntent();
+                    paraPr.margin().intent().value(500);
+                    
+                    paraPr.margin().createLeft();
+                    paraPr.margin().left().value(800);
+                    
+                    paraPr.margin().createPrev();
+                    paraPr.margin().prev().value(300);
+                    
+                    paraPr.margin().createNext();
+                    paraPr.margin().next().value(300);
                 })
                 .build();
         
@@ -89,6 +102,10 @@ public class SejongExample {
         addNewParagraph(hwpxFile, 0, bulletStyle, "두 번째 불렛 항목입니다.");
         addNewParagraph(hwpxFile, 0, bulletStyle, "세 번째 불렛 항목입니다.");
 
+        // 복합 스타일 적용 문단 추가
+        addNewParagraph(hwpxFile, 0, complexStyle, "복합 스타일이 적용된 문단입니다.");
+        addNewParagraph(hwpxFile, 0, complexStyle, "불필요한 null 체크 없이 코드를 작성했습니다.");
+        
         // 3. 파일 저장
         HWPXWriter.toFilepath(hwpxFile, "example_hwpxlib.hwpx");
         System.out.println("파일이 성공적으로 저장되었습니다: example_hwpxlib.hwpx");
