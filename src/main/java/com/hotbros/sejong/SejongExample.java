@@ -8,18 +8,17 @@ import kr.dogfoot.hwpxlib.object.content.header_xml.references.Style;
 import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.HorizontalAlign2;
 
 /**
- * hwpxlib를 사용한 예제 클래스
+ * 리팩토링된 StyleBuilder와 StyleService를 사용한 예제 클래스
  */
 public class SejongExample {
 
     public static void main(String[] args) throws Exception {
-
         // hwpxlib의 BlankFileMaker로 빈 HWPX 파일 생성
         HWPXFile hwpxFile = BlankFileMaker.make();
         
-        // 1. 스타일 생성
-        // 1.1 커스텀 스타일 (파란색, 중앙 정렬) 생성
-        Style customStyle = StyleBuilder.create(hwpxFile, "커스텀 스타일", "Custom Style")
+        // 1. 스타일 생성 및 등록
+        // 1.1 커스텀 스타일 (파란색, 중앙 정렬) 생성 및 등록
+        StyleResult customStyleResult = StyleBuilder.create("커스텀 스타일", "Custom Style")
                 .withCharPr(charPr -> {
                     charPr.heightAnd(1200)
                         .textColor("#0000FF");
@@ -28,10 +27,12 @@ public class SejongExample {
                     paraPr.createAlign();
                     paraPr.align().horizontal(HorizontalAlign2.CENTER);
                 })
-                .build();
+                .buildResult();
         
-        // 1.2 제목 스타일 (굵게, 크게, 중앙 정렬, 여백) 생성
-        Style titleStyle = StyleBuilder.create(hwpxFile, "제목 스타일", "Title Style")
+        Style customStyle = StyleService.registerResult(hwpxFile, customStyleResult);
+        
+        // 1.2 제목 스타일 (굵게, 크게, 중앙 정렬, 여백) 생성 및 등록
+        StyleResult titleStyleResult = StyleBuilder.create("제목 스타일", "Title Style")
                 .withCharPr(charPr -> {
                     charPr.heightAnd(2000)
                         .createBold();
@@ -47,25 +48,29 @@ public class SejongExample {
                     paraPr.margin().createNext();
                     paraPr.margin().next().value(200);
                 })
-                .build();
+                .buildResult();
                 
-        // 1.3 3번 스타일을 복사한 새 스타일 생성 (불렛 적용)
-        Style style3 = StyleUtils.findStyleById(hwpxFile.headerXMLFile().refList(), "3");
+        Style titleStyle = StyleService.registerResult(hwpxFile, titleStyleResult);
+        
+        // 1.3 3번 스타일을 기반으로 불렛 스타일 생성 및 등록
+        Style style3 = StyleService.findStyleById(hwpxFile, "3");
         if (style3 == null) {
             throw new IllegalArgumentException("스타일 ID '3'을 찾을 수 없습니다.");
         }
         
         // StyleBuilder의 withBullet() 메소드를 사용하여 불렛 설정
-        Style bulletStyle = StyleBuilder.create(hwpxFile, "불렛 스타일", "Bullet Style")
+        StyleResult bulletStyleResult = StyleBuilder.create("불렛 스타일", "Bullet Style")
                 .fromBaseStyle(style3)
                 .withBullet("•")
                 .withCharPr(charPr -> {
                     charPr.textColor("#FF0000");
                 })
-                .build();
+                .buildResult();
         
-        // 1.4 여백과 정렬을 모두 갖춘 스타일 - 불필요한 null 체크 없이 작성
-        Style complexStyle = StyleBuilder.create(hwpxFile, "복합 스타일", "Complex Style")
+        Style bulletStyle = StyleService.registerResult(hwpxFile, bulletStyleResult);
+        
+        // 1.4 여백과 정렬을 모두 갖춘 스타일 생성 및 등록
+        StyleResult complexStyleResult = StyleBuilder.create("복합 스타일", "Complex Style")
                 .withCharPr(charPr -> {
                     charPr.createBold();
                     charPr.heightAnd(1500)
@@ -88,7 +93,9 @@ public class SejongExample {
                     paraPr.margin().createNext();
                     paraPr.margin().next().value(300);
                 })
-                .build();
+                .buildResult();
+        
+        Style complexStyle = StyleService.registerResult(hwpxFile, complexStyleResult);
         
         // 2. 생성된 스타일을 사용하여 문단 추가
         addNewParagraph(hwpxFile, 0, customStyle, "새로운 스타일이 적용된 텍스트입니다!");

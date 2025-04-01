@@ -7,13 +7,29 @@ import kr.dogfoot.hwpxlib.object.content.header_xml.references.ParaPr;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.Style;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.Bullet;
 import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.ParaHeadingType;
+import kr.dogfoot.hwpxlib.tool.blankfilemaker.BlankFileMaker;
 import java.util.function.Consumer;
 
 /**
  * 스타일 빌더 클래스 - 하나의 스타일을 구성하기 위한 빌더 패턴 구현
+ * 빌더는 오직 스타일 객체의 생성만을 담당하며, HWPX 파일에 스타일 등록은 외부에서 처리해야 합니다.
  */
 public class StyleBuilder {
-    private final HWPXFile hwpxFile;
+    /**
+     * 스타일 템플릿 생성을 위한 내부 참조용 빈 HWPX 파일.
+     * 이 파일은 실제로 수정되지 않으며, 오직 참조와 클론 생성을 위한 용도로만 사용됩니다.
+     */
+    private static final HWPXFile TEMPLATE_FILE;
+    
+    // 정적 초기화 블록
+    static {
+        try {
+            TEMPLATE_FILE = BlankFileMaker.make();
+        } catch (Exception e) {
+            throw new RuntimeException("템플릿 HWPX 파일 생성에 실패했습니다.", e);
+        }
+    }
+    
     private final RefList refList;
     private final String styleName;
     private final String styleEngName;
@@ -21,11 +37,12 @@ public class StyleBuilder {
     
     private Consumer<CharPr> charPrModifications;
     private Consumer<ParaPr> paraPrModifications;
-    private Bullet bullet; // 불렛 객체를 직접 저장 (null이면 불렛 미사용)
+    private String bulletChar; // 불렛 문자
+    private String checkedChar; // 체크 문자
+    private boolean useBullet = false; // 불렛 사용 여부
     
-    StyleBuilder(HWPXFile hwpxFile, String styleName, String styleEngName) {
-        this.hwpxFile = hwpxFile;
-        this.refList = hwpxFile.headerXMLFile().refList();
+    StyleBuilder(String styleName, String styleEngName) {
+        this.refList = TEMPLATE_FILE.headerXMLFile().refList();
         this.styleName = styleName;
         this.styleEngName = styleEngName;
         
@@ -43,13 +60,12 @@ public class StyleBuilder {
     /**
      * StyleBuilder 인스턴스를 생성합니다.
      * 
-     * @param hwpxFile HWPX 파일 객체
      * @param styleName 스타일 이름
      * @param styleEngName 스타일 영문 이름
      * @return 스타일 빌더 객체
      */
-    public static StyleBuilder create(HWPXFile hwpxFile, String styleName, String styleEngName) {
-        return new StyleBuilder(hwpxFile, styleName, styleEngName);
+    public static StyleBuilder create(String styleName, String styleEngName) {
+        return new StyleBuilder(styleName, styleEngName);
     }
     
     /**
@@ -90,21 +106,8 @@ public class StyleBuilder {
      * @return 현재 빌더 인스턴스
      */
     public StyleBuilder withBullet() {
-        // 필요한 경우 불렛 목록 생성
-        if (hwpxFile.headerXMLFile().refList().bullets() == null) {
-            hwpxFile.headerXMLFile().refList().createBullets();
-        }
-        
-        // 새 불렛 ID 생성
-        int maxBulletId = StyleUtils.getMaxID(hwpxFile.headerXMLFile().refList().bullets().items(), item -> item.id());
-        String bulletId = String.valueOf(maxBulletId + 1);
-        
-        // 불렛 객체 생성 및 설정
-        this.bullet = hwpxFile.headerXMLFile().refList().bullets().addNew()
-                .idAnd(bulletId)
-                ._charAnd("●")
-                .useImageAnd(false);
-                
+        this.useBullet = true;
+        this.bulletChar = "●";
         return this;
     }
     
@@ -114,8 +117,8 @@ public class StyleBuilder {
      * @return 현재 빌더 인스턴스
      */
     public StyleBuilder withBullet(String bulletChar) {
-        withBullet(); // 기본 불렛 생성
-        this.bullet._charAnd(bulletChar); // 문자만 변경
+        this.useBullet = true;
+        this.bulletChar = bulletChar;
         return this;
     }
     
@@ -126,55 +129,64 @@ public class StyleBuilder {
      * @return 현재 빌더 인스턴스
      */
     public StyleBuilder withBullet(String bulletChar, String checkedChar) {
-        withBullet(); // 기본 불렛 생성
-        this.bullet._charAnd(bulletChar)
-                   .checkedCharAnd(checkedChar);
+        this.useBullet = true;
+        this.bulletChar = bulletChar;
+        this.checkedChar = checkedChar;
         return this;
     }
     
     /**
-     * 스타일 구성 완료 및 생성
-     * @return 생성된 스타일 객체
+     * 스타일 빌드 결과를 생성합니다.
+     * 스타일 객체와 함께 생성된 글자 모양, 문단 모양, 불렛 객체를 모두 포함한 결과를 반환합니다.
+     * 이 메서드는 객체들을 생성만 하고 HWPX 파일에 등록하지 않습니다.
+     * ID 할당은 등록 시점에 StyleService에서 수행합니다.
+     * 
+     * @return 스타일 빌드 결과 객체
      */
-    public Style build() {
+    public StyleResult buildResult() {
         String baseCharPrIDRef = baseStyle.charPrIDRef();
         String baseParaPrIDRef = baseStyle.paraPrIDRef();
         
         // 글자 모양 생성 (설정되어 있는 경우)
+        CharPr newCharPr = null;
         String charPrIDRef = baseCharPrIDRef;
         if (charPrModifications != null) {
-            charPrIDRef = createNewCharPr(refList, baseCharPrIDRef, charPrModifications);
+            // ID 없이 새 글자 모양 생성
+            newCharPr = createNewCharPr(refList, baseCharPrIDRef, charPrModifications);
+            charPrIDRef = "temp_charPr"; // 임시 참조 ID
+        }
+        
+        // 불렛 생성 (필요한 경우)
+        Bullet newBullet = null;
+        if (useBullet) {
+            newBullet = createBullet();
         }
         
         // 문단 모양 생성 (설정되어 있는 경우)
+        ParaPr newParaPr = null;
         String paraPrIDRef = baseParaPrIDRef;
-        if (paraPrModifications != null || bullet != null) {
-            paraPrIDRef = createNewParaPrWithBullet(refList, baseParaPrIDRef);
+        if (paraPrModifications != null || useBullet) {
+            // ID 없이 새 문단 모양 생성
+            newParaPr = createNewParaPrWithBullet(refList, baseParaPrIDRef, newBullet);
+            paraPrIDRef = "temp_paraPr"; // 임시 참조 ID
         }
         
-        // 새 스타일 ID 생성
-        int maxStyleID = StyleUtils.getMaxStyleID(refList);
-        String newStyleID = String.valueOf(maxStyleID + 1);
-        
-        // 스타일 객체 생성 및 설정
+        // 스타일 객체 생성 및 설정 (ID 없이)
         var newStyle = baseStyle.clone();
-        newStyle.idAnd(newStyleID)
+        newStyle.idAnd("temp_style") // 임시 ID
                 .nameAnd(styleName)
                 .engNameAnd(styleEngName)
                 .charPrIDRefAnd(charPrIDRef)
                 .paraPrIDRefAnd(paraPrIDRef);
         
-        // 스타일 추가
-        refList.styles().add(newStyle);
-        
-        // 생성된 스타일 복제본 반환 (방어적 복사)
-        return newStyle.clone();
+        // StyleResult 객체 생성 및 반환
+        return new StyleResult(newStyle, newCharPr, newParaPr, newBullet);
     }
 
     /**
-     * 새로운 글자 모양을 생성합니다.
+     * 새로운 글자 모양을 생성합니다. ID는 임시값으로 설정됩니다.
      */
-    private String createNewCharPr(RefList refList, String baseCharPrIDRef, 
+    private CharPr createNewCharPr(RefList refList, String baseCharPrIDRef, 
             Consumer<CharPr> modifications) {
         if (baseCharPrIDRef == null) {
             throw new IllegalArgumentException("기본 글자 모양 ID가 null입니다");
@@ -183,17 +195,13 @@ public class StyleBuilder {
             throw new IllegalArgumentException("RefList.charProperties가 null입니다");
         }
 
-        // 최대 ID 찾기
-        int maxID = StyleUtils.getMaxCharPrID(refList);
-        String newCharPrID = String.valueOf(maxID + 1);
-
+        // 기본 글자 모양 찾기
         for (var charPr : refList.charProperties().items()) {
             if (charPr.id().equals(baseCharPrIDRef)) {
                 var newCharPr = charPr.clone();
-                newCharPr.id(newCharPrID);
+                newCharPr.id("temp_charPr"); // 임시 ID 설정
                 modifications.accept(newCharPr);
-                refList.charProperties().add(newCharPr);
-                return newCharPrID;
+                return newCharPr;
             }
         }
 
@@ -201,9 +209,9 @@ public class StyleBuilder {
     }
 
     /**
-     * 불렛을 포함한 새 문단 모양을 생성합니다.
+     * 불렛을 포함한 새 문단 모양을 생성합니다. ID는 임시값으로 설정됩니다.
      */
-    private String createNewParaPrWithBullet(RefList refList, String baseParaPrIDRef) {
+    private ParaPr createNewParaPrWithBullet(RefList refList, String baseParaPrIDRef, Bullet bullet) {
         if (baseParaPrIDRef == null) {
             throw new IllegalArgumentException("기본 문단 모양 ID가 null입니다");
         }
@@ -211,14 +219,11 @@ public class StyleBuilder {
             throw new IllegalArgumentException("RefList.paraProperties가 null입니다");
         }
 
-        // 최대 ID 찾기
-        int maxID = StyleUtils.getMaxParaPrID(refList);
-        String newParaPrID = String.valueOf(maxID + 1);
-
+        // 기본 문단 모양 찾기
         for (var paraPr : refList.paraProperties().items()) {
             if (paraPr.id().equals(baseParaPrIDRef)) {
                 var newParaPr = paraPr.clone();
-                newParaPr.id(newParaPrID);
+                newParaPr.id("temp_paraPr"); // 임시 ID 설정
                 
                 // 1. 사용자 지정 수정 적용 (있는 경우)
                 if (paraPrModifications != null) {
@@ -226,22 +231,39 @@ public class StyleBuilder {
                 }
                 
                 // 2. 불렛 설정 적용 (있는 경우)
-                if (bullet != null) {
+                if (useBullet && bullet != null) {
                     // heading이 없으면 생성
                     if (newParaPr.heading() == null) {
                         newParaPr.createHeading();
                     }
-                    // 불렛 설정
+                    // 불렛 설정 (임시 ID 참조)
                     newParaPr.heading().typeAnd(ParaHeadingType.BULLET);
                     newParaPr.heading().idRefAnd(bullet.id());
                     newParaPr.heading().level((byte) 1); // 기본 레벨
                 }
                 
-                refList.paraProperties().add(newParaPr);
-                return newParaPrID;
+                return newParaPr;
             }
         }
 
         throw new IllegalArgumentException("ID가 " + baseParaPrIDRef + "인 기본 문단 모양을 찾을 수 없습니다");
+    }
+    
+    /**
+     * 불렛 객체를 생성합니다. ID는 임시값으로 설정됩니다.
+     */
+    private Bullet createBullet() {
+        // 불렛 객체 생성 및 설정
+        Bullet bullet = new Bullet();
+        bullet.idAnd("temp_bullet") // 임시 ID 설정
+              ._charAnd(bulletChar)
+              .useImageAnd(false);
+        
+        // 체크 문자가 설정된 경우 추가
+        if (checkedChar != null) {
+            bullet.checkedCharAnd(checkedChar);
+        }
+        
+        return bullet;
     }
 } 
