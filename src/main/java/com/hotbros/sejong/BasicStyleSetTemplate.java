@@ -1,6 +1,5 @@
 package com.hotbros.sejong;
 
-import kr.dogfoot.hwpxlib.object.content.header_xml.references.Style;
 import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.HorizontalAlign2;
 
 import static com.hotbros.sejong.StyleConstants.*;

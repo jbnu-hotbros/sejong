@@ -1,7 +1,5 @@
 package com.hotbros.sejong;
 
-import kr.dogfoot.hwpxlib.object.content.header_xml.references.Style;
-
 /**
  * 스타일셋 템플릿 인터페이스 - 등록 전 스타일 정의를 담당합니다.
  * 문서에 등록되기 전의 스타일 정의를 관리하는 템플릿으로,
