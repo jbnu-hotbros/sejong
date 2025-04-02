@@ -5,6 +5,9 @@ package com.hotbros.sejong;
  * 이 상수들은 한글 문서의 기본 스타일 ID 값으로, 개발자가 스타일을 찾거나 참조할 때 사용할 수 있습니다.
  */
 public class StyleConstants {
+    // 기본 스타일 ID
+    public static final String STYLE_ID_NORMAL = "0";  // 본문
+    
     // 한글 개요 스타일 ID
     public static final String STYLE_ID_OUTLINE_1 = "2";
     public static final String STYLE_ID_OUTLINE_2 = "3";

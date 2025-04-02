@@ -9,40 +9,40 @@ import kr.dogfoot.hwpxlib.object.content.header_xml.references.Style;
  */
 public interface StyleSetTemplate {
     /**
-     * 제목 스타일 결과를 반환합니다.
+     * 제목 스타일 템플릿을 반환합니다.
      */
-    StyleResult titleResult();
+    StyleTemplate titleTemplate();
     
     /**
-     * 개요1 스타일 결과를 반환합니다.
+     * 개요1 스타일 템플릿을 반환합니다.
      */
-    StyleResult outline1Result();
+    StyleTemplate outline1Template();
     
     /**
-     * 개요2 스타일 결과를 반환합니다.
+     * 개요2 스타일 템플릿을 반환합니다.
      */
-    StyleResult outline2Result();
+    StyleTemplate outline2Template();
     
     /**
-     * 개요3 스타일 결과를 반환합니다.
+     * 개요3 스타일 템플릿을 반환합니다.
      */
-    StyleResult outline3Result();
+    StyleTemplate outline3Template();
     
     /**
-     * 개요4 스타일 결과를 반환합니다.
+     * 개요4 스타일 템플릿을 반환합니다.
      */
-    StyleResult outline4Result();
+    StyleTemplate outline4Template();
     
     /**
-     * 개요5 스타일 결과를 반환합니다.
+     * 개요5 스타일 템플릿을 반환합니다.
      */
-    StyleResult outline5Result();
+    StyleTemplate outline5Template();
     
     /**
-     * 이 스타일셋 템플릿의 모든 스타일 결과를 배열로 반환합니다.
+     * 이 스타일셋 템플릿의 모든 스타일 템플릿을 배열로 반환합니다.
      * 스타일 등록에 사용됩니다.
      */
-    StyleResult[] getAllResults();
+    StyleTemplate[] getAllTemplates();
     
     /**
      * 이 템플릿의 이름을 반환합니다.

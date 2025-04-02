@@ -82,6 +82,28 @@ public class StyleBuilder {
     }
     
     /**
+     * ID로 기본 스타일을 지정합니다.
+     * 내부 템플릿 파일에서 해당 ID의 스타일을 찾아 기본 스타일로 설정합니다.
+     * StyleConstants에 정의된 상수 사용 가능: StyleConstants.STYLE_ID_OUTLINE_1 등
+     * @param styleId 스타일 ID
+     * @return 현재 빌더 인스턴스
+     * @throws IllegalArgumentException 스타일을 찾지 못한 경우
+     */
+    public StyleBuilder fromBaseStyleId(String styleId) {
+        if (styleId == null) {
+            throw new IllegalArgumentException("스타일 ID가 null입니다");
+        }
+        
+        Style foundStyle = IdUtils.findStyleById(TEMPLATE_FILE.headerXMLFile().refList(), styleId);
+        if (foundStyle == null) {
+            throw new IllegalArgumentException("ID가 " + styleId + "인 스타일을 찾을 수 없습니다");
+        }
+        
+        this.baseStyle = foundStyle;
+        return this;
+    }
+    
+    /**
      * 글자 모양 설정
      * @param modifications 글자 모양 수정 함수
      * @return 현재 빌더 인스턴스
@@ -137,28 +159,28 @@ public class StyleBuilder {
     
     /**
      * 스타일 객체만 생성하여 반환합니다.
-     * 이 메소드는 StyleResult를 생성하고 Style 객체만 추출하여 반환합니다.
+     * 이 메소드는 StyleTemplate을 생성하고 Style 객체만 추출하여 반환합니다.
      * 스타일셋에서 사용하기 적합한 간소화된 메소드입니다.
      * 
      * @return 생성된 스타일 객체
      */
     public Style build() {
-        // 스타일 빌드 결과 생성
-        StyleResult result = buildResult();
+        // 스타일 템플릿 생성
+        StyleTemplate template = buildTemplate();
         
         // 스타일 객체만 반환
-        return result.getStyle();
+        return template.getStyle();
     }
     
     /**
-     * 스타일 빌드 결과를 생성합니다.
-     * 스타일 객체와 함께 생성된 글자 모양, 문단 모양, 불렛 객체를 모두 포함한 결과를 반환합니다.
+     * 스타일 템플릿을 생성합니다.
+     * 스타일 객체와 함께 생성된 글자 모양, 문단 모양, 불렛 객체를 모두 포함한 템플릿을 반환합니다.
      * 이 메서드는 객체들을 생성만 하고 HWPX 파일에 등록하지 않습니다.
      * ID 할당은 등록 시점에 StyleService에서 수행합니다.
      * 
-     * @return 스타일 빌드 결과 객체
+     * @return 스타일 템플릿 객체
      */
-    public StyleResult buildResult() {
+    public StyleTemplate buildTemplate() {
         String baseCharPrIDRef = baseStyle.charPrIDRef();
         String baseParaPrIDRef = baseStyle.paraPrIDRef();
         
@@ -194,10 +216,10 @@ public class StyleBuilder {
                 .charPrIDRefAnd(charPrIDRef)
                 .paraPrIDRefAnd(paraPrIDRef);
         
-        // StyleResult 객체 생성 및 반환
-        return new StyleResult(newStyle, newCharPr, newParaPr, newBullet);
+        // StyleTemplate 객체 생성 및 반환
+        return new StyleTemplate(newStyle, newCharPr, newParaPr, newBullet);
     }
-
+    
     /**
      * 새로운 글자 모양을 생성합니다. ID는 임시값으로 설정됩니다.
      */

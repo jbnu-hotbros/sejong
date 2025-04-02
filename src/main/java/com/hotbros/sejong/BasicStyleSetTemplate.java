@@ -1,6 +1,5 @@
 package com.hotbros.sejong;
 
-import kr.dogfoot.hwpxlib.object.HWPXFile;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.Style;
 import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.HorizontalAlign2;
 
@@ -8,30 +7,25 @@ import static com.hotbros.sejong.StyleConstants.*;
 
 /**
  * 기본 스타일셋 템플릿 구현 클래스 - 기본적인 제목, 개요 스타일을 정의합니다.
- * 스타일을 정의하고 StyleResult 형태로 보관만 하며, 실제 등록은 별도로 수행됩니다.
+ * 스타일을 정의하고 StyleTemplate 형태로 보관만 하며, 실제 등록은 별도로 수행됩니다.
+ * 모든 스타일은 외부 파일에 의존하지 않고 내부 템플릿만 사용합니다.
  */
 public class BasicStyleSetTemplate implements StyleSetTemplate {
-    private final StyleResult titleStyleResult;
-    private final StyleResult outline1StyleResult;
-    private final StyleResult outline2StyleResult;
-    private final StyleResult outline3StyleResult;
-    private final StyleResult outline4StyleResult;
-    private final StyleResult outline5StyleResult;
+    private final StyleTemplate titleTemplate;
+    private final StyleTemplate outline1Template;
+    private final StyleTemplate outline2Template;
+    private final StyleTemplate outline3Template;
+    private final StyleTemplate outline4Template;
+    private final StyleTemplate outline5Template;
     
     /**
-     * 생성자 - 기본 스타일셋 템플릿의 스타일 결과 객체들을 생성합니다.
-     * @param hwpxFile HWPX 파일 (기본 스타일 참조용)
+     * 생성자 - 기본 스타일셋 템플릿의 스타일 템플릿 객체들을 생성합니다.
+     * 모든 스타일은 내부 템플릿 파일을 기반으로 생성됩니다.
      */
-    public BasicStyleSetTemplate(HWPXFile hwpxFile) {
-        // HWPX 파일이 null인지 확인
-        if (hwpxFile == null) {
-            throw new IllegalArgumentException("HWPX 파일이 null입니다");
-        }
-        
-        // 제목 스타일 결과 생성
-        Style baseStyle = StyleService.findStyleById(hwpxFile, "1"); // 기본 제목 스타일
-        this.titleStyleResult = StyleBuilder.create("제목", "Title")
-                .fromBaseStyle(baseStyle)
+    public BasicStyleSetTemplate() {
+        // 제목 스타일 템플릿 생성
+        this.titleTemplate = StyleBuilder.create("제목", "Title")
+                .fromBaseStyleId(STYLE_ID_NORMAL) // 기본 제목 스타일
                 .withCharPr(charPr -> {
                     charPr.heightAnd(2200);
                     charPr.createBold();
@@ -47,12 +41,11 @@ public class BasicStyleSetTemplate implements StyleSetTemplate {
                     paraPr.margin().createNext();
                     paraPr.margin().next().value(550);
                 })
-                .buildResult();
+                .buildTemplate();
         
-        // 개요1 스타일 결과 생성
-        Style baseStyle1 = StyleService.findStyleById(hwpxFile, STYLE_ID_OUTLINE_1);
-        this.outline1StyleResult = StyleBuilder.create("개요1", "Outline1")
-                .fromBaseStyle(baseStyle1)
+        // 개요1 스타일 템플릿 생성
+        this.outline1Template = StyleBuilder.create("개요1", "Outline1")
+                .fromBaseStyleId(STYLE_ID_OUTLINE_1)
                 .withCharPr(charPr -> {
                     charPr.heightAnd(1600);
                     charPr.createBold();
@@ -71,12 +64,11 @@ public class BasicStyleSetTemplate implements StyleSetTemplate {
                     paraPr.margin().createNext();
                     paraPr.margin().next().value(200);
                 })
-                .buildResult();
+                .buildTemplate();
         
-        // 개요2 스타일 결과 생성
-        Style baseStyle2 = StyleService.findStyleById(hwpxFile, STYLE_ID_OUTLINE_2);
-        this.outline2StyleResult = StyleBuilder.create("개요2", "Outline2")
-                .fromBaseStyle(baseStyle2)
+        // 개요2 스타일 템플릿 생성
+        this.outline2Template = StyleBuilder.create("개요2", "Outline2")
+                .fromBaseStyleId(STYLE_ID_OUTLINE_2)
                 .withCharPr(charPr -> {
                     charPr.heightAnd(1400);
                     charPr.createBold();
@@ -95,12 +87,11 @@ public class BasicStyleSetTemplate implements StyleSetTemplate {
                     paraPr.margin().createNext();
                     paraPr.margin().next().value(150);
                 })
-                .buildResult();
+                .buildTemplate();
         
-        // 개요3 스타일 결과 생성
-        Style baseStyle3 = StyleService.findStyleById(hwpxFile, STYLE_ID_OUTLINE_3);
-        this.outline3StyleResult = StyleBuilder.create("개요3", "Outline3")
-                .fromBaseStyle(baseStyle3)
+        // 개요3 스타일 템플릿 생성
+        this.outline3Template = StyleBuilder.create("개요3", "Outline3")
+                .fromBaseStyleId(STYLE_ID_OUTLINE_3)
                 .withCharPr(charPr -> {
                     charPr.heightAnd(1200);
                     charPr.createBold();
@@ -119,12 +110,11 @@ public class BasicStyleSetTemplate implements StyleSetTemplate {
                     paraPr.margin().createNext();
                     paraPr.margin().next().value(150);
                 })
-                .buildResult();
+                .buildTemplate();
         
-        // 개요4 스타일 결과 생성
-        Style baseStyle4 = StyleService.findStyleById(hwpxFile, STYLE_ID_OUTLINE_4);
-        this.outline4StyleResult = StyleBuilder.create("개요4", "Outline4")
-                .fromBaseStyle(baseStyle4)
+        // 개요4 스타일 템플릿 생성
+        this.outline4Template = StyleBuilder.create("개요4", "Outline4")
+                .fromBaseStyleId(STYLE_ID_OUTLINE_4)
                 .withCharPr(charPr -> {
                     charPr.heightAnd(1100);
                 })
@@ -142,12 +132,11 @@ public class BasicStyleSetTemplate implements StyleSetTemplate {
                     paraPr.margin().createNext();
                     paraPr.margin().next().value(100);
                 })
-                .buildResult();
+                .buildTemplate();
         
-        // 개요5 스타일 결과 생성
-        Style baseStyle5 = StyleService.findStyleById(hwpxFile, STYLE_ID_OUTLINE_5);
-        this.outline5StyleResult = StyleBuilder.create("개요5", "Outline5")
-                .fromBaseStyle(baseStyle5)
+        // 개요5 스타일 템플릿 생성
+        this.outline5Template = StyleBuilder.create("개요5", "Outline5")
+                .fromBaseStyleId(STYLE_ID_OUTLINE_5)
                 .withCharPr(charPr -> {
                     charPr.heightAnd(1000);
                 })
@@ -165,7 +154,7 @@ public class BasicStyleSetTemplate implements StyleSetTemplate {
                     paraPr.margin().createNext();
                     paraPr.margin().next().value(100);
                 })
-                .buildResult();
+                .buildTemplate();
     }
     
     @Override
@@ -174,44 +163,44 @@ public class BasicStyleSetTemplate implements StyleSetTemplate {
     }
     
     @Override
-    public StyleResult titleResult() {
-        return titleStyleResult;
+    public StyleTemplate titleTemplate() {
+        return titleTemplate;
     }
     
     @Override
-    public StyleResult outline1Result() {
-        return outline1StyleResult;
+    public StyleTemplate outline1Template() {
+        return outline1Template;
     }
     
     @Override
-    public StyleResult outline2Result() {
-        return outline2StyleResult;
+    public StyleTemplate outline2Template() {
+        return outline2Template;
     }
     
     @Override
-    public StyleResult outline3Result() {
-        return outline3StyleResult;
+    public StyleTemplate outline3Template() {
+        return outline3Template;
     }
     
     @Override
-    public StyleResult outline4Result() {
-        return outline4StyleResult;
+    public StyleTemplate outline4Template() {
+        return outline4Template;
     }
     
     @Override
-    public StyleResult outline5Result() {
-        return outline5StyleResult;
+    public StyleTemplate outline5Template() {
+        return outline5Template;
     }
     
     @Override
-    public StyleResult[] getAllResults() {
-        return new StyleResult[] {
-            titleStyleResult,
-            outline1StyleResult,
-            outline2StyleResult,
-            outline3StyleResult,
-            outline4StyleResult,
-            outline5StyleResult
+    public StyleTemplate[] getAllTemplates() {
+        return new StyleTemplate[] {
+            titleTemplate,
+            outline1Template,
+            outline2Template,
+            outline3Template,
+            outline4Template,
+            outline5Template
         };
     }
 } 

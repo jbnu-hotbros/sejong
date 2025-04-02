@@ -28,10 +28,10 @@ public class SejongExample {
         HWPXFile hwpxFile = BlankFileMaker.make();
         
         // 2. 스타일셋 템플릿 생성
-        StyleSetTemplate template = new BasicStyleSetTemplate(hwpxFile);
+        StyleSetTemplate template = new BasicStyleSetTemplate();
         
         // 3. 스타일셋 템플릿을 등록하여 사용 가능한 스타일셋 얻기
-        StyleSet styleSet = StyleService.registerStyleSet(hwpxFile, template);
+        StyleSet styleSet = StyleService.registerStyleSetFromTemplate(hwpxFile, template);
         
         // 4. 등록된 스타일셋을 사용하여 문서 작성
         // 여기서는 정적 메서드 호출 방식과 동적 스타일 이름 지정 방식을 둘 다 보여줍니다.
@@ -131,7 +131,7 @@ public class SejongExample {
      */
     private static void createCustomStyle(HWPXFile hwpxFile) {
         // 커스텀 스타일 생성
-        StyleResult customStyleResult = StyleBuilder.create("커스텀 스타일", "Custom Style")
+        StyleTemplate customStyleTemplate = StyleBuilder.create("커스텀 스타일", "Custom Style")
                 .withCharPr(charPr -> {
                     charPr.heightAnd(1800);
                     charPr.createBold();
@@ -148,10 +148,10 @@ public class SejongExample {
                     paraPr.margin().createNext();
                     paraPr.margin().next().value(200);
                 })
-                .buildResult();
+                .buildTemplate();
         
         // 스타일 등록
-        Style customStyle = StyleService.registerResult(hwpxFile, customStyleResult);
+        Style customStyle = StyleService.registerStyleTemplate(hwpxFile, customStyleTemplate);
         
         // 등록된 스타일로 문단 추가
         addParagraph(hwpxFile, customStyle, "커스텀 스타일이 적용된 문단입니다.");

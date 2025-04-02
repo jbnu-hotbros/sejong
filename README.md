@@ -7,14 +7,14 @@
 ### 데이터 흐름
 
 ```
-[1] StyleBuilder ---> StyleResult (임시 ID 포함)
+[1] StyleBuilder ---> StyleTemplate (임시 ID 포함)
     |
     v
-[2] StyleSetTemplate (여러 StyleResult 보유)
+[2] StyleSetTemplate (여러 StyleTemplate 보유)
     |
     v
-[3] StyleService.registerStyleSet(template) ---> HWPX 파일에 등록
-    |                                            (실제 ID 할당)
+[3] StyleService.registerStyleSetFromTemplate(template) ---> HWPX 파일에 등록
+    |                                                        (실제 ID 할당)
     v
 [4] StyleSet (등록된 실제 스타일 객체 보유)
     |
@@ -28,8 +28,8 @@
 ### 다이어그램
 
 ```
-+------------------+    buildResult()    +------------------+
-|   StyleBuilder   | -----------------> |   StyleResult    |
++------------------+    buildTemplate()   +------------------+
+|   StyleBuilder   | -----------------> |   StyleTemplate   |
 +------------------+                     +------------------+
         ^                                        |
         |                                        |
@@ -39,7 +39,7 @@
 | BasicStyleSet-   | -----------------> |  StyleService    |
 | Template         |                     +------------------+
 +------------------+                            |
-                                                | registerStyleSet()
+                                                | registerStyleSetFromTemplate()
                                                 v
                                +------------------+    getStyle("개요1")    +-----------+
                                |    StyleSet      | --------------------> | Style     |
@@ -75,6 +75,6 @@
 // 코드 패턴
 HWPXFile hwpxFile = BlankFileMaker.make();
 StyleSetTemplate template = new BasicStyleSetTemplate(hwpxFile);
-StyleSet styleSet = StyleService.registerStyleSet(hwpxFile, template);
+StyleSet styleSet = StyleService.registerStyleSetFromTemplate(hwpxFile, template);
 addParagraphWithStyleName(hwpxFile, styleSet, "개요1", "내용");
 ```
