@@ -7,6 +7,8 @@ import kr.dogfoot.hwpxlib.object.content.header_xml.references.ParaPr;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.Bullet;
 import kr.dogfoot.hwpxlib.object.content.header_xml.RefList;
 import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.ParaHeadingType;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 스타일 서비스 - 스타일 등록 및 관리 기능을 제공합니다.
@@ -21,6 +23,27 @@ import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.ParaHeadingType;
  * 이 순서는 객체 간의 참조 관계 때문에 중요합니다.
  */
 public class StyleService {
+    
+    /**
+     * 스타일셋에 포함된 모든 스타일을 HWPX 파일에 등록합니다.
+     * 
+     * @param hwpxFile HWPX 파일
+     * @param styleSet 등록할 스타일셋
+     * @return 등록된 스타일 ID와 이름 쌍의 매핑
+     */
+    public static void registerStyleSet(HWPXFile hwpxFile, StyleSet styleSet) {
+        if (hwpxFile == null || styleSet == null) {
+            throw new IllegalArgumentException("HWPX 파일 또는 스타일셋이 null입니다");
+        }
+        
+        // 모든 스타일 등록
+        Style[] styles = styleSet.getAllStyles();
+        for (Style style : styles) {
+            if (style != null) {
+                registerStyle(hwpxFile, style);
+            }
+        }
+    }
     
     /**
      * StyleResult에 포함된 모든 객체를 올바른 순서로 HWPX 파일에 등록합니다.
@@ -104,7 +127,7 @@ public class StyleService {
             // ID 설정
             paraPr.id(paraPrId);
             
-            // 불렛 참조 업데이트 (불렛 참조가 있는 경우)
+            // 불렛 참조 업데이트
             if (result.hasBulletReference() && bulletId != null) {
                 // 불변 조건: 불렛이 있으면 반드시 문단 모양은 해당 불렛을 참조해야 함
                 if (paraPr.heading() == null) {
@@ -142,7 +165,7 @@ public class StyleService {
         // ID 설정
         style.id(styleId);
         
-        // 참조 업데이트
+        // 참조 업데이트 - 중요: 여기서 생성된 실제 ID로 참조 업데이트
         if (result.hasCharPrReference() && charPrId != null) {
             style.charPrIDRef(charPrId);
         }
@@ -150,12 +173,16 @@ public class StyleService {
             style.paraPrIDRef(paraPrId);
         }
         
-        // 스타일 등록
-        return registerStyle(hwpxFile, style);
+        // 스타일 등록 - 참조가 이미 업데이트된 상태이므로 단순히 등록만 하고 반환
+        refList.styles().add(style);
+        
+        return style;
     }
     
     /**
      * 스타일 객체를 HWPX 파일에 등록합니다.
+     * 임시 ID를 가진 스타일 객체의 경우 고유한 실제 ID로 변경하여 등록합니다.
+     * 참조하는 글자 모양과 문단 모양 ID도 함께 업데이트합니다.
      * 
      * @param hwpxFile HWPX 파일
      * @param style 등록할 스타일
@@ -168,10 +195,69 @@ public class StyleService {
         
         RefList refList = hwpxFile.headerXMLFile().refList();
         
-        // 스타일이 이미 등록되어 있는지 확인
-        for (Style existingStyle : refList.styles().items()) {
-            if (existingStyle.id().equals(style.id())) {
-                return existingStyle; // 이미 등록된 스타일이면 기존 스타일 반환
+        // 스타일이 이미 등록되어 있는지 확인 (이름으로 체크)
+        String styleName = style.name();
+        if (styleName != null) {
+            for (Style existingStyle : refList.styles().items()) {
+                if (styleName.equals(existingStyle.name())) {
+                    return existingStyle; // 이미 등록된 스타일이면 기존 스타일 반환
+                }
+            }
+        }
+        
+        // 임시 ID인지 확인하고 실제 ID로 변경
+        String styleId = style.id();
+        if (styleId == null || styleId.startsWith("temp_")) {
+            // 스타일 ID 생성
+            int maxStyleId = 0;
+            if (refList.styles() != null) {
+                maxStyleId = IdUtils.getMaxID(refList.styles().items(), item -> item.id());
+            }
+            styleId = String.valueOf(maxStyleId + 1);
+            
+            // ID 설정
+            style.id(styleId);
+        }
+        
+        // 임시 글자 모양 ID 참조를 업데이트
+        if (style.charPrIDRef() != null && style.charPrIDRef().startsWith("temp_")) {
+            String tempCharPrId = style.charPrIDRef();
+            
+            // 임시 ID에 해당하는 글자 모양 검색
+            CharPr tempCharPr = null;
+            for (CharPr charPr : refList.charProperties().items()) {
+                if (tempCharPrId.equals(charPr.id())) {
+                    tempCharPr = charPr;
+                    break;
+                }
+            }
+            
+            if (tempCharPr != null) {
+                // 임시 글자 모양을 등록하여 실제 ID 할당
+                CharPr charPrCopy = tempCharPr.clone();
+                String newCharPrId = registerCharPr(hwpxFile, charPrCopy);
+                style.charPrIDRef(newCharPrId);
+            }
+        }
+        
+        // 임시 문단 모양 ID 참조를 업데이트
+        if (style.paraPrIDRef() != null && style.paraPrIDRef().startsWith("temp_")) {
+            String tempParaPrId = style.paraPrIDRef();
+            
+            // 임시 ID에 해당하는 문단 모양 검색
+            ParaPr tempParaPr = null;
+            for (ParaPr paraPr : refList.paraProperties().items()) {
+                if (tempParaPrId.equals(paraPr.id())) {
+                    tempParaPr = paraPr;
+                    break;
+                }
+            }
+            
+            if (tempParaPr != null) {
+                // 임시 문단 모양을 등록하여 실제 ID 할당
+                ParaPr paraPrCopy = tempParaPr.clone();
+                String newParaPrId = registerParaPr(hwpxFile, paraPrCopy);
+                style.paraPrIDRef(newParaPrId);
             }
         }
         
@@ -183,6 +269,7 @@ public class StyleService {
     
     /**
      * 글자 모양 객체를 HWPX 파일에 등록합니다.
+     * 임시 ID를 가진 경우 고유한 실제 ID로 변경하여 등록합니다.
      * 
      * @param hwpxFile HWPX 파일
      * @param charPr 등록할 글자 모양
@@ -200,11 +287,16 @@ public class StyleService {
             refList.createCharProperties();
         }
         
-        // 이미 등록된 글자 모양인지 확인
-        for (CharPr existingCharPr : refList.charProperties().items()) {
-            if (existingCharPr.id().equals(charPr.id())) {
-                return existingCharPr.id(); // 이미 등록된 글자 모양이면 기존 ID 반환
-            }
+        // 임시 ID인지 확인하고 실제 ID로 변경
+        String charPrId = charPr.id();
+        if (charPrId == null || charPrId.startsWith("temp_")) {
+            // 글자 모양 ID 생성
+            int maxCharPrId = 0;
+            maxCharPrId = IdUtils.getMaxID(refList.charProperties().items(), item -> item.id());
+            charPrId = String.valueOf(maxCharPrId + 1);
+            
+            // ID 설정
+            charPr.id(charPrId);
         }
         
         // 글자 모양 객체 추가
@@ -215,6 +307,7 @@ public class StyleService {
     
     /**
      * 문단 모양 객체를 HWPX 파일에 등록합니다.
+     * 임시 ID를 가진 경우 고유한 실제 ID로 변경하여 등록합니다.
      * 
      * @param hwpxFile HWPX 파일
      * @param paraPr 등록할 문단 모양
@@ -232,11 +325,16 @@ public class StyleService {
             refList.createParaProperties();
         }
         
-        // 이미 등록된 문단 모양인지 확인
-        for (ParaPr existingParaPr : refList.paraProperties().items()) {
-            if (existingParaPr.id().equals(paraPr.id())) {
-                return existingParaPr.id(); // 이미 등록된 문단 모양이면 기존 ID 반환
-            }
+        // 임시 ID인지 확인하고 실제 ID로 변경
+        String paraPrId = paraPr.id();
+        if (paraPrId == null || paraPrId.startsWith("temp_")) {
+            // 문단 모양 ID 생성
+            int maxParaPrId = 0;
+            maxParaPrId = IdUtils.getMaxID(refList.paraProperties().items(), item -> item.id());
+            paraPrId = String.valueOf(maxParaPrId + 1);
+            
+            // ID 설정
+            paraPr.id(paraPrId);
         }
         
         // 문단 모양 객체 추가
@@ -247,6 +345,7 @@ public class StyleService {
     
     /**
      * 불렛 객체를 HWPX 파일에 등록합니다.
+     * 임시 ID를 가진 경우 고유한 실제 ID로 변경하여 등록합니다.
      * 
      * @param hwpxFile HWPX 파일
      * @param bullet 등록할 불렛
@@ -264,11 +363,16 @@ public class StyleService {
             refList.createBullets();
         }
         
-        // 이미 등록된 불렛인지 확인
-        for (Bullet existingBullet : refList.bullets().items()) {
-            if (existingBullet.id().equals(bullet.id())) {
-                return existingBullet.id(); // 이미 등록된 불렛이면 기존 ID 반환
-            }
+        // 임시 ID인지 확인하고 실제 ID로 변경
+        String bulletId = bullet.id();
+        if (bulletId == null || bulletId.startsWith("temp_")) {
+            // 불렛 ID 생성
+            int maxBulletId = 0;
+            maxBulletId = IdUtils.getMaxID(refList.bullets().items(), item -> item.id());
+            bulletId = String.valueOf(maxBulletId + 1);
+            
+            // ID 설정
+            bullet.id(bulletId);
         }
         
         // 불렛 객체 추가
@@ -327,5 +431,31 @@ public class StyleService {
         }
         
         return null;
+    }
+
+    /**
+     * 스타일셋 템플릿을 HWPX 파일에 등록하고 등록된 스타일셋을 반환합니다.
+     * 
+     * @param hwpxFile HWPX 파일
+     * @param template 등록할 스타일셋 템플릿
+     * @return 등록된 스타일셋
+     */
+    public static StyleSet registerStyleSet(HWPXFile hwpxFile, StyleSetTemplate template) {
+        if (hwpxFile == null || template == null) {
+            throw new IllegalArgumentException("HWPX 파일 또는 스타일셋 템플릿이 null입니다");
+        }
+        
+        // 등록된 스타일 맵 생성
+        Map<String, Style> registeredStyles = new HashMap<>();
+        
+        // 모든 스타일 결과 등록
+        StyleResult[] results = template.getAllResults();
+        for (StyleResult result : results) {
+            Style style = registerResult(hwpxFile, result);
+            registeredStyles.put(style.name(), style);
+        }
+        
+        // 스타일셋 생성 및 반환
+        return new StyleSet(template.getName(), registeredStyles);
     }
 } 

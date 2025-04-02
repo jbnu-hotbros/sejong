@@ -136,6 +136,21 @@ public class StyleBuilder {
     }
     
     /**
+     * 스타일 객체만 생성하여 반환합니다.
+     * 이 메소드는 StyleResult를 생성하고 Style 객체만 추출하여 반환합니다.
+     * 스타일셋에서 사용하기 적합한 간소화된 메소드입니다.
+     * 
+     * @return 생성된 스타일 객체
+     */
+    public Style build() {
+        // 스타일 빌드 결과 생성
+        StyleResult result = buildResult();
+        
+        // 스타일 객체만 반환
+        return result.getStyle();
+    }
+    
+    /**
      * 스타일 빌드 결과를 생성합니다.
      * 스타일 객체와 함께 생성된 글자 모양, 문단 모양, 불렛 객체를 모두 포함한 결과를 반환합니다.
      * 이 메서드는 객체들을 생성만 하고 HWPX 파일에 등록하지 않습니다.
@@ -186,8 +201,7 @@ public class StyleBuilder {
     /**
      * 새로운 글자 모양을 생성합니다. ID는 임시값으로 설정됩니다.
      */
-    private CharPr createNewCharPr(RefList refList, String baseCharPrIDRef, 
-            Consumer<CharPr> modifications) {
+    private CharPr createNewCharPr(RefList refList, String baseCharPrIDRef, Consumer<CharPr> modifications) {
         if (baseCharPrIDRef == null) {
             throw new IllegalArgumentException("기본 글자 모양 ID가 null입니다");
         }
@@ -200,17 +214,17 @@ public class StyleBuilder {
             if (charPr.id().equals(baseCharPrIDRef)) {
                 var newCharPr = charPr.clone();
                 newCharPr.id("temp_charPr"); // 임시 ID 설정
+                
+                // 사용자 지정 수정 적용
                 modifications.accept(newCharPr);
+                
                 return newCharPr;
             }
         }
 
         throw new IllegalArgumentException("ID가 " + baseCharPrIDRef + "인 기본 글자 모양을 찾을 수 없습니다");
     }
-
-    /**
-     * 불렛을 포함한 새 문단 모양을 생성합니다. ID는 임시값으로 설정됩니다.
-     */
+    
     private ParaPr createNewParaPrWithBullet(RefList refList, String baseParaPrIDRef, Bullet bullet) {
         if (baseParaPrIDRef == null) {
             throw new IllegalArgumentException("기본 문단 모양 ID가 null입니다");
@@ -253,13 +267,19 @@ public class StyleBuilder {
      * 불렛 객체를 생성합니다. ID는 임시값으로 설정됩니다.
      */
     private Bullet createBullet() {
-        // 불렛 객체 생성 및 설정
         Bullet bullet = new Bullet();
-        bullet.idAnd("temp_bullet") // 임시 ID 설정
-              ._charAnd(bulletChar)
-              .useImageAnd(false);
         
-        // 체크 문자가 설정된 경우 추가
+        // 임시 ID 설정
+        bullet.idAnd("temp_bullet");
+        
+        // 불렛 문자 설정
+        if (bulletChar != null) {
+            bullet._charAnd(bulletChar);
+        } else {
+            bullet._charAnd("●"); // 기본 불렛 문자
+        }
+        
+        // 체크 문자 설정 (있는 경우)
         if (checkedChar != null) {
             bullet.checkedCharAnd(checkedChar);
         }

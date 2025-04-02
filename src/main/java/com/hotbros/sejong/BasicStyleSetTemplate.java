@@ -7,30 +7,33 @@ import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.HorizontalAlign2;
 import static com.hotbros.sejong.StyleConstants.*;
 
 /**
- * 모던 스타일셋 구현 클래스 - 현대적인 디자인의 제목, 개요 스타일을 제공합니다.
+ * 기본 스타일셋 템플릿 구현 클래스 - 기본적인 제목, 개요 스타일을 정의합니다.
+ * 스타일을 정의하고 StyleResult 형태로 보관만 하며, 실제 등록은 별도로 수행됩니다.
  */
-public class ModernStyleSet implements StyleSet {
-    private final Style titleStyle;
-    private final Style outline1Style;
-    private final Style outline2Style;
-    private final Style outline3Style;
-    private final Style outline4Style;
-    private final Style outline5Style;
+public class BasicStyleSetTemplate implements StyleSetTemplate {
+    private final StyleResult titleStyleResult;
+    private final StyleResult outline1StyleResult;
+    private final StyleResult outline2StyleResult;
+    private final StyleResult outline3StyleResult;
+    private final StyleResult outline4StyleResult;
+    private final StyleResult outline5StyleResult;
     
     /**
-     * 생성자 - 모던 스타일셋을 생성하고 스타일을 등록합니다.
-     * @param hwpxFile HWPX 파일
+     * 생성자 - 기본 스타일셋 템플릿의 스타일 결과 객체들을 생성합니다.
+     * @param hwpxFile HWPX 파일 (기본 스타일 참조용)
      */
-    public ModernStyleSet(HWPXFile hwpxFile) {
+    public BasicStyleSetTemplate(HWPXFile hwpxFile) {
+        // HWPX 파일이 null인지 확인
         if (hwpxFile == null) {
             throw new IllegalArgumentException("HWPX 파일이 null입니다");
         }
         
-        // 제목 스타일 (파란색, 크게)
-        StyleResult titleStyleResult = StyleBuilder.create("모던 제목", "Modern Title")
+        // 제목 스타일 결과 생성
+        Style baseStyle = StyleService.findStyleById(hwpxFile, "1"); // 기본 제목 스타일
+        this.titleStyleResult = StyleBuilder.create("제목", "Title")
+                .fromBaseStyle(baseStyle)
                 .withCharPr(charPr -> {
-                    charPr.heightAnd(2600)
-                        .textColor("#2C3E50");
+                    charPr.heightAnd(2200);
                     charPr.createBold();
                 })
                 .withParaPr(paraPr -> {
@@ -39,22 +42,19 @@ public class ModernStyleSet implements StyleSet {
                     
                     paraPr.createMargin();
                     paraPr.margin().createPrev();
-                    paraPr.margin().prev().value(800);
+                    paraPr.margin().prev().value(850);
                     
                     paraPr.margin().createNext();
-                    paraPr.margin().next().value(400);
+                    paraPr.margin().next().value(550);
                 })
                 .buildResult();
         
-        this.titleStyle = StyleService.registerResult(hwpxFile, titleStyleResult);
-        
-        // 개요1 스타일 (진한 파란색) - 한글 개요1 스타일(ID:2) 기반
+        // 개요1 스타일 결과 생성
         Style baseStyle1 = StyleService.findStyleById(hwpxFile, STYLE_ID_OUTLINE_1);
-        StyleResult outline1StyleResult = StyleBuilder.create("모던 개요1", "Modern Outline1")
+        this.outline1StyleResult = StyleBuilder.create("개요1", "Outline1")
                 .fromBaseStyle(baseStyle1)
                 .withCharPr(charPr -> {
-                    charPr.heightAnd(1600)
-                        .textColor("#3498DB");
+                    charPr.heightAnd(1600);
                     charPr.createBold();
                 })
                 .withParaPr(paraPr -> {
@@ -66,22 +66,19 @@ public class ModernStyleSet implements StyleSet {
                     paraPr.margin().left().value(0);
                     
                     paraPr.margin().createPrev();
-                    paraPr.margin().prev().value(350);
+                    paraPr.margin().prev().value(300);
                     
                     paraPr.margin().createNext();
                     paraPr.margin().next().value(200);
                 })
                 .buildResult();
         
-        this.outline1Style = StyleService.registerResult(hwpxFile, outline1StyleResult);
-        
-        // 개요2 스타일 (하늘색) - 한글 개요2 스타일(ID:3) 기반
+        // 개요2 스타일 결과 생성
         Style baseStyle2 = StyleService.findStyleById(hwpxFile, STYLE_ID_OUTLINE_2);
-        StyleResult outline2StyleResult = StyleBuilder.create("모던 개요2", "Modern Outline2")
+        this.outline2StyleResult = StyleBuilder.create("개요2", "Outline2")
                 .fromBaseStyle(baseStyle2)
                 .withCharPr(charPr -> {
-                    charPr.heightAnd(1400)
-                        .textColor("#2980B9");
+                    charPr.heightAnd(1400);
                     charPr.createBold();
                 })
                 .withParaPr(paraPr -> {
@@ -90,34 +87,7 @@ public class ModernStyleSet implements StyleSet {
                     
                     paraPr.createMargin();
                     paraPr.margin().createLeft();
-                    paraPr.margin().left().value(700);
-                    
-                    paraPr.margin().createPrev();
-                    paraPr.margin().prev().value(250);
-                    
-                    paraPr.margin().createNext();
-                    paraPr.margin().next().value(150);
-                })
-                .buildResult();
-        
-        this.outline2Style = StyleService.registerResult(hwpxFile, outline2StyleResult);
-        
-        // 개요3 스타일 (회색) - 한글 개요3 스타일(ID:4) 기반
-        Style baseStyle3 = StyleService.findStyleById(hwpxFile, STYLE_ID_OUTLINE_3);
-        StyleResult outline3StyleResult = StyleBuilder.create("모던 개요3", "Modern Outline3")
-                .fromBaseStyle(baseStyle3)
-                .withCharPr(charPr -> {
-                    charPr.heightAnd(1200)
-                        .textColor("#7F8C8D");
-                    charPr.createBold();
-                })
-                .withParaPr(paraPr -> {
-                    paraPr.createAlign();
-                    paraPr.align().horizontal(HorizontalAlign2.LEFT);
-                    
-                    paraPr.createMargin();
-                    paraPr.margin().createLeft();
-                    paraPr.margin().left().value(1400);
+                    paraPr.margin().left().value(600);
                     
                     paraPr.margin().createPrev();
                     paraPr.margin().prev().value(200);
@@ -127,15 +97,13 @@ public class ModernStyleSet implements StyleSet {
                 })
                 .buildResult();
         
-        this.outline3Style = StyleService.registerResult(hwpxFile, outline3StyleResult);
-        
-        // 개요4 스타일 (연한 회색) - 한글 개요4 스타일(ID:5) 기반
-        Style baseStyle4 = StyleService.findStyleById(hwpxFile, STYLE_ID_OUTLINE_4);
-        StyleResult outline4StyleResult = StyleBuilder.create("모던 개요4", "Modern Outline4")
-                .fromBaseStyle(baseStyle4)
+        // 개요3 스타일 결과 생성
+        Style baseStyle3 = StyleService.findStyleById(hwpxFile, STYLE_ID_OUTLINE_3);
+        this.outline3StyleResult = StyleBuilder.create("개요3", "Outline3")
+                .fromBaseStyle(baseStyle3)
                 .withCharPr(charPr -> {
-                    charPr.heightAnd(1100)
-                        .textColor("#95A5A6");
+                    charPr.heightAnd(1200);
+                    charPr.createBold();
                 })
                 .withParaPr(paraPr -> {
                     paraPr.createAlign();
@@ -143,7 +111,30 @@ public class ModernStyleSet implements StyleSet {
                     
                     paraPr.createMargin();
                     paraPr.margin().createLeft();
-                    paraPr.margin().left().value(2100);
+                    paraPr.margin().left().value(1200);
+                    
+                    paraPr.margin().createPrev();
+                    paraPr.margin().prev().value(150);
+                    
+                    paraPr.margin().createNext();
+                    paraPr.margin().next().value(150);
+                })
+                .buildResult();
+        
+        // 개요4 스타일 결과 생성
+        Style baseStyle4 = StyleService.findStyleById(hwpxFile, STYLE_ID_OUTLINE_4);
+        this.outline4StyleResult = StyleBuilder.create("개요4", "Outline4")
+                .fromBaseStyle(baseStyle4)
+                .withCharPr(charPr -> {
+                    charPr.heightAnd(1100);
+                })
+                .withParaPr(paraPr -> {
+                    paraPr.createAlign();
+                    paraPr.align().horizontal(HorizontalAlign2.LEFT);
+                    
+                    paraPr.createMargin();
+                    paraPr.margin().createLeft();
+                    paraPr.margin().left().value(1800);
                     
                     paraPr.margin().createPrev();
                     paraPr.margin().prev().value(150);
@@ -153,15 +144,12 @@ public class ModernStyleSet implements StyleSet {
                 })
                 .buildResult();
         
-        this.outline4Style = StyleService.registerResult(hwpxFile, outline4StyleResult);
-        
-        // 개요5 스타일 (매우 연한 회색) - 한글 개요5 스타일(ID:6) 기반
+        // 개요5 스타일 결과 생성
         Style baseStyle5 = StyleService.findStyleById(hwpxFile, STYLE_ID_OUTLINE_5);
-        StyleResult outline5StyleResult = StyleBuilder.create("모던 개요5", "Modern Outline5")
+        this.outline5StyleResult = StyleBuilder.create("개요5", "Outline5")
                 .fromBaseStyle(baseStyle5)
                 .withCharPr(charPr -> {
-                    charPr.heightAnd(1000)
-                        .textColor("#BDC3C7");
+                    charPr.heightAnd(1000);
                 })
                 .withParaPr(paraPr -> {
                     paraPr.createAlign();
@@ -169,7 +157,7 @@ public class ModernStyleSet implements StyleSet {
                     
                     paraPr.createMargin();
                     paraPr.margin().createLeft();
-                    paraPr.margin().left().value(2800);
+                    paraPr.margin().left().value(2400);
                     
                     paraPr.margin().createPrev();
                     paraPr.margin().prev().value(100);
@@ -178,37 +166,52 @@ public class ModernStyleSet implements StyleSet {
                     paraPr.margin().next().value(100);
                 })
                 .buildResult();
-        
-        this.outline5Style = StyleService.registerResult(hwpxFile, outline5StyleResult);
     }
-
+    
     @Override
-    public Style title() {
-        return titleStyle;
+    public String getName() {
+        return "기본";
     }
-
+    
     @Override
-    public Style outline1() {
-        return outline1Style;
+    public StyleResult titleResult() {
+        return titleStyleResult;
     }
-
+    
     @Override
-    public Style outline2() {
-        return outline2Style;
+    public StyleResult outline1Result() {
+        return outline1StyleResult;
     }
-
+    
     @Override
-    public Style outline3() {
-        return outline3Style;
+    public StyleResult outline2Result() {
+        return outline2StyleResult;
     }
-
+    
     @Override
-    public Style outline4() {
-        return outline4Style;
+    public StyleResult outline3Result() {
+        return outline3StyleResult;
     }
-
+    
     @Override
-    public Style outline5() {
-        return outline5Style;
+    public StyleResult outline4Result() {
+        return outline4StyleResult;
+    }
+    
+    @Override
+    public StyleResult outline5Result() {
+        return outline5StyleResult;
+    }
+    
+    @Override
+    public StyleResult[] getAllResults() {
+        return new StyleResult[] {
+            titleStyleResult,
+            outline1StyleResult,
+            outline2StyleResult,
+            outline3StyleResult,
+            outline4StyleResult,
+            outline5StyleResult
+        };
     }
 } 
