@@ -157,11 +157,6 @@ public class BasicStyleSetTemplate implements StyleSetTemplate {
     }
     
     @Override
-    public String getName() {
-        return "기본";
-    }
-    
-    @Override
     public StyleTemplate titleTemplate() {
         return titleTemplate;
     }

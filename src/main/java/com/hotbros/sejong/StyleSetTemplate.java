@@ -41,9 +41,4 @@ public interface StyleSetTemplate {
      * 스타일 등록에 사용됩니다.
      */
     StyleTemplate[] getAllTemplates();
-    
-    /**
-     * 이 템플릿의 이름을 반환합니다.
-     */
-    String getName();
 } 

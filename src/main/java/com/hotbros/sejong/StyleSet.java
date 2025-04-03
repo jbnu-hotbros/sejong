@@ -10,7 +10,6 @@ import java.util.HashMap;
  * 제공하여 문서 작성에 직접 사용할 수 있게 합니다.
  */
 public class StyleSet {
-    private final String name;
     private final Style titleStyle;
     private final Style outline1Style;
     private final Style outline2Style;
@@ -22,12 +21,9 @@ public class StyleSet {
     /**
      * 등록된 스타일 맵을 이용하여 스타일셋을 생성합니다.
      * 
-     * @param name 스타일셋 이름
      * @param registeredStyles 스타일 이름과 등록된 스타일 객체의 맵
      */
-    public StyleSet(String name, Map<String, Style> registeredStyles) {
-        this.name = name;
-        
+    public StyleSet(Map<String, Style> registeredStyles) {
         this.titleStyle = registeredStyles.get("제목");
         this.outline1Style = registeredStyles.get("개요1");
         this.outline2Style = registeredStyles.get("개요2");
@@ -55,13 +51,6 @@ public class StyleSet {
                 styleMap.put(entry.getKey(), entry.getValue());
             }
         }
-    }
-    
-    /**
-     * 이 스타일셋의 이름을 반환합니다.
-     */
-    public String getName() {
-        return name;
     }
     
     /**

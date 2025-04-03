@@ -447,6 +447,6 @@ public class StyleService {
         }
         
         // 스타일셋 생성 및 반환
-        return new StyleSet(template.getName(), registeredStyles);
+        return new StyleSet(registeredStyles);
     }
 } 
