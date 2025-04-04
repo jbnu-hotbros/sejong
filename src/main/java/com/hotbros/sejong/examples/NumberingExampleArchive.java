@@ -6,33 +6,36 @@ import kr.dogfoot.hwpxlib.object.content.header_xml.references.Numbering;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.numbering.ParaHead;
 import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.NumberType1;
 import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.ParaHeadingType;
+import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.HorizontalAlign1;
+import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.ValueUnit1;
 import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.Para;
 import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.Run;
 import kr.dogfoot.hwpxlib.tool.blankfilemaker.BlankFileMaker;
 import kr.dogfoot.hwpxlib.writer.HWPXWriter;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
- * 넘버링 기능을 테스트하기 위한 예제 클래스
+ * 넘버링 기능 테스트 예제 클래스 - 아카이브용
+ * (참고용으로만 사용하세요)
  */
-public class NumberingExample {
+public class NumberingExampleArchive {
 
     public static void main(String[] args) throws Exception {
         // 기본 넘버링 예제 실행
-        basicNumberingExample();
+        // basicNumberingExample();
         
         // 다양한 넘버링 유형 예제
-        multipleNumberingTypesExample();
+        // multipleNumberingTypesExample();
         
         // 모든 과정이 통합된 넘버링 예제
-        completeNumberingProcess();
+        // completeNumberingProcess();
         
-        // 넘버링 셋 개념을 구현한 예제
-        numberingSetExample();
+        // 원형 숫자 넘버링(①, ②, ③...) 예제
+        // circledNumberingExample();
+        
+        // 간단한 넘버링 형식(start, numFormat, text)만 변경하는 예제
+        // simpleNumberingFormatExample();
     }
     
     /**
@@ -242,10 +245,10 @@ public class NumberingExample {
     }
     
     /**
-     * 넘버링 셋 개념을 구현한 예제
+     * 원형 숫자 넘버링(①, ②, ③...)을 설정하는 예제
      */
-    private static void numberingSetExample() throws Exception {
-        System.out.println("=== 넘버링 셋 개념 구현 예제 ===");
+    private static void circledNumberingExample() throws Exception {
+        System.out.println("=== 원형 숫자 넘버링(①, ②, ③...) 예제 ===");
         
         // 1. 빈 HWPX 파일 생성
         HWPXFile hwpxFile = BlankFileMaker.make();
@@ -258,160 +261,183 @@ public class NumberingExample {
             throw new IllegalStateException("넘버링 컨테이너가 존재하지 않습니다.");
         }
         
-        // 4. 기존 넘버링(id="1") 찾기 - 베이스 넘버링으로 사용
-        Numbering baseNumbering = null;
+        // 4. 기존 넘버링(id="1") 찾기
+        Numbering existingNumbering = null;
         for (int i = 0; i < refList.numberings().count(); i++) {
             Numbering num = refList.numberings().get(i);
             if ("1".equals(num.id())) {
-                baseNumbering = num;
+                existingNumbering = num;
                 break;
             }
         }
         
-        if (baseNumbering == null || baseNumbering.countOfParaHead() == 0) {
-            throw new IllegalStateException("기본 넘버링이 없거나 ParaHead가 없습니다.");
+        // 5. 기존 넘버링이 없으면 예외 발생
+        if (existingNumbering == null) {
+            throw new IllegalStateException("ID가 '1'인 넘버링을 찾을 수 없습니다.");
         }
         
-        // 5. 넘버링 셋 생성 - Map을 사용해 ID와 Numbering 객체 관리
-        Map<String, Numbering> numberingSet = new HashMap<>();
+        // 6. 기존 넘버링을 복제하여 새 넘버링 생성
+        Numbering clonedNumbering = existingNumbering.clone();
+        clonedNumbering.id("circled_numbering");
         
-        // 6. 다양한 넘버링 스타일 생성하여 셋에 추가
+        // 7. ParaHead가 없으면 예외 발생
+        if (clonedNumbering.countOfParaHead() == 0) {
+            throw new IllegalStateException("복제된 넘버링에 ParaHead가 없습니다.");
+        }
         
-        // 6-1. 아라비아 숫자 넘버링 (1, 2, 3...)
-        Numbering arabicNumbering = cloneNumbering(baseNumbering, "arabic");
-        customizeParaHead(arabicNumbering, NumberType1.DIGIT, "1. ");
-        numberingSet.put("arabic", arabicNumbering);
+        // 8. 복제된 넘버링의 ParaHead 상세 속성 설정
+        ParaHead paraHead = clonedNumbering.getParaHead(0);
         
-        // 6-2. 알파벳 대문자 넘버링 (A, B, C...)
-        Numbering upperAlphaNumbering = cloneNumbering(baseNumbering, "upperAlpha");
-        customizeParaHead(upperAlphaNumbering, NumberType1.LATIN_CAPITAL, "A. ");
-        numberingSet.put("upperAlpha", upperAlphaNumbering);
+        // 레벨과 번호 형식 설정
+        setNumberingFormat(paraHead, (byte) 7, 1, NumberType1.CIRCLED_DIGIT, "^7");
         
-        // 6-3. 알파벳 소문자 넘버링 (a, b, c...)
-        Numbering lowerAlphaNumbering = cloneNumbering(baseNumbering, "lowerAlpha");
-        customizeParaHead(lowerAlphaNumbering, NumberType1.LATIN_SMALL, "a) ");
-        numberingSet.put("lowerAlpha", lowerAlphaNumbering);
+        System.out.println("원형 숫자 넘버링(①, ②, ③...) 설정 완료");
         
-        // 6-4. 로마자 대문자 넘버링 (I, II, III...)
-        Numbering upperRomanNumbering = cloneNumbering(baseNumbering, "upperRoman");
-        customizeParaHead(upperRomanNumbering, NumberType1.ROMAN_CAPITAL, "I. ");
-        numberingSet.put("upperRoman", upperRomanNumbering);
+        // 9. 복제된 넘버링을 문서에 등록
+        refList.numberings().add(clonedNumbering);
         
-        // 6-5. 한글 넘버링 (가, 나, 다...)
-        Numbering hangulNumbering = cloneNumbering(baseNumbering, "hangul");
-        customizeParaHead(hangulNumbering, NumberType1.HANGUL_SYLLABLE, "가. ");
-        numberingSet.put("hangul", hangulNumbering);
+        // 10. 넘버링이 적용된 문단 추가
+        for (int i = 0; i < 3; i++) {
+            Para para = hwpxFile.sectionXMLFileList().get(0).addNewPara();
+            para.paraPrIDRef(clonedNumbering.id());
+            Run run = para.addNewRun();
+            run.addNewT().addText((i + 1) + "번째 원형 숫자 항목");
+        }
         
-        // 6-6. 원 숫자 넘버링 (①, ②, ③...)
-        Numbering circleNumbering = cloneNumbering(baseNumbering, "circle");
-        customizeParaHead(circleNumbering, NumberType1.CIRCLED_DIGIT, "");
-        numberingSet.put("circle", circleNumbering);
+        // 11. 파일 저장
+        File outputFile = new File("CircledNumberingExample.hwpx");
+        HWPXWriter.toFilepath(hwpxFile, outputFile.getAbsolutePath());
+        System.out.println("원형 숫자 넘버링 예제 파일이 생성되었습니다: " + outputFile.getAbsolutePath());
+    }
+    
+    /**
+     * 간단한 넘버링 형식 변경 예제
+     */
+    private static void simpleNumberingFormatExample() throws Exception {
+        System.out.println("=== 간단한 넘버링 형식 변경 예제 ===");
         
-        System.out.println("넘버링 셋 구축 완료. 총 " + numberingSet.size() + "개의 넘버링 스타일이 준비되었습니다.");
+        // 1. 빈 HWPX 파일 생성
+        HWPXFile hwpxFile = BlankFileMaker.make();
         
-        // 7. 사용자가 선택한 넘버링만 실제 문서에 적용
-        // (예: 사용자가 'arabic', 'hangul', 'circle' 스타일 선택)
-        String[] selectedStyles = {"arabic", "hangul", "circle"};
+        // 2. 문서의 참조 목록(RefList) 가져오기
+        RefList refList = hwpxFile.headerXMLFile().refList();
         
-        System.out.println("사용자가 선택한 넘버링 스타일을 문서에 적용합니다: " + Arrays.toString(selectedStyles));
-        
-        // 8. 선택된 넘버링만 문서에 추가
-        for (String style : selectedStyles) {
-            Numbering numbering = numberingSet.get(style);
-            if (numbering != null) {
-                // 8-1. 넘버링을 문서에 등록
-                refList.numberings().add(numbering);
-                
-                // 8-2. 해당 넘버링을 사용하는 문단 추가
-                Para para = hwpxFile.sectionXMLFileList().get(0).addNewPara();
-                para.paraPrIDRef(numbering.id());
-                Run run = para.addNewRun();
-                run.addNewT().addText(style + " 스타일의 첫 번째 항목");
-                
-                // 두 번째 항목 추가
-                Para para2 = hwpxFile.sectionXMLFileList().get(0).addNewPara();
-                para2.paraPrIDRef(numbering.id());
-                Run run2 = para2.addNewRun();
-                run2.addNewT().addText(style + " 스타일의 두 번째 항목");
+        // 3. 기존 넘버링(id="1") 찾기
+        Numbering existingNumbering = null;
+        for (int i = 0; i < refList.numberings().count(); i++) {
+            Numbering num = refList.numberings().get(i);
+            if ("1".equals(num.id())) {
+                existingNumbering = num;
+                break;
             }
         }
         
-        // 9. 일반 문단 추가 (넘버링 없음)
-        Para normalPara = hwpxFile.sectionXMLFileList().get(0).addNewPara();
-        Run normalRun = normalPara.addNewRun();
-        normalRun.addNewT().addText("넘버링 셋 테스트 예제가 완료되었습니다.");
-        
-        // 10. 파일 저장
-        File outputFile = new File("NumberingSetExample.hwpx");
-        HWPXWriter.toFilepath(hwpxFile, outputFile.getAbsolutePath());
-        System.out.println("넘버링 셋 예제 파일이 생성되었습니다: " + outputFile.getAbsolutePath());
-    }
-    
-    /**
-     * 기존 넘버링을 복제하여 새 넘버링 생성
-     * 
-     * @param baseNumbering 기존 넘버링
-     * @param newId 새 넘버링 ID
-     * @return 복제된 넘버링 객체
-     */
-    private static Numbering cloneNumbering(Numbering baseNumbering, String newId) {
-        // Numbering 객체 clone
-        Numbering cloned = baseNumbering.clone();
-        cloned.id(newId);
-        
-        return cloned;
-    }
-    
-    /**
-     * 넘버링의 ParaHead 속성 커스터마이징
-     * 
-     * @param numbering 넘버링 객체
-     * @param numberType 번호 유형
-     * @param prefix 접두사 (예: "1. ", "가. ")
-     */
-    private static void customizeParaHead(Numbering numbering, NumberType1 numberType, String prefix) {
-        if (numbering.countOfParaHead() > 0) {
-            ParaHead paraHead = numbering.getParaHead(0);
-            paraHead.numFormat(numberType);
-            paraHead.text(prefix + "^1");
+        if (existingNumbering == null) {
+            throw new IllegalStateException("ID가 '1'인 넘버링을 찾을 수 없습니다.");
         }
+        
+        // 4. 다양한 번호 형식으로 복제하여 생성
+        
+        // 4-1. 아라비아 숫자 (1, 2, 3, ...)
+        Numbering arabicNumbering = existingNumbering.clone();
+        arabicNumbering.id("simple_arabic");
+        ParaHead arabicHead = arabicNumbering.getParaHead(0);
+        setNumberingFormat(arabicHead, arabicHead.level(), 0, NumberType1.DIGIT, "^1.");
+        refList.numberings().add(arabicNumbering);
+        
+        // 4-2. 로마자 대문자 (I, II, III, ...)
+        Numbering romanNumbering = existingNumbering.clone();
+        romanNumbering.id("simple_roman");
+        ParaHead romanHead = romanNumbering.getParaHead(0);
+        setNumberingFormat(romanHead, romanHead.level(), 0, NumberType1.ROMAN_CAPITAL, "^1.");
+        refList.numberings().add(romanNumbering);
+        
+        // 4-3. 한글 (가, 나, 다, ...)
+        Numbering hangulNumbering = existingNumbering.clone();
+        hangulNumbering.id("simple_hangul");
+        ParaHead hangulHead = hangulNumbering.getParaHead(0);
+        setNumberingFormat(hangulHead, hangulHead.level(), 0, NumberType1.HANGUL_SYLLABLE, "^1.");
+        refList.numberings().add(hangulNumbering);
+        
+        // 5. 넘버링이 적용된 문단 추가
+        // 5-1. 아라비아 숫자 넘버링
+        addParagraph(hwpxFile, "== 아라비아 숫자 넘버링 ==");
+        for (int i = 0; i < 3; i++) {
+            Para para = hwpxFile.sectionXMLFileList().get(0).addNewPara();
+            para.paraPrIDRef(arabicNumbering.id());
+            Run run = para.addNewRun();
+            run.addNewT().addText("아라비아 숫자 항목 " + (i + 1));
+        }
+        
+        // 5-2. 로마자 대문자 넘버링
+        addParagraph(hwpxFile, "== 로마자 대문자 넘버링 ==");
+        for (int i = 0; i < 3; i++) {
+            Para para = hwpxFile.sectionXMLFileList().get(0).addNewPara();
+            para.paraPrIDRef(romanNumbering.id());
+            Run run = para.addNewRun();
+            run.addNewT().addText("로마자 대문자 항목 " + (i + 1));
+        }
+        
+        // 5-3. 한글 넘버링
+        addParagraph(hwpxFile, "== 한글 넘버링 ==");
+        for (int i = 0; i < 3; i++) {
+            Para para = hwpxFile.sectionXMLFileList().get(0).addNewPara();
+            para.paraPrIDRef(hangulNumbering.id());
+            Run run = para.addNewRun();
+            run.addNewT().addText("한글 항목 " + (i + 1));
+        }
+        
+        // 6. 파일 저장
+        File outputFile = new File("SimpleNumberingFormatExample.hwpx");
+        HWPXWriter.toFilepath(hwpxFile, outputFile.getAbsolutePath());
+        System.out.println("간단한 넘버링 형식 변경 예제 파일이 생성되었습니다: " + outputFile.getAbsolutePath());
+    }
+    
+    /**
+     * ParaHead 객체의 속성을 설정하는 유틸리티 함수 (메서드 체이닝 지원)
+     * 
+     * @param paraHead 설정할 ParaHead 객체
+     * @param level 레벨 (1~7 범위, 수준별 문단 머리 정의)
+     * @param start 시작 번호 (0부터 시작하여 실제로는 1, 2, 3...으로 표시됨)
+     * @param numFormat 번호 포맷 (NumberType1 열거형 사용)
+     * @param text 형식 문자열 (^1, ^2 등은 실제 번호가 표시될 위치)
+     * @return 설정이 완료된 ParaHead 객체 (메서드 체이닝 지원)
+     */
+    private static ParaHead setNumberingFormat(ParaHead paraHead, byte level, int start, NumberType1 numFormat, String text) {
+        paraHead.level(level);
+        paraHead.start(start);
+        paraHead.numFormat(numFormat);
+        paraHead.text(text);
+        return paraHead;
+    }
+    
+    /**
+     * ParaHead 객체의 핵심 속성만 설정하는 간소화 버전 (level 유지)
+     */
+    private static ParaHead setNumberingFormat(ParaHead paraHead, int start, NumberType1 numFormat, String text) {
+        paraHead.start(start);
+        paraHead.numFormat(numFormat);
+        paraHead.text(text);
+        return paraHead;
     }
     
     /**
      * 넘버링 객체를 생성하고 RefList에 등록합니다.
-     * 
-     * @param refList 참조 목록
-     * @param id 넘버링 ID
-     * @param numberType 번호 유형 (NumberType1 열거형 사용)
-     * @param formatString 형식 문자열 (예: "1.", "A.", "가.")
-     * @param startNumber 시작 번호 (0부터 시작)
-     * @return 생성된 넘버링 객체
      */
     private static Numbering createNumbering(RefList refList, String id, NumberType1 numberType, 
-                                              String formatString, int startNumber) {
+                                            String formatString, int startNumber) {
         // 넘버링이 없으면 생성
         if (refList.numberings() == null) {
             refList.createNumberings();
         }
         
-        // 새 넘버링 객체 생성
+        // 새 넘버링 객체 생성 및 ID 설정
         Numbering numbering = refList.numberings().addNew();
         numbering.id(id);
         
-        // 문단 머리말 설정 - 첫 번째 ParaHead 객체 생성
+        // ParaHead 객체 생성 및 속성 설정
         ParaHead paraHead = numbering.addNewParaHead();
-        
-        // 수준 설정 (1부터 시작하는 레벨)
-        paraHead.level((byte) 1);
-        
-        // 시작 번호 설정
-        paraHead.start(startNumber);
-        
-        // 번호 포맷 설정
-        paraHead.numFormat(numberType);
-        
-        // 형식 문자열 설정 (텍스트)
-        paraHead.text(formatString + "^1");
+        setNumberingFormat(paraHead, (byte) 1, startNumber, numberType, formatString + "^1");
         
         return numbering;
     }
