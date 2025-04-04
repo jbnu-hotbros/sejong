@@ -56,42 +56,42 @@ public class StyleSet {
     /**
      * 등록된 제목 스타일을 반환합니다.
      */
-    public Style title() {
+    private Style title() {
         return titleStyle;
     }
     
     /**
      * 등록된 개요1 스타일을 반환합니다.
      */
-    public Style outline1() {
+    private Style outline1() {
         return outline1Style;
     }
     
     /**
      * 등록된 개요2 스타일을 반환합니다.
      */
-    public Style outline2() {
+    private Style outline2() {
         return outline2Style;
     }
     
     /**
      * 등록된 개요3 스타일을 반환합니다.
      */
-    public Style outline3() {
+    private Style outline3() {
         return outline3Style;
     }
     
     /**
      * 등록된 개요4 스타일을 반환합니다.
      */
-    public Style outline4() {
+    private Style outline4() {
         return outline4Style;
     }
     
     /**
      * 등록된 개요5 스타일을 반환합니다.
      */
-    public Style outline5() {
+    private Style outline5() {
         return outline5Style;
     }
     

@@ -1,17 +1,15 @@
-package com.hotbros.sejong;
+package com.hotbros.sejong.examples;
 
 import kr.dogfoot.hwpxlib.object.HWPXFile;
 import kr.dogfoot.hwpxlib.writer.HWPXWriter;
 import kr.dogfoot.hwpxlib.tool.blankfilemaker.BlankFileMaker;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.Style;
-import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.HorizontalAlign2;
 import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.Para;
 import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.Run;
 
-import com.hotbros.sejong.style.StyleBuilder;
+
 import com.hotbros.sejong.style.StyleService;
 import com.hotbros.sejong.style.StyleSet;
-import com.hotbros.sejong.style.StyleTemplate;
 import com.hotbros.sejong.style.StyleSetTemplate;
 import com.hotbros.sejong.style.BasicStyleSetTemplate;
 
@@ -133,34 +131,5 @@ public class SejongExample {
         return addParagraph(hwpxFile, style, text);
     }
     
-    /**
-     * 개별 스타일을 직접 생성하고 등록하는 예제
-     */
-    private static void createCustomStyle(HWPXFile hwpxFile) {
-        // 커스텀 스타일 생성
-        StyleTemplate customStyleTemplate = StyleBuilder.create("커스텀 스타일", "Custom Style")
-                .withCharPr(charPr -> {
-                    charPr.heightAnd(1800);
-                    charPr.createBold();
-                    charPr.textColor("#FF0000"); // 빨간색
-                })
-                .withParaPr(paraPr -> {
-                    paraPr.createAlign();
-                    paraPr.align().horizontal(HorizontalAlign2.CENTER);
-                    
-                    paraPr.createMargin();
-                    paraPr.margin().createPrev();
-                    paraPr.margin().prev().value(500);
-                    
-                    paraPr.margin().createNext();
-                    paraPr.margin().next().value(200);
-                })
-                .buildTemplate();
-        
-        // 스타일 등록
-        Style customStyle = StyleService.registerStyleTemplate(hwpxFile, customStyleTemplate);
-        
-        // 등록된 스타일로 문단 추가
-        addParagraph(hwpxFile, customStyle, "커스텀 스타일이 적용된 문단입니다.");
-    }
+    
 }
