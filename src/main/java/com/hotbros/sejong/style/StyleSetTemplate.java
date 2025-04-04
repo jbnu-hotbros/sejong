@@ -1,4 +1,4 @@
-package com.hotbros.sejong;
+package com.hotbros.sejong.style;
 
 /**
  * 스타일셋 템플릿 인터페이스 - 등록 전 스타일 정의를 담당합니다.

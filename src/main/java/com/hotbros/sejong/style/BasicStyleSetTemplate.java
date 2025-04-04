@@ -1,8 +1,8 @@
-package com.hotbros.sejong;
+package com.hotbros.sejong.style;
 
 import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.HorizontalAlign2;
-
-import static com.hotbros.sejong.StyleConstants.*;
+import kr.dogfoot.hwpxlib.object.content.header_xml.references.Style;
+import static com.hotbros.sejong.style.StyleConstants.*;
 
 /**
  * 기본 스타일셋 템플릿 구현 클래스 - 기본적인 제목, 개요 스타일을 정의합니다.
