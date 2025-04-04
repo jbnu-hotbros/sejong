@@ -8,6 +8,13 @@ import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.HorizontalAlign2;
 import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.Para;
 import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.Run;
 
+import com.hotbros.sejong.style.StyleBuilder;
+import com.hotbros.sejong.style.StyleService;
+import com.hotbros.sejong.style.StyleSet;
+import com.hotbros.sejong.style.StyleTemplate;
+import com.hotbros.sejong.style.StyleSetTemplate;
+import com.hotbros.sejong.style.BasicStyleSetTemplate;
+
 import java.io.File;
 
 /**

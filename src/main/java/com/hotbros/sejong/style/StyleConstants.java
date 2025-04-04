@@ -1,4 +1,4 @@
-package com.hotbros.sejong;
+package com.hotbros.sejong.style;
 
 /**
  * 한글 문서의 스타일 ID 상수를 정의한 클래스입니다.

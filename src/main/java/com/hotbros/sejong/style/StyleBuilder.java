@@ -1,4 +1,4 @@
-package com.hotbros.sejong;
+package com.hotbros.sejong.style;
 
 import kr.dogfoot.hwpxlib.object.HWPXFile;
 import kr.dogfoot.hwpxlib.object.content.header_xml.RefList;
