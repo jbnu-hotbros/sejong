@@ -1,9 +1,14 @@
 package com.hotbros.sejong.style;
 
 /**
- * 스타일셋 템플릿 인터페이스 - 등록 전 스타일 정의를 담당합니다.
- * 문서에 등록되기 전의 스타일 정의를 관리하는 템플릿으로,
- * 다양한 문서에 재사용할 수 있습니다.
+ * !!! HWPX 제약사항 !!!
+ * @Constraint STYLE-010
+ * @Description 스타일 정의 단계의 구성요소
+ * @Reason 
+ * - StyleSetTemplate: 여러 스타일 템플릿의 집합
+ * - StyleTemplate: 개별 스타일의 정의
+ * - 이 단계에서는 아직 실제 ID나 참조가 없음
+ * @Status ACTIVE
  */
 public interface StyleSetTemplate {
     /**

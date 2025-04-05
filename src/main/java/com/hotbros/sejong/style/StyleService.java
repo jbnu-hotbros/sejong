@@ -11,6 +11,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * !!! HWPX 제약사항 !!!
+ * @Constraint STYLE-011
+ * @Description StyleService의 현재 역할
+ * @Reason 
+ * - 템플릿을 실제 스타일로 변환
+ * - ID 생성 및 할당
+ * - 참조 관계 설정
+ * - HWPX 파일에 직접 등록
+ * @Status ACTIVE
+ */
+
+/**
  * 스타일 서비스 - 스타일 등록 및 관리 기능을 제공합니다.
  * StyleBuilder로 생성된 스타일 템플릿을 HWPX 파일에 등록합니다.
  * 
