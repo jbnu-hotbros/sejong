@@ -25,13 +25,6 @@
       <groupId>kr.dogfoot</groupId>
       <artifactId>hwpxlib</artifactId>
       <version>1.0.5</version>
-      <!-- <scope>system</scope>
-      <systemPath>${project.basedir}/lib/hwpxlib-1.0.5-jinseok.jar</systemPath> -->
-    </dependency>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-compress</artifactId>
-      <version>1.21</version>  <!-- 2024년 기준 최신 -->
     </dependency>
   </dependencies>
 
@@ -42,10 +35,7 @@
           <artifactId>exec-maven-plugin</artifactId>
           <version>3.1.0</version>
           <configuration>
-            <mainClass>com.hotbros.sejong.examples.SimpleBlankFileExample</mainClass>
-            <!-- <additionalClasspathElements>
-              <additionalClasspathElement>${project.basedir}/lib/hwpxlib-1.0.5-jinseok.jar</additionalClasspathElement>
-            </additionalClasspathElements> -->
+            <mainClass>com.hotbros.sejong.examples.OdtDebugExample</mainClass>
           </configuration>
         </plugin>
         <plugin>
@@ -56,7 +46,7 @@
             <archive>
               <manifest>
                 <addClasspath>true</addClasspath>
-                <mainClass>com.hotbros.sejong.examples.SimpleBlankFileExample</mainClass>
+                <mainClass>com.hotbros.sejong.examples.OdtDebugExample</mainClass>
               </manifest>
             </archive>
           </configuration>
