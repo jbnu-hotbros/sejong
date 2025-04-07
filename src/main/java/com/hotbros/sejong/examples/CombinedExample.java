@@ -7,7 +7,8 @@ import kr.dogfoot.hwpxlib.object.content.header_xml.references.Style;
 import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.Para;
 import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.Run;
 import kr.dogfoot.hwpxlib.tool.blankfilemaker.BlankFileMaker;
-import kr.dogfoot.hwpxlib.writer.HWPXWriter;
+// import kr.dogfoot.hwpxlib.writer.HWPXWriter;
+import com.hotbros.sejong.writer.HWPXWriter;
 
 import com.hotbros.sejong.numbering.NumberingFactory;
 import com.hotbros.sejong.numbering.NumberingRegistry;
