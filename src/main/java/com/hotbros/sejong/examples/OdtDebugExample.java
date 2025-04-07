@@ -77,10 +77,10 @@ public class OdtDebugExample {
         StyleSet styleSet = StyleService.registerStyleSetFromTemplate(hwpxFile, styleTemplate);
         
         // 스타일 적용한 문단 추가
-        addParagraph(hwpxFile, styleSet.getStyle("제목"), "스타일 테스트 제목");
-        addParagraph(hwpxFile, styleSet.getStyle("개요1"), "개요 1 레벨 텍스트");
-        addParagraph(hwpxFile, styleSet.getStyle("개요2"), "개요 2 레벨 텍스트");
-        addParagraph(hwpxFile, styleSet.getStyle("개요3"), "개요 3 레벨 텍스트");
+        // addParagraphWithLineSeg(hwpxFile, styleSet.getStyle("제목"), "스타일 테스트 제목");
+        // addParagraphWithLineSeg(hwpxFile, styleSet.getStyle("개요1"), "개요 1 레벨 텍스트");
+        // addParagraphWithLineSeg(hwpxFile, styleSet.getStyle("개요2"), "개요 2 레벨 텍스트");
+        // addParagraphWithLineSeg(hwpxFile, styleSet.getStyle("개요3"), "개요 3 레벨 텍스트");
         
         File outputFile = new File("debug_case3_styles.hwpx");
         HWPXWriter.toFilepath(hwpxFile, outputFile.getAbsolutePath());
@@ -112,9 +112,9 @@ public class OdtDebugExample {
         numbService.apply(simpleNumbering);
         
         // 넘버링 적용 문단 추가
-        addParagraph(hwpxFile, null, "넘버링 테스트 1");
-        addParagraph(hwpxFile, null, "넘버링 테스트 2");
-        addParagraph(hwpxFile, null, "넘버링 테스트 3");
+        addParagraphWithLineSeg(hwpxFile, null, "넘버링 테스트 1");
+        addParagraphWithLineSeg(hwpxFile, null, "넘버링 테스트 2");
+        addParagraphWithLineSeg(hwpxFile, null, "넘버링 테스트 3");
         
         File outputFile = new File("debug_case4_numbering.hwpx");
         HWPXWriter.toFilepath(hwpxFile, outputFile.getAbsolutePath());
@@ -155,9 +155,9 @@ public class OdtDebugExample {
         numbService.apply(basicNumbering);
         
         // 스타일과 넘버링이 조합된 문단 추가
-        addParagraph(hwpxFile, styleSet.getStyle("제목"), "스타일과 넘버링 조합 테스트");
-        addParagraph(hwpxFile, styleSet.getStyle("개요1"), "개요 레벨 1 with 넘버링");
-        addParagraph(hwpxFile, styleSet.getStyle("개요2"), "개요 레벨 2 with 넘버링");
+        addParagraphWithLineSeg(hwpxFile, styleSet.getStyle("제목"), "스타일과 넘버링 조합 테스트");
+        addParagraphWithLineSeg(hwpxFile, styleSet.getStyle("개요1"), "개요 레벨 1 with 넘버링");
+        addParagraphWithLineSeg(hwpxFile, styleSet.getStyle("개요2"), "개요 레벨 2 with 넘버링");
         
         File outputFile = new File("debug_case5_combined.hwpx");
         HWPXWriter.toFilepath(hwpxFile, outputFile.getAbsolutePath());
