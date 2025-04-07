@@ -21,10 +21,10 @@
       <version>4.11</version>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <version>1.0.5</version>
+   <dependency>
       <groupId>kr.dogfoot</groupId>
       <artifactId>hwpxlib</artifactId>
+      <version>1.0.5</version>
     </dependency>
   </dependencies>
 
@@ -35,8 +35,34 @@
           <artifactId>exec-maven-plugin</artifactId>
           <version>3.1.0</version>
           <configuration>
-            <mainClass>com.hotbros.sejong.examples.CombinedExample</mainClass>
+            <mainClass>com.hotbros.sejong.examples.SimpleWriterExample</mainClass>
           </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>3.3.0</version>
+          <configuration>
+            <archive>
+              <manifest>
+                <addClasspath>true</addClasspath>
+                <mainClass>com.hotbros.sejong.examples.SimpleWriterExample</mainClass>
+              </manifest>
+            </archive>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-shade-plugin</artifactId>
+          <version>3.5.0</version>
+          <executions>
+            <execution>
+              <phase>package</phase>
+              <goals>
+                <goal>shade</goal>
+              </goals>
+            </execution>
+          </executions>
         </plugin>
       </plugins>
   </build>

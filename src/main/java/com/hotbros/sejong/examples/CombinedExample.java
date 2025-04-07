@@ -7,7 +7,8 @@ import kr.dogfoot.hwpxlib.object.content.header_xml.references.Style;
 import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.Para;
 import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.Run;
 import kr.dogfoot.hwpxlib.tool.blankfilemaker.BlankFileMaker;
-import kr.dogfoot.hwpxlib.writer.HWPXWriter;
+// import kr.dogfoot.hwpxlib.writer.HWPXWriter;
+import com.hotbros.sejong.writer.HWPXWriter;
 
 import com.hotbros.sejong.numbering.NumberingFactory;
 import com.hotbros.sejong.numbering.NumberingRegistry;
@@ -50,18 +51,28 @@ public class CombinedExample {
         // 3-2. 다양한 유형의 넘버링 생성 및 등록
         Numbering outline = NumberingFactory.create()
             .level(1)
-                .format(NumberType1.DIGIT)
+                .format(NumberType1.ROMAN_CAPITAL)  // I, II, III 형식
                 .text("^1.")
                 .start(1)
                 .done()
             .level(2)
-                .format(NumberType1.LATIN_SMALL)
-                .text("^1.^2.")
+                .format(NumberType1.HANGUL_SYLLABLE)  // □ 형식
+                .text("□")
                 .start(1)
                 .done()
             .level(3)
-                .format(NumberType1.ROMAN_SMALL)
-                .text("^1.^2.^3.")
+                .format(NumberType1.HANGUL_SYLLABLE)  // ○ 형식
+                .text("○")
+                .start(1)
+                .done()
+            .level(4)
+                .format(NumberType1.HANGUL_SYLLABLE)  // - 형식
+                .text("-")
+                .start(1)
+                .done()
+            .level(5)
+                .format(NumberType1.HANGUL_SYLLABLE)  // ※ 형식
+                .text("※")
                 .start(1)
                 .done()
             .build();
