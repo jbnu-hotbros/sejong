@@ -1,5 +1,5 @@
 
-package com.hotbros.sejong.writer;
+package com.hotbros.sejong.util;
 
 import kr.dogfoot.hwpxlib.commonstrings.FileIDs;
 import kr.dogfoot.hwpxlib.commonstrings.MineTypes;

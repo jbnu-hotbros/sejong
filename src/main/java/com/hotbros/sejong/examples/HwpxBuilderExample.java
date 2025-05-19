@@ -4,7 +4,8 @@ import com.hotbros.sejong.builder.CharPrBuilder;
 import com.hotbros.sejong.builder.ParaPrBuilder;
 import com.hotbros.sejong.builder.StyleBuilder;
 import com.hotbros.sejong.util.HWPXObjectFinder;
-import com.hotbros.sejong.writer.HWPXWriter; // SimpleBlankFileExample에서 사용하는 것으로 가정
+import com.hotbros.sejong.util.HWPXWriter;
+
 import kr.dogfoot.hwpxlib.object.HWPXFile;
 import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.StyleType;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.CharPr;
@@ -57,7 +58,6 @@ public class HwpxBuilderExample {
         // 2. CharPr 생성 (글자 스타일) - ID NEW_CHAR_PR_ID
         Map<String, Object> charPrAttributes = new HashMap<>();
         charPrAttributes.put("id", NEW_CHAR_PR_ID);
-        charPrAttributes.put("height", "12pt"); // 글자 크기 12pt
         charPrAttributes.put("textColor", "#FF0000"); // 빨간색
         charPrAttributes.put("bold", true);       // 굵게
 
@@ -88,10 +88,12 @@ public class HwpxBuilderExample {
         // 4. Style 생성 (문단 스타일로 CharPr과 ParaPr 참조) - ID NEW_STYLE_ID
         Map<String, Object> styleAttributes = new HashMap<>();
         styleAttributes.put("id", NEW_STYLE_ID);
-        styleAttributes.put("name", "MyCustomStyle");
+        styleAttributes.put("name", "나의커스텀스타일");
+        styleAttributes.put("engName", "MyCustomStyle");
         styleAttributes.put("type", StyleType.PARA); // 문단 스타일
         styleAttributes.put("charPrIDRef", charPr.id()); // 위에서 생성한 CharPr의 ID NEW_CHAR_PR_ID 참조
         styleAttributes.put("paraPrIDRef", paraPr.id()); // 위에서 생성한 ParaPr의 ID NEW_PARA_PR_ID 참조
+
 
         Style customStyle = StyleBuilder.fromMap(originalStyle, styleAttributes).build();
         // 생성된 Style을 Header.xml에 추가
