@@ -1,7 +1,6 @@
 package com.hotbros.sejong.builder;
 
 import com.hotbros.sejong.util.HWPXObjectFinder;
-import com.hotbros.sejong.util.HWPXWriter;
 
 import kr.dogfoot.hwpxlib.object.HWPXFile;
 import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.StyleType;
@@ -11,7 +10,6 @@ import kr.dogfoot.hwpxlib.object.content.header_xml.references.Style;
 import kr.dogfoot.hwpxlib.tool.blankfilemaker.BlankFileMaker;
 import kr.dogfoot.hwpxlib.object.content.header_xml.RefList;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,11 +19,15 @@ public class HWPXBuilder {
     private static final String NEW_PARA_PR_ID = "16";
     private static final String NEW_STYLE_ID = "18";
 
-    public void main() throws Exception {
-        // 1. 빈 HWPX 파일 생성
-        HWPXFile hwpxFile = BlankFileMaker.make();
-        
-        RefList refList = hwpxFile.headerXMLFile().refList();
+    private HWPXFile hwpxFile;
+    private RefList refList;
+
+    public HWPXBuilder() {
+        this.hwpxFile = BlankFileMaker.make();
+        this.refList = hwpxFile.headerXMLFile().refList();
+    }
+
+    public HWPXFile build() throws Exception {
 
         // 원본 스타일 및 참조 객체 찾기
         Style originalStyle = HWPXObjectFinder.findStyleById(hwpxFile, ORIGINAL_STYLE_ID);
@@ -102,18 +104,6 @@ public class HWPXBuilder {
         System.out.println("  - 참조 CharPr ID: " + customStyle.charPrIDRef());
         System.out.println("  - 참조 ParaPr ID: " + customStyle.paraPrIDRef());
 
-
-        // 5. 파일 저장
-        String outputDir = "output";
-        new File(outputDir).mkdirs(); // output 디렉토리 생성
-        File outputFile = new File(outputDir, "StyledBlankFile.hwpx");
-
-        try {
-            HWPXWriter.toFilepath(hwpxFile, outputFile.getAbsolutePath());
-            System.out.println("스타일이 추가된 HWPX 파일이 생성되었습니다: " + outputFile.getAbsolutePath());
-        } catch (Exception e) {
-            System.err.println("파일 저장 중 오류 발생: " + e.getMessage());
-            e.printStackTrace();
-        }
+        return hwpxFile;
     }
 }

@@ -35,7 +35,7 @@
           <artifactId>exec-maven-plugin</artifactId>
           <version>3.1.0</version>
           <configuration>
-            <mainClass>com.hotbros.sejong.examples.HwpxBuilderExample</mainClass>
+            <mainClass>com.hotbros.sejong.examples.HWPXBuilderExample</mainClass>
           </configuration>
         </plugin>
         <plugin>
@@ -46,7 +46,7 @@
             <archive>
               <manifest>
                 <addClasspath>true</addClasspath>
-                <mainClass>com.hotbros.sejong.examples.HwpxBuilderExample</mainClass>
+                <mainClass>com.hotbros.sejong.examples.HWPXBuilderExample</mainClass>
               </manifest>
             </archive>
           </configuration>
