@@ -1,4 +1,4 @@
-package com.hotbros.sejong.example;
+package com.hotbros.sejong.examples;
 
 import com.hotbros.sejong.builder.CharPrBuilder;
 import com.hotbros.sejong.builder.ParaPrBuilder;
