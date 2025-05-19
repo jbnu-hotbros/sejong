@@ -20,6 +20,9 @@ import java.util.Map;
 public class HwpxBuilderExample {
 
     private static final String ORIGINAL_STYLE_ID = "0";    // 예: 바탕글 스타일 ID
+    private static final String NEW_CHAR_PR_ID = "7";
+    private static final String NEW_PARA_PR_ID = "16";
+    private static final String NEW_STYLE_ID = "18";
 
     public static void main(String[] args) throws Exception {
         // 1. 빈 HWPX 파일 생성
@@ -51,44 +54,44 @@ public class HwpxBuilderExample {
             throw new RuntimeException("원본 스타일(ID: " + ORIGINAL_STYLE_ID + ")이 참조하는 ParaPr(ID: " + originalParaPrId + ")을 찾을 수 없습니다.");
         }
         
-        // 2. CharPr 생성 (글자 스타일) - ID "7"
+        // 2. CharPr 생성 (글자 스타일) - ID NEW_CHAR_PR_ID
         Map<String, Object> charPrAttributes = new HashMap<>();
-        charPrAttributes.put("id", "7");
+        charPrAttributes.put("id", NEW_CHAR_PR_ID);
         charPrAttributes.put("height", "12pt"); // 글자 크기 12pt
         charPrAttributes.put("textColor", "#FF0000"); // 빨간색
         charPrAttributes.put("bold", true);       // 굵게
 
         CharPr charPr = CharPrBuilder.fromMap(sourceCharPr, charPrAttributes).build();
-        // 생성된 CharPr을 Header.xml에 추가 (빌더에서 ID 설정했으므로 charPr.id()는 "7"이 됨)
+        // 생성된 CharPr을 Header.xml에 추가 (빌더에서 ID 설정했으므로 charPr.id()는 NEW_CHAR_PR_ID가 됨)
         if (refList.charProperties() == null) {
             refList.createCharProperties(); 
         }
         refList.charProperties().add(charPr);
 
 
-        // 3. ParaPr 생성 (문단 스타일) - ID "16"
+        // 3. ParaPr 생성 (문단 스타일) - ID NEW_PARA_PR_ID
         Map<String, Object> paraPrAttributes = new HashMap<>();
-        paraPrAttributes.put("id", "16");
+        paraPrAttributes.put("id", NEW_PARA_PR_ID);
         Map<String, Object> alignMap = new HashMap<>();
         alignMap.put("horizontal", "CENTER"); // 가운데 정렬
         paraPrAttributes.put("align", alignMap);
         paraPrAttributes.put("snapToGrid", false);
 
         ParaPr paraPr = ParaPrBuilder.fromMap(sourceParaPr, paraPrAttributes).build();
-        // 생성된 ParaPr을 Header.xml에 추가 (빌더에서 ID 설정했으므로 paraPr.id()는 "16"이 됨)
+        // 생성된 ParaPr을 Header.xml에 추가 (빌더에서 ID 설정했으므로 paraPr.id()는 NEW_PARA_PR_ID가 됨)
         if (refList.paraProperties() == null) {
             refList.createParaProperties(); 
         }
         refList.paraProperties().add(paraPr);
 
 
-        // 4. Style 생성 (문단 스타일로 CharPr과 ParaPr 참조) - ID "18"
+        // 4. Style 생성 (문단 스타일로 CharPr과 ParaPr 참조) - ID NEW_STYLE_ID
         Map<String, Object> styleAttributes = new HashMap<>();
-        styleAttributes.put("id", "18");
+        styleAttributes.put("id", NEW_STYLE_ID);
         styleAttributes.put("name", "MyCustomStyle");
         styleAttributes.put("type", StyleType.PARA); // 문단 스타일
-        styleAttributes.put("charPrIDRef", charPr.id()); // 위에서 생성한 CharPr의 ID "7" 참조
-        styleAttributes.put("paraPrIDRef", paraPr.id()); // 위에서 생성한 ParaPr의 ID "16" 참조
+        styleAttributes.put("charPrIDRef", charPr.id()); // 위에서 생성한 CharPr의 ID NEW_CHAR_PR_ID 참조
+        styleAttributes.put("paraPrIDRef", paraPr.id()); // 위에서 생성한 ParaPr의 ID NEW_PARA_PR_ID 참조
 
         Style customStyle = StyleBuilder.fromMap(originalStyle, styleAttributes).build();
         // 생성된 Style을 Header.xml에 추가
