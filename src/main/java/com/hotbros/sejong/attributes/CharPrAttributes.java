@@ -1,4 +1,4 @@
-package com.hotbros.sejong.model;
+package com.hotbros.sejong.attributes;
 
 import java.util.HashMap;
 import java.util.Map;

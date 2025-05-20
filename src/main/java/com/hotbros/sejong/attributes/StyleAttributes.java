@@ -1,4 +1,4 @@
-package com.hotbros.sejong.model;
+package com.hotbros.sejong.attributes;
 
 // kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.StyleType;
 // DTO에서는 String으로 받고, Factory 등에서 Enum으로 변환하는 것을 고려할 수 있습니다.
