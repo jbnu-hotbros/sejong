@@ -2,10 +2,7 @@ package com.hotbros.sejong.builder;
 
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.Style;
 import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.StyleType;
-// import com.hotbros.sejong.attributes.StyleAttributes; // DTO import
 
-// import java.util.Map; // Map 더 이상 직접 사용 안 함
-// import java.util.Objects; // Objects 더 이상 직접 사용 안 함
 
 public class StyleBuilder {
 
@@ -57,7 +54,9 @@ public class StyleBuilder {
     }
 
     public StyleBuilder engName(String engName) {
-        this.workingStyle.engNameAnd(engName);
+        if (engName != null) {
+            this.workingStyle.engNameAnd(engName);
+        }
         return this;
     }
 
@@ -107,10 +106,11 @@ public class StyleBuilder {
     /**
      * 최종적으로 수정된 Style 객체를 반환합니다.
      * @return 수정된 Style 객체 (원본의 복제본이거나 새로 생성된 객체).
+     * @throws IllegalStateException ID가 설정되지 않은 경우 발생합니다.
      */
     public Style build() {
         if (this.workingStyle.id() == null || this.workingStyle.id().trim().isEmpty()) {
-            this.workingStyle.id("style_final_" + System.nanoTime());
+            throw new IllegalStateException("Style ID must not be null or empty. Please set a valid ID using the id() method.");
         }
         return this.workingStyle;
     }
@@ -128,24 +128,12 @@ public class StyleBuilder {
             return builder;
         }
 
-        if (attributesToApply.getId() != null) {
-            builder.id(attributesToApply.getId());
-        }
-        if (attributesToApply.getName() != null) {
-            builder.name(attributesToApply.getName());
-        }
-        builder.engName(attributesToApply.getEngName());
-        
-        if (attributesToApply.getNextStyleIDRef() != null) {
-            builder.nextStyleIDRef(attributesToApply.getNextStyleIDRef());
-        }
-        
-        if (attributesToApply.getCharPrIDRef() != null) {
-            builder.charPrIDRef(attributesToApply.getCharPrIDRef());
-        }
-        if (attributesToApply.getParaPrIDRef() != null) {
-            builder.paraPrIDRef(attributesToApply.getParaPrIDRef());
-        }
+        builder.id(attributesToApply.getId())
+               .name(attributesToApply.getName())
+               .engName(attributesToApply.getEngName())
+               .nextStyleIDRef(attributesToApply.getNextStyleIDRef())
+               .charPrIDRef(attributesToApply.getCharPrIDRef())
+               .paraPrIDRef(attributesToApply.getParaPrIDRef());
 
         return builder;
     }

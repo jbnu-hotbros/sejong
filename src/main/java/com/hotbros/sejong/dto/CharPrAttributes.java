@@ -10,14 +10,14 @@ public class CharPrAttributes {
     private Boolean italic;     // 기울임
     private Boolean underline;  // 밑줄
     private Boolean strikeout;  // 취소선
-    private Double fontSizeHwpUnit; // HWP Unit으로 관리 (예: 1000.0은 10pt)
+    private Integer fontSizeHwpUnit; // HWP Unit으로 관리 (예: 1000은 10pt)
 
     // 기본 생성자
     public CharPrAttributes() {
     }
 
     // 모든 필드를 받는 생성자 (fontSize는 HWP Unit으로 받음)
-    public CharPrAttributes(String id, String textColor, Boolean bold, Boolean italic, Boolean underline, Boolean strikeout, Double fontSizeHwpUnit) {
+    public CharPrAttributes(String id, String textColor, Boolean bold, Boolean italic, Boolean underline, Boolean strikeout, Integer fontSizeHwpUnit) {
         this.id = id;
         this.textColor = textColor;
         this.bold = bold;
@@ -77,11 +77,11 @@ public class CharPrAttributes {
     }
 
     // fontSizeHwpUnit에 대한 직접 getter/setter (내부용 또는 HWP Unit을 직접 다룰 때 사용)
-    public Double getFontSizeHwpUnit() {
+    public Integer getFontSizeHwpUnit() {
         return fontSizeHwpUnit;
     }
 
-    public void setFontSizeHwpUnit(Double fontSizeHwpUnit) {
+    public void setFontSizeHwpUnit(Integer fontSizeHwpUnit) {
         this.fontSizeHwpUnit = fontSizeHwpUnit;
     }
 
@@ -91,45 +91,59 @@ public class CharPrAttributes {
     }
 
     public void setFontSizePt(Double fontSizePt) {
-        this.fontSizeHwpUnit = fontSizePt == null ? null : fontSizePt * 100.0;
+        this.fontSizeHwpUnit = fontSizePt == null ? null : (int)(fontSizePt * 100);
     }
 
-    // toMap, fromMap
-    public Map<String, Object> toMap() {
-        Map<String, Object> map = new HashMap<>();
+    // toMap, fromMap - Map<String, String>으로 변경
+    public Map<String, String> toMap() {
+        Map<String, String> map = new HashMap<>();
         if (id != null) map.put("id", id);
         if (textColor != null) map.put("textColor", textColor);
-        if (bold != null) map.put("bold", bold);
-        if (italic != null) map.put("italic", italic);
-        if (underline != null) map.put("underline", underline);
-        if (strikeout != null) map.put("strikeout", strikeout);
-        // HWP Unit을 pt 단위로 변환하여 "fontSizePt" 키로 저장
-        if (fontSizeHwpUnit != null) map.put("fontSizePt", fontSizeHwpUnit / 100.0);
+        if (bold != null) map.put("bold", bold.toString());
+        if (italic != null) map.put("italic", italic.toString());
+        if (underline != null) map.put("underline", underline.toString());
+        if (strikeout != null) map.put("strikeout", strikeout.toString());
+        // 수치형 데이터도 문자열로 변환
+        if (fontSizeHwpUnit != null) {
+            map.put("fontSizePt", getFontSizePt().toString());
+        }
         return map;
     }
 
-    public static CharPrAttributes fromMap(Map<String, Object> map) {
+    public static CharPrAttributes fromMap(Map<String, String> map) {
         if (map == null) {
             return null;
         }
         CharPrAttributes attr = new CharPrAttributes();
-        attr.setId((String) map.get("id"));
-        attr.setTextColor((String) map.get("textColor"));
-        attr.setBold((Boolean) map.get("bold"));
-        attr.setItalic((Boolean) map.get("italic"));
-        attr.setUnderline((Boolean) map.get("underline"));
-        attr.setStrikeout((Boolean) map.get("strikeout"));
+        attr.setId(map.get("id"));
+        attr.setTextColor(map.get("textColor"));
         
-        // "fontSizePt" 키로 pt 단위 값을 가져와 HWP Unit으로 변환하여 저장
-        Object fsObj = map.get("fontSizePt");
-        if (fsObj instanceof Number) {
-            attr.setFontSizeHwpUnit(((Number) fsObj).doubleValue() * 100.0); 
-        } else if (fsObj instanceof String) {
+        String boldStr = map.get("bold");
+        if (boldStr != null) {
+            attr.setBold(Boolean.valueOf(boldStr));
+        }
+        
+        String italicStr = map.get("italic");
+        if (italicStr != null) {
+            attr.setItalic(Boolean.valueOf(italicStr));
+        }
+        
+        String underlineStr = map.get("underline");
+        if (underlineStr != null) {
+            attr.setUnderline(Boolean.valueOf(underlineStr));
+        }
+        
+        String strikeoutStr = map.get("strikeout");
+        if (strikeoutStr != null) {
+            attr.setStrikeout(Boolean.valueOf(strikeoutStr));
+        }
+        
+        String fontSizePtStr = map.get("fontSizePt");
+        if (fontSizePtStr != null) {
             try {
-                attr.setFontSizeHwpUnit(Double.parseDouble((String) fsObj) * 100.0);
+                attr.setFontSizePt(Double.parseDouble(fontSizePtStr));
             } catch (NumberFormatException e) {
-                // Log error or handle as needed
-                System.err.println("CharPrAttributes.fromMap: 잘못된 fontSizePt 값입니다 - " + fsObj);
+                System.err.println("CharPrAttributes.fromMap: 잘못된 fontSizePt 값입니다 - " + fontSizePtStr);
             }
         }
         return attr;

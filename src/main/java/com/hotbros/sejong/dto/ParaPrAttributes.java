@@ -3,19 +3,15 @@ package com.hotbros.sejong.dto;
 import java.util.HashMap;
 import java.util.Map;
 
+import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.HorizontalAlign2;
+import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.VerticalAlign1;
+
 public class ParaPrAttributes {
     private String id;                  // ParaPr ID (필수)
-    private String alignHorizontal;     // 수평 정렬 (예: "CENTER", "LEFT", "RIGHT", "JUSTIFY", "DISTRIBUTE")
-    private String alignVertical;       // 수직 정렬 (예: "TOP", "CENTER", "BOTTOM")
-    private Boolean snapToGrid;         // 그리드에 스냅
-    private Double lineSpacing;         // 줄 간격 (HWP 값, 예: 160은 160%)
-    // 추가적으로 고려할 수 있는 ParaPr 속성들:
-    // private Integer indent;             // 들여쓰기 (HWP 값)
-    // private Integer leftMargin;         // 왼쪽 여백 (HWP 값)
-    // private Integer rightMargin;        // 오른쪽 여백 (HWP 값)
-    // private Integer topMargin;          // 위쪽 여백 (HWP 값)
-    // private Integer bottomMargin;       // 아래쪽 여백 (HWP 값)
-    // private String lineSpacingType;    // 줄간격 종류 (예: "PERCENT", "FIXED")
+    private HorizontalAlign2 alignHorizontal;     // 수평 정렬 (예: CENTER, LEFT, RIGHT, JUSTIFY, DISTRIBUTE)
+    private VerticalAlign1 alignVertical;       // 수직 정렬 (예: TOP, CENTER, BOTTOM)
+    private Integer lineSpacing;         // 줄 간격 (HWP 값, 예: 160은 160%)
+    private Byte condense;              // 자간 (HWP 값, 예: -50 ~ 50)
 
 
     // 기본 생성자
@@ -23,12 +19,12 @@ public class ParaPrAttributes {
     }
 
     // 모든 필드를 받는 생성자 (편의용)
-    public ParaPrAttributes(String id, String alignHorizontal, String alignVertical, Boolean snapToGrid, Double lineSpacing) {
+    public ParaPrAttributes(String id, HorizontalAlign2 alignHorizontal, VerticalAlign1 alignVertical, Integer lineSpacing, Byte condense) {
         this.id = id;
         this.alignHorizontal = alignHorizontal;
         this.alignVertical = alignVertical;
-        this.snapToGrid = snapToGrid;
         this.lineSpacing = lineSpacing;
+        this.condense = condense;
     }
 
     // Getters and Setters
@@ -40,89 +36,89 @@ public class ParaPrAttributes {
         this.id = id;
     }
 
-    public String getAlignHorizontal() {
+    public HorizontalAlign2 getAlignHorizontal() {
         return alignHorizontal;
     }
 
-    public void setAlignHorizontal(String alignHorizontal) {
+    public void setAlignHorizontal(HorizontalAlign2 alignHorizontal) {
         this.alignHorizontal = alignHorizontal;
     }
 
-    public String getAlignVertical() {
+    public VerticalAlign1 getAlignVertical() {
         return alignVertical;
     }
 
-    public void setAlignVertical(String alignVertical) {
+    public void setAlignVertical(VerticalAlign1 alignVertical) {
         this.alignVertical = alignVertical;
     }
 
-    public Boolean getSnapToGrid() {
-        return snapToGrid;
-    }
-
-    public void setSnapToGrid(Boolean snapToGrid) {
-        this.snapToGrid = snapToGrid;
-    }
-
-    public Double getLineSpacing() {
+    public Integer getLineSpacing() {
         return lineSpacing;
     }
 
-    public void setLineSpacing(Double lineSpacing) {
+    public void setLineSpacing(Integer lineSpacing) {
         this.lineSpacing = lineSpacing;
     }
 
-    // toMap, fromMap
-    public Map<String, Object> toMap() {
-        Map<String, Object> map = new HashMap<>();
+    public Byte getCondense() {
+        return condense;
+    }
+
+    public void setCondense(Byte condense) {
+        this.condense = condense;
+    }
+
+    // toMap, fromMap - Map<String, String>으로 변경
+    public Map<String, String> toMap() {
+        Map<String, String> map = new HashMap<>();
         if (id != null) map.put("id", id);
         
-        // align 관련 처리는 ParaPrBuilder의 fromMap 구조를 따름
-        // ParaPrBuilder가 "align" 키 아래에 Map을 기대한다면, 여기서도 그렇게 구성
-        Map<String, String> alignMap = new HashMap<>();
-        boolean alignMapNeeded = false;
+        // enum 값을 문자열로 변환하여 저장
         if (alignHorizontal != null) {
-            alignMap.put("horizontal", alignHorizontal);
-            alignMapNeeded = true;
+            map.put("alignHorizontal", alignHorizontal.str());
         }
         if (alignVertical != null) {
-            alignMap.put("vertical", alignVertical);
-            alignMapNeeded = true;
-        }
-        if (alignMapNeeded) {
-            map.put("align", alignMap);
+            map.put("alignVertical", alignVertical.str());
         }
 
-        if (snapToGrid != null) map.put("snapToGrid", snapToGrid);
-        if (lineSpacing != null) map.put("lineSpacing", lineSpacing);
+        if (lineSpacing != null) map.put("lineSpacing", lineSpacing.toString());
+        if (condense != null) map.put("condense", condense.toString());
         return map;
     }
 
-    @SuppressWarnings("unchecked")
-    public static ParaPrAttributes fromMap(Map<String, Object> map) {
+    public static ParaPrAttributes fromMap(Map<String, String> map) {
         if (map == null) {
             return null;
         }
         ParaPrAttributes attr = new ParaPrAttributes();
-        attr.setId((String) map.get("id"));
-
-        Object alignObj = map.get("align");
-        if (alignObj instanceof Map) {
-            Map<String, String> alignMap = (Map<String, String>) alignObj;
-            attr.setAlignHorizontal(alignMap.get("horizontal"));
-            attr.setAlignVertical(alignMap.get("vertical"));
+        attr.setId(map.get("id"));
+        
+        // 문자열을 enum으로 변환
+        String hAlign = map.get("alignHorizontal");
+        if (hAlign != null) {
+            attr.setAlignHorizontal(HorizontalAlign2.fromString(hAlign));
         }
         
-        attr.setSnapToGrid((Boolean) map.get("snapToGrid"));
-
-        Object lsObj = map.get("lineSpacing");
-        if (lsObj instanceof Number) {
-            attr.setLineSpacing(((Number) lsObj).doubleValue());
-        } else if (lsObj instanceof String) {
+        String vAlign = map.get("alignVertical");
+        if (vAlign != null) {
+            attr.setAlignVertical(VerticalAlign1.fromString(vAlign));
+        }
+        
+        String lsStr = map.get("lineSpacing");
+        if (lsStr != null) {
             try {
-                attr.setLineSpacing(Double.parseDouble((String) lsObj));
+                attr.setLineSpacing(Integer.parseInt(lsStr));
             } catch (NumberFormatException e) {
-                // Log or handle
+                System.err.println("ParaPrAttributes.fromMap: 잘못된 lineSpacing 값입니다 - " + lsStr);
+            }
+        }
+
+        String conStr = map.get("condense");
+        if (conStr != null) {
+            try {
+                attr.setCondense(Byte.parseByte(conStr));
+            } catch (NumberFormatException e) {
+                System.err.println("ParaPrAttributes.fromMap: 잘못된 condense 값입니다 - " + conStr);
             }
         }
         return attr;

@@ -1,12 +1,22 @@
 package com.hotbros.sejong.builder;
 
+import com.hotbros.sejong.dto.ParaPrAttributes;
+
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.ParaPr;
 import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.HorizontalAlign2;
 import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.VerticalAlign1;
 
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 public class ParaPrBuilder {
 
     private ParaPr workingParaPr; // 작업 대상 ParaPr 객체 (복제본 또는 새 객체)
+
+    private static final Set<String> VALID_HORIZONTAL_ALIGNS = Arrays.stream(HorizontalAlign2.values())
+            .map(Enum::name)
+            .collect(Collectors.toSet());
 
     /**
      * 원본 ParaPr을 기반으로 빌더를 초기화합니다.
@@ -30,7 +40,7 @@ public class ParaPrBuilder {
 
     public ParaPrBuilder condense(String condenseStr) {
         if (condenseStr == null || condenseStr.trim().isEmpty()) {
-            this.workingParaPr.condense(null); // 값 제거
+            // null 또는 빈 문자열이면 아무 작업도 하지 않고 반환
             return this;
         }
         try {
@@ -47,82 +57,45 @@ public class ParaPrBuilder {
         return this;
     }
 
-    public ParaPrBuilder fontLineHeight(String fontLineHeightStr) {
-        if (fontLineHeightStr == null || fontLineHeightStr.trim().isEmpty()){
-            this.workingParaPr.fontLineHeight(null); // 값 제거
-        } else {
-            this.workingParaPr.fontLineHeightAnd("true".equalsIgnoreCase(fontLineHeightStr));
-        }
-        return this;
-    }
-
-    public ParaPrBuilder fontLineHeight(boolean fontLineHeightValue) {
-        this.workingParaPr.fontLineHeightAnd(fontLineHeightValue);
-        return this;
-    }
-
-    public ParaPrBuilder snapToGrid(String snapToGridStr) {
-        if (snapToGridStr == null || snapToGridStr.trim().isEmpty()) {
-            this.workingParaPr.snapToGrid(null); // 값 제거
-        } else {
-            this.workingParaPr.snapToGridAnd("true".equalsIgnoreCase(snapToGridStr));
-        }
-        return this;
-    }
-
-    public ParaPrBuilder snapToGrid(boolean snapToGridValue) {
-        this.workingParaPr.snapToGridAnd(snapToGridValue);
-        return this;
-    }
-
     public ParaPrBuilder alignHorizontal(String horizontalAlignStr) {
         if (horizontalAlignStr == null || horizontalAlignStr.trim().isEmpty()) {
-            if (this.workingParaPr.align() != null) {
-                this.workingParaPr.align().horizontal(null); // 수평 정렬만 제거
-                if (this.workingParaPr.align().vertical() == null) { // 수직 정렬도 없으면 Align 객체 제거
-                    this.workingParaPr.removeAlign();
-                }
-            }
+            // null 또는 빈 문자열이면 아무 작업도 하지 않고 반환
             return this;
         }
-        try {
+        
+        String upperAlignStr = horizontalAlignStr.trim().toUpperCase();
+
+        if (VALID_HORIZONTAL_ALIGNS.contains(upperAlignStr)) {
             if (this.workingParaPr.align() == null) {
                 this.workingParaPr.createAlign();
             }
-            this.workingParaPr.align().horizontalAnd(HorizontalAlign2.valueOf(horizontalAlignStr.toUpperCase()));
-        } catch (IllegalArgumentException e) {
-            System.err.println("ParaPrBuilder: 잘못된 horizontalAlign 값입니다 - " + horizontalAlignStr);
-            if (this.workingParaPr.align() != null) { // 잘못된 값이면 해당 속성 null 처리
-                 this.workingParaPr.align().horizontal(null);
-                 if (this.workingParaPr.align().vertical() == null) { 
-                    this.workingParaPr.removeAlign();
-                }
-            }
+            this.workingParaPr.align().horizontalAnd(HorizontalAlign2.valueOf(upperAlignStr));
+        } else {
+            System.err.println("ParaPrBuilder: 유효하지 않은 horizontalAlign 값입니다 - " + horizontalAlignStr + ". 기존 값을 유지합니다.");
+            // 유효하지 않은 값이므로 아무것도 하지 않음 (기존 값 유지)
+            // 이전 try-catch의 catch 블록에서 하던 값 제거 로직은 여기서 제외됨 (기존 값 보존 정책)
         }
         return this;
     }
 
     public ParaPrBuilder alignHorizontal(HorizontalAlign2 horizontalAlignValue) {
-        if (this.workingParaPr.align() == null && horizontalAlignValue != null) {
+        if (horizontalAlignValue == null) {
+            // horizontalAlignValue가 null이면 아무 작업도 하지 않고 반환
+            return this;
+        }
+        
+        if (this.workingParaPr.align() == null) { // null이 아닌 유효한 값이 왔을 때만 align 객체 생성 고려
             this.workingParaPr.createAlign();
         }
-        if (this.workingParaPr.align() != null) {
-            this.workingParaPr.align().horizontalAnd(horizontalAlignValue);
-            if (horizontalAlignValue == null && this.workingParaPr.align().vertical() == null) {
-                this.workingParaPr.removeAlign();
-            }
-        }
+        this.workingParaPr.align().horizontalAnd(horizontalAlignValue);
+        // Align 객체 자체의 제거 로직은 여기서 불필요해짐 (null일 때 값을 설정하지 않으므로)
+        // 만약 vertical도 null이어서 align 객체를 지우고 싶다면 별도의 removeAlignIfEmpty 같은 메서드가 필요할 수 있음
         return this;
     }
 
     public ParaPrBuilder alignVertical(String verticalAlignStr) {
         if (verticalAlignStr == null || verticalAlignStr.trim().isEmpty()) {
-            if (this.workingParaPr.align() != null) {
-                this.workingParaPr.align().vertical(null); // 수직 정렬만 제거
-                if (this.workingParaPr.align().horizontal() == null) { // 수평 정렬도 없으면 Align 객체 제거
-                    this.workingParaPr.removeAlign();
-                }
-            }
+            // null 또는 빈 문자열이면 아무 작업도 하지 않고 반환
             return this;
         }
         try {
@@ -143,38 +116,38 @@ public class ParaPrBuilder {
     }
 
     public ParaPrBuilder alignVertical(VerticalAlign1 verticalAlignValue) {
-        if (this.workingParaPr.align() == null && verticalAlignValue != null) {
+        if (verticalAlignValue == null) {
+            // verticalAlignValue가 null이면 아무 작업도 하지 않고 반환
+            return this;
+        }
+
+        if (this.workingParaPr.align() == null) { // null이 아닌 유효한 값이 왔을 때만 align 객체 생성 고려
             this.workingParaPr.createAlign();
         }
-        if (this.workingParaPr.align() != null) {
-            this.workingParaPr.align().verticalAnd(verticalAlignValue);
-            if (verticalAlignValue == null && this.workingParaPr.align().horizontal() == null) {
-                this.workingParaPr.removeAlign();
-            }
-        }
+        this.workingParaPr.align().verticalAnd(verticalAlignValue);
+        // Align 객체 자체의 제거 로직은 여기서 불필요해짐
         return this;
     }
 
     public ParaPrBuilder lineSpacingValue(Integer value) { // HWP 단위 값 (예: 160 -> 160%)
-        if (value != null) {
-            if (this.workingParaPr.lineSpacing() == null) {
-                this.workingParaPr.createLineSpacing();
-            }
-            this.workingParaPr.lineSpacing().value(value.intValue());
-            // 기본 단위를 PERCENT로 할지, 아니면 타입을 받는 메서드를 추가할지 결정 필요.
-            // 여기서는 HWP 기본값인 hwpxlib.object.content.header_xml.enumtype.LineSpacingSort.PERCENT 를 가정.
-            // 명시적으로 하려면: this.workingParaPr.lineSpacing().type(kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.LineSpacingSort.PERCENT);
-        } else {
-            if (this.workingParaPr.lineSpacing() != null) {
-                this.workingParaPr.removeLineSpacing(); // 또는 lineSpacing 객체의 값을 null로 설정
-            }
+        if (value == null) {
+            // value가 null이면 아무 작업도 하지 않고 반환
+            return this;
         }
+        
+        if (this.workingParaPr.lineSpacing() == null) {
+            this.workingParaPr.createLineSpacing();
+        }
+        this.workingParaPr.lineSpacing().value(value.intValue());
+        // 기본 단위를 PERCENT로 할지, 아니면 타입을 받는 메서드를 추가할지 결정 필요.
+        // 여기서는 HWP 기본값인 hwpxlib.object.content.header_xml.enumtype.LineSpacingSort.PERCENT 를 가정.
+        // 명시적으로 하려면: this.workingParaPr.lineSpacing().type(kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.LineSpacingSort.PERCENT);
         return this;
     }
 
     public ParaPr build() {
         if (this.workingParaPr.id() == null || this.workingParaPr.id().trim().isEmpty()) {
-            this.workingParaPr.id("paraPr_final_" + System.nanoTime());
+            throw new IllegalStateException("ParaPr ID must not be null or empty. Please set a valid ID using the id() method.");
         }
         return this.workingParaPr;
     }
@@ -186,39 +159,19 @@ public class ParaPrBuilder {
      * @param attributesToApply 적용할 속성이 담긴 ParaPrAttributes DTO 객체.
      * @return 속성이 적용된 ParaPrBuilder 인스턴스
      */
-    public static ParaPrBuilder fromAttributes(ParaPr originalParaPr, com.hotbros.sejong.dto.ParaPrAttributes attributesToApply) {
+    public static ParaPrBuilder fromAttributes(ParaPr originalParaPr, ParaPrAttributes attributesToApply) {
         ParaPrBuilder builder = new ParaPrBuilder(originalParaPr);
         if (attributesToApply == null) {
             return builder;
         }
-
-        if (attributesToApply.getId() != null) {
-            builder.id(attributesToApply.getId());
-        }
-        
-        // condense, fontLineHeight는 현재 ParaPrAttributes DTO에 있지만,
-        // HWPXBuilder 예제에서 직접 사용되지 않았으므로 YAGNI에 따라 여기서의 처리는 보류하거나
-        // 필요시 DTO 필드에 맞춰 빌더 메서드 호출.
-        // 예: if (attributesToApply.getCondense() != null) builder.condense(attributesToApply.getCondense().byteValue()); // DTO가 Byte를 반환한다면
-        // 예: if (attributesToApply.getFontLineHeight() != null) builder.fontLineHeight(attributesToApply.getFontLineHeight());
-
-        if (attributesToApply.getSnapToGrid() != null) {
-            builder.snapToGrid(attributesToApply.getSnapToGrid());
-        }
-
-        if (attributesToApply.getAlignHorizontal() != null) {
-            builder.alignHorizontal(attributesToApply.getAlignHorizontal());
-        }
-        if (attributesToApply.getAlignVertical() != null) {
-            builder.alignVertical(attributesToApply.getAlignVertical());
-        }
-
-        if (attributesToApply.getLineSpacing() != null) {
-            // ParaPrAttributes의 getLineSpacing()은 Double (HWP 값)을 반환.
-            // lineSpacingValue 메서드는 Integer를 받으므로 intValue()로 변환.
-            builder.lineSpacingValue(attributesToApply.getLineSpacing().intValue());
-        }
-
+    
+        builder.id(attributesToApply.getId())
+               .condense(attributesToApply.getCondense())
+               .alignHorizontal(attributesToApply.getAlignHorizontal())
+               .alignVertical(attributesToApply.getAlignVertical())
+               .lineSpacingValue(attributesToApply.getLineSpacing());
+    
         return builder;
     }
+
 } 

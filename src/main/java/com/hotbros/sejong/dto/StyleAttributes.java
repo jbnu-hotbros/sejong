@@ -1,8 +1,5 @@
 package com.hotbros.sejong.dto;
 
-// kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.StyleType;
-// DTO에서는 String으로 받고, Factory 등에서 Enum으로 변환하는 것을 고려할 수 있습니다.
-// 또는 처음부터 StyleType을 사용해도 됩니다. 여기서는 우선 String으로 제안합니다.
 
 public class StyleAttributes {
     private String id;          // 스타일 ID (필수)
@@ -79,12 +76,12 @@ public class StyleAttributes {
     // toString, equals, hashCode 등은 필요에 따라 추가
 
     /**
-     * 이 DTO 객체의 내용을 Map<String, Object>로 변환합니다.
+     * 이 DTO 객체의 내용을 Map<String, String>로 변환합니다.
      * 빌더나 팩토리가 Map 기반으로 동작할 때 사용될 수 있습니다.
      * @return DTO의 속성을 담은 Map
      */
-    public java.util.Map<String, Object> toMap() {
-        java.util.Map<String, Object> map = new java.util.HashMap<>();
+    public java.util.Map<String, String> toMap() {
+        java.util.Map<String, String> map = new java.util.HashMap<>();
         if (id != null) map.put("id", id);
         if (name != null) map.put("name", name);
         if (engName != null) map.put("engName", engName);
@@ -95,21 +92,21 @@ public class StyleAttributes {
     }
 
     /**
-     * Map<String, Object>에서 StyleAttributes DTO 객체를 생성합니다.
+     * Map<String, String>에서 StyleAttributes DTO 객체를 생성합니다.
      * @param map DTO를 생성할 속성이 담긴 Map
      * @return 생성된 StyleAttributes 객체
      */
-    public static StyleAttributes fromMap(java.util.Map<String, Object> map) {
+    public static StyleAttributes fromMap(java.util.Map<String, String> map) {
         if (map == null) {
             return null;
         }
         StyleAttributes attr = new StyleAttributes();
-        attr.setId((String) map.get("id"));
-        attr.setName((String) map.get("name"));
-        attr.setEngName((String) map.get("engName"));
-        attr.setNextStyleIDRef((String) map.get("nextStyleIDRef"));
-        attr.setCharPrIDRef((String) map.get("charPrIDRef"));
-        attr.setParaPrIDRef((String) map.get("paraPrIDRef"));
+        attr.setId(map.get("id"));
+        attr.setName(map.get("name"));
+        attr.setEngName(map.get("engName"));
+        attr.setNextStyleIDRef(map.get("nextStyleIDRef"));
+        attr.setCharPrIDRef(map.get("charPrIDRef"));
+        attr.setParaPrIDRef(map.get("paraPrIDRef"));
         return attr;
     }
 }
