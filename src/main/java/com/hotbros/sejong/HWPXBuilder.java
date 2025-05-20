@@ -68,8 +68,6 @@ public class HWPXBuilder {
         StyleAttributes styleDto = new StyleAttributes();
         styleDto.setName("나의커스텀스타일");
         styleDto.setEngName("MyCustomStyle");
-        // charPrIDRef, paraPrIDRef는 StyleBlock 내부에서 설정됨
-        // type은 StyleBlock 또는 StyleBuilder 내부에서 처리 (HWPXBuilder에서는 명시적으로 설정 안함)
 
         // 2. StyleBlock 생성
         StyleBlock customBlock = StyleBlock.fromAttributes(
@@ -105,7 +103,6 @@ public class HWPXBuilder {
         System.out.println("새로운 스타일 '" + customStyle.name() + "' (ID: " + customStyle.id() + ") 추가됨");
         System.out.println("  - 참조 CharPr ID: " + customStyle.charPrIDRef());
         System.out.println("  - 참조 ParaPr ID: " + customStyle.paraPrIDRef());
-        System.out.println("  - 스타일 타입: " + customStyle.type()); // StyleType enum의 toString()이 호출됨
 
         return hwpxFile;
     }

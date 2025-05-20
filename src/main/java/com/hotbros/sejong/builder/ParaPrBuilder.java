@@ -6,17 +6,10 @@ import kr.dogfoot.hwpxlib.object.content.header_xml.references.ParaPr;
 import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.HorizontalAlign2;
 import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.VerticalAlign1;
 
-import java.util.Arrays;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 public class ParaPrBuilder {
 
     private ParaPr workingParaPr; // 작업 대상 ParaPr 객체 (복제본 또는 새 객체)
 
-    private static final Set<String> VALID_HORIZONTAL_ALIGNS = Arrays.stream(HorizontalAlign2.values())
-            .map(Enum::name)
-            .collect(Collectors.toSet());
 
     /**
      * 원본 ParaPr을 기반으로 빌더를 초기화합니다.
@@ -57,26 +50,6 @@ public class ParaPrBuilder {
         return this;
     }
 
-    public ParaPrBuilder alignHorizontal(String horizontalAlignStr) {
-        if (horizontalAlignStr == null || horizontalAlignStr.trim().isEmpty()) {
-            // null 또는 빈 문자열이면 아무 작업도 하지 않고 반환
-            return this;
-        }
-        
-        String upperAlignStr = horizontalAlignStr.trim().toUpperCase();
-
-        if (VALID_HORIZONTAL_ALIGNS.contains(upperAlignStr)) {
-            if (this.workingParaPr.align() == null) {
-                this.workingParaPr.createAlign();
-            }
-            this.workingParaPr.align().horizontalAnd(HorizontalAlign2.valueOf(upperAlignStr));
-        } else {
-            System.err.println("ParaPrBuilder: 유효하지 않은 horizontalAlign 값입니다 - " + horizontalAlignStr + ". 기존 값을 유지합니다.");
-            // 유효하지 않은 값이므로 아무것도 하지 않음 (기존 값 유지)
-            // 이전 try-catch의 catch 블록에서 하던 값 제거 로직은 여기서 제외됨 (기존 값 보존 정책)
-        }
-        return this;
-    }
 
     public ParaPrBuilder alignHorizontal(HorizontalAlign2 horizontalAlignValue) {
         if (horizontalAlignValue == null) {
