@@ -52,7 +52,7 @@ public class ParaPrBuilder {
         return this;
     }
 
-    public ParaPrBuilder condense(byte condenseValue) {
+    public ParaPrBuilder condense(Byte condenseValue) {
         this.workingParaPr.condenseAnd(condenseValue);
         return this;
     }

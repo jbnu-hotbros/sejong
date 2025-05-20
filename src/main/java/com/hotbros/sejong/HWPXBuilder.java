@@ -12,6 +12,7 @@ import kr.dogfoot.hwpxlib.object.HWPXFile;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.CharPr;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.ParaPr;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.Style;
+import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.StyleType;
 import kr.dogfoot.hwpxlib.tool.blankfilemaker.BlankFileMaker;
 import kr.dogfoot.hwpxlib.object.content.header_xml.RefList;
 
@@ -59,12 +60,12 @@ public class HWPXBuilder {
         }
         
         // 2. CharPr 생성 (글자 스타일) - ID NEW_CHAR_PR_ID
-        Map<String, Object> charPrMap = new HashMap<>();
+        Map<String, String> charPrMap = new HashMap<>();
         charPrMap.put("id", NEW_CHAR_PR_ID);
         charPrMap.put("textColor", "#FF0000"); // 빨간색
-        charPrMap.put("bold", true);       // 굵게
+        charPrMap.put("bold", "true");       // Boolean 값을 문자열 "true" 또는 "false"로 변경
         // fontSize는 pt 단위로 제공, CharPrAttributes.fromMap에서 HWP Unit으로 변환
-        // charPrMap.put("fontSizePt", 12.0); // 예시: 12pt
+        charPrMap.put("fontSizePt", "12.0"); // 예시: 12pt, Double 값을 문자열로 변경
 
         CharPrAttributes charPrDto = CharPrAttributes.fromMap(charPrMap);
         CharPr charPr = CharPrBuilder.fromAttributes(sourceCharPr, charPrDto).build();
@@ -76,13 +77,10 @@ public class HWPXBuilder {
 
 
         // 3. ParaPr 생성 (문단 스타일) - ID NEW_PARA_PR_ID
-        Map<String, Object> paraPrMap = new HashMap<>();
+        Map<String, String> paraPrMap = new HashMap<>();
         paraPrMap.put("id", NEW_PARA_PR_ID);
-        Map<String, Object> alignMap = new HashMap<>();
-        alignMap.put("horizontal", "CENTER"); // 가운데 정렬
-        paraPrMap.put("align", alignMap); // ParaPrAttributes.fromMap은 이 중첩 Map을 처리할 수 있어야 함
-        paraPrMap.put("snapToGrid", false);
-        // paraPrMap.put("lineSpacing", 160.0); // 예시: 줄간격 160% (HWP Unit 값)
+        paraPrMap.put("alignHorizontal", "CENTER"); // 평면화된 키 사용 및 문자열 값
+        paraPrMap.put("lineSpacing", "160"); // 예시: 줄간격 160% (HWP Unit 값), Integer 값을 문자열로 변경
 
         ParaPrAttributes paraPrDto = ParaPrAttributes.fromMap(paraPrMap);
         ParaPr paraPr = ParaPrBuilder.fromAttributes(sourceParaPr, paraPrDto).build();
@@ -94,25 +92,23 @@ public class HWPXBuilder {
 
 
         // 4. Style 생성 (문단 스타일로 CharPr과 ParaPr 참조) - ID NEW_STYLE_ID
-        Map<String, Object> styleMap = new HashMap<>();
+        Map<String, String> styleMap = new HashMap<>();
         styleMap.put("id", NEW_STYLE_ID);
         styleMap.put("name", "나의커스텀스타일");
         styleMap.put("engName", "MyCustomStyle");
         styleMap.put("charPrIDRef", charPr.id()); 
         styleMap.put("paraPrIDRef", paraPr.id());
+        // StyleAttributes DTO에 type 필드가 없으므로 Map에서 제거. 빌더에서 직접 설정.
 
         StyleAttributes styleDto = StyleAttributes.fromMap(styleMap);
-        // StyleBuilder.fromAttributes는 originalStyle과 styleDto를 받음.
-        // Style의 type은 StyleBuilder 내부에서 설정되거나, 추가적인 type() 메서드로 설정해야 함.
-        // 현재 StyleBuilder의 기본 생성자는 StyleType을 설정하지 않음.
-        // 명시적으로 설정하려면 StyleBuilder에 type(StyleType type) 메서드를 사용해야 함.
+        
         StyleBuilder styleBuilder = StyleBuilder.fromAttributes(originalStyle, styleDto);
         // StyleType.PARA로 명시적으로 설정. StyleAttributes DTO에 type이 없으므로 빌더에서 직접 설정.
-        // styleBuilder.type(StyleType.PARA); // 이 부분은 StyleBuilder의 fromAttributes가 어떻게 type을 다루는지에 따라 달라짐.
-                                         // 혹은 StyleAttributes에서 제거되었으므로 HWPXBuilder에서 Style 객체 생성 후 직접 설정
+        styleBuilder.type(StyleType.PARA); // StyleType을 빌더의 type 메서드를 이용해 직접 설정
+                                         
         Style customStyle = styleBuilder.build();
         // StyleType이 StyleAttributes에서 제거되었고, StyleBuilder의 fromAttributes가 StyleType을 설정하지 않으므로,
-        // Style 객체 생성 후 직접 설정해주는 것이 명확함.
+        // Style 객체 생성 후 직접 설정해주는 것이 명확함. (위에서 빌더를 통해 설정했으므로 이 주석은 이제 불필요)
         
         if (refList.styles() == null) {
             refList.createStyles(); 
@@ -122,7 +118,7 @@ public class HWPXBuilder {
         System.out.println("새로운 스타일 '" + customStyle.name() + "' (ID: " + customStyle.id() + ") 추가됨");
         System.out.println("  - 참조 CharPr ID: " + customStyle.charPrIDRef());
         System.out.println("  - 참조 ParaPr ID: " + customStyle.paraPrIDRef());
-        System.out.println("  - 스타일 타입: " + customStyle.type());
+        System.out.println("  - 스타일 타입: " + customStyle.type()); // StyleType enum의 toString()이 호출됨
 
         return hwpxFile;
     }
