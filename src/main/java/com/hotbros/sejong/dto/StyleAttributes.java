@@ -1,4 +1,4 @@
-package com.hotbros.sejong.attributes;
+package com.hotbros.sejong.dto;
 
 // kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.StyleType;
 // DTO에서는 String으로 받고, Factory 등에서 Enum으로 변환하는 것을 고려할 수 있습니다.
@@ -9,17 +9,22 @@ public class StyleAttributes {
     private String name;        // 스타일 이름 (필수)
     private String engName;     // 스타일 영어 이름 (선택)
     private String nextStyleIDRef; // 다음 스타일 ID 참조 (선택)
+    private String charPrIDRef; // 글자 모양 ID 참조
+    private String paraPrIDRef; // 문단 모양 ID 참조
 
     // 기본 생성자
     public StyleAttributes() {
     }
 
-    // 모든 필드를 받는 생성자
-    public StyleAttributes(String id, String name, String engName, String nextStyleIDRef) {
+    // 모든 필드를 받는 생성자 (새 필드 포함)
+    public StyleAttributes(String id, String name, String engName, String nextStyleIDRef, 
+                            String charPrIDRef, String paraPrIDRef) {
         this.id = id;
         this.name = name;
         this.engName = engName;
         this.nextStyleIDRef = nextStyleIDRef;
+        this.charPrIDRef = charPrIDRef;
+        this.paraPrIDRef = paraPrIDRef;
     }
 
     // Getters and Setters
@@ -55,6 +60,22 @@ public class StyleAttributes {
         this.nextStyleIDRef = nextStyleIDRef;
     }
 
+    public String getCharPrIDRef() { 
+        return charPrIDRef; 
+    }
+
+    public void setCharPrIDRef(String charPrIDRef) { 
+        this.charPrIDRef = charPrIDRef; 
+    }
+
+    public String getParaPrIDRef() { 
+        return paraPrIDRef; 
+    }
+
+    public void setParaPrIDRef(String paraPrIDRef) { 
+        this.paraPrIDRef = paraPrIDRef; 
+    }
+
     // toString, equals, hashCode 등은 필요에 따라 추가
 
     /**
@@ -68,7 +89,8 @@ public class StyleAttributes {
         if (name != null) map.put("name", name);
         if (engName != null) map.put("engName", engName);
         if (nextStyleIDRef != null) map.put("nextStyleIDRef", nextStyleIDRef);
-        // 다른 선택적 필드들도 동일하게 추가
+        if (charPrIDRef != null) map.put("charPrIDRef", charPrIDRef);
+        if (paraPrIDRef != null) map.put("paraPrIDRef", paraPrIDRef);
         return map;
     }
 
@@ -86,7 +108,8 @@ public class StyleAttributes {
         attr.setName((String) map.get("name"));
         attr.setEngName((String) map.get("engName"));
         attr.setNextStyleIDRef((String) map.get("nextStyleIDRef"));
-        // 다른 선택적 필드들도 동일하게 추출
+        attr.setCharPrIDRef((String) map.get("charPrIDRef"));
+        attr.setParaPrIDRef((String) map.get("paraPrIDRef"));
         return attr;
     }
 }

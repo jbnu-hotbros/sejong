@@ -1,13 +1,8 @@
 package com.hotbros.sejong.builder;
 
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.ParaPr;
-import kr.dogfoot.hwpxlib.object.content.header_xml.references.parapr.Align;
 import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.HorizontalAlign2;
 import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.VerticalAlign1;
-// TODO: 필요한 다른 Enum 또는 객체 타입 import (예: Margin)
-
-import java.util.Map;
-import java.util.Objects;
 
 public class ParaPrBuilder {
 
@@ -160,6 +155,23 @@ public class ParaPrBuilder {
         return this;
     }
 
+    public ParaPrBuilder lineSpacingValue(Integer value) { // HWP 단위 값 (예: 160 -> 160%)
+        if (value != null) {
+            if (this.workingParaPr.lineSpacing() == null) {
+                this.workingParaPr.createLineSpacing();
+            }
+            this.workingParaPr.lineSpacing().value(value.intValue());
+            // 기본 단위를 PERCENT로 할지, 아니면 타입을 받는 메서드를 추가할지 결정 필요.
+            // 여기서는 HWP 기본값인 hwpxlib.object.content.header_xml.enumtype.LineSpacingSort.PERCENT 를 가정.
+            // 명시적으로 하려면: this.workingParaPr.lineSpacing().type(kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.LineSpacingSort.PERCENT);
+        } else {
+            if (this.workingParaPr.lineSpacing() != null) {
+                this.workingParaPr.removeLineSpacing(); // 또는 lineSpacing 객체의 값을 null로 설정
+            }
+        }
+        return this;
+    }
+
     public ParaPr build() {
         if (this.workingParaPr.id() == null || this.workingParaPr.id().trim().isEmpty()) {
             this.workingParaPr.id("paraPr_final_" + System.nanoTime());
@@ -168,63 +180,45 @@ public class ParaPrBuilder {
     }
 
     /**
-     * 원본 ParaPr을 기반으로 Map의 내용으로 속성을 덮어쓰는 빌더를 생성하고 반환합니다.
-     * @param originalParaPr 복제할 원본 ParaPr 객체. null이면 새로운 ParaPr 객체로 시작합니다.
-     * @param attributesToUpdate 덮어쓸 속성들이 담긴 Map.
+     * 원본 ParaPr을 기반으로 ParaPrAttributes DTO의 내용으로 속성을 덮어쓰는 빌더를 생성하고 반환합니다.
+     * fromMap 메서드는 이 메서드로 대체됩니다.
+     * @param originalParaPr 복제할 원본 ParaPr 객체.
+     * @param attributesToApply 적용할 속성이 담긴 ParaPrAttributes DTO 객체.
      * @return 속성이 적용된 ParaPrBuilder 인스턴스
      */
-    @SuppressWarnings("unchecked")
-    public static ParaPrBuilder fromMap(ParaPr originalParaPr, Map<String, Object> attributesToUpdate) {
+    public static ParaPrBuilder fromAttributes(ParaPr originalParaPr, com.hotbros.sejong.dto.ParaPrAttributes attributesToApply) {
         ParaPrBuilder builder = new ParaPrBuilder(originalParaPr);
-        if (attributesToUpdate == null) {
+        if (attributesToApply == null) {
             return builder;
         }
 
-        if (attributesToUpdate.containsKey("id")) {
-            builder.id(Objects.toString(attributesToUpdate.get("id"), null));
+        if (attributesToApply.getId() != null) {
+            builder.id(attributesToApply.getId());
         }
         
-        if (attributesToUpdate.containsKey("condense")) {
-            Object cVal = attributesToUpdate.get("condense");
-            if (cVal instanceof String) builder.condense((String) cVal);
-            else if (cVal instanceof Number) builder.condense(((Number) cVal).byteValue());
-            else if (cVal == null) builder.condense((String)null); // 명시적 null로 제거
-        }
-        if (attributesToUpdate.containsKey("fontLineHeight")) {
-            Object flhVal = attributesToUpdate.get("fontLineHeight");
-            if (flhVal instanceof String) builder.fontLineHeight((String) flhVal);
-            else if (flhVal instanceof Boolean) builder.fontLineHeight((Boolean) flhVal);
-            else if (flhVal == null) builder.fontLineHeight(null); // 명시적 null로 제거
-        }
-        if (attributesToUpdate.containsKey("snapToGrid")) {
-            Object stgVal = attributesToUpdate.get("snapToGrid");
-            if (stgVal instanceof String) builder.snapToGrid((String) stgVal);
-            else if (stgVal instanceof Boolean) builder.snapToGrid((Boolean) stgVal);
-            else if (stgVal == null) builder.snapToGrid(null); // 명시적 null로 제거
+        // condense, fontLineHeight는 현재 ParaPrAttributes DTO에 있지만,
+        // HWPXBuilder 예제에서 직접 사용되지 않았으므로 YAGNI에 따라 여기서의 처리는 보류하거나
+        // 필요시 DTO 필드에 맞춰 빌더 메서드 호출.
+        // 예: if (attributesToApply.getCondense() != null) builder.condense(attributesToApply.getCondense().byteValue()); // DTO가 Byte를 반환한다면
+        // 예: if (attributesToApply.getFontLineHeight() != null) builder.fontLineHeight(attributesToApply.getFontLineHeight());
+
+        if (attributesToApply.getSnapToGrid() != null) {
+            builder.snapToGrid(attributesToApply.getSnapToGrid());
         }
 
-        if (attributesToUpdate.containsKey("align")) {
-            Object alignObj = attributesToUpdate.get("align");
-            if (alignObj instanceof Map) {
-                Map<String, Object> alignMap = (Map<String, Object>) alignObj;
-                if (alignMap.containsKey("horizontal")) {
-                    Object hAlign = alignMap.get("horizontal");
-                    if (hAlign instanceof String) builder.alignHorizontal((String) hAlign);
-                    else if (hAlign instanceof HorizontalAlign2) builder.alignHorizontal((HorizontalAlign2) hAlign);
-                    else if (hAlign == null) builder.alignHorizontal((String)null); // 명시적 null로 제거
-                }
-                if (alignMap.containsKey("vertical")) {
-                    Object vAlign = alignMap.get("vertical");
-                    if (vAlign instanceof String) builder.alignVertical((String) vAlign);
-                    else if (vAlign instanceof VerticalAlign1) builder.alignVertical((VerticalAlign1) vAlign);
-                    else if (vAlign == null) builder.alignVertical((String)null); // 명시적 null로 제거
-                }
-            } else if (alignObj == null) { // align 키 자체가 null이면 Align 객체 전체 제거
-                if (builder.workingParaPr.align() != null) {
-                    builder.workingParaPr.removeAlign();
-                }
-            }
+        if (attributesToApply.getAlignHorizontal() != null) {
+            builder.alignHorizontal(attributesToApply.getAlignHorizontal());
         }
+        if (attributesToApply.getAlignVertical() != null) {
+            builder.alignVertical(attributesToApply.getAlignVertical());
+        }
+
+        if (attributesToApply.getLineSpacing() != null) {
+            // ParaPrAttributes의 getLineSpacing()은 Double (HWP 값)을 반환.
+            // lineSpacingValue 메서드는 Integer를 받으므로 intValue()로 변환.
+            builder.lineSpacingValue(attributesToApply.getLineSpacing().intValue());
+        }
+
         return builder;
     }
 } 

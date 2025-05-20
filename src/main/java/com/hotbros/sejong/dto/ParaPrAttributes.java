@@ -1,4 +1,4 @@
-package com.hotbros.sejong.attributes;
+package com.hotbros.sejong.dto;
 
 import java.util.HashMap;
 import java.util.Map;

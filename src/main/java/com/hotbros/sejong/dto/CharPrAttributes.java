@@ -1,4 +1,4 @@
-package com.hotbros.sejong.attributes;
+package com.hotbros.sejong.dto;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,21 +10,21 @@ public class CharPrAttributes {
     private Boolean italic;     // 기울임
     private Boolean underline;  // 밑줄
     private Boolean strikeout;  // 취소선
-    private Double fontSize;    // 글자 크기 (HWP Unit, 예: 10.0은 10pt)
+    private Double fontSizeHwpUnit; // HWP Unit으로 관리 (예: 1000.0은 10pt)
 
     // 기본 생성자
     public CharPrAttributes() {
     }
 
-    // 모든 필드를 받는 생성자 (편의용)
-    public CharPrAttributes(String id, String textColor, Boolean bold, Boolean italic, Boolean underline, Boolean strikeout, Double fontSize) {
+    // 모든 필드를 받는 생성자 (fontSize는 HWP Unit으로 받음)
+    public CharPrAttributes(String id, String textColor, Boolean bold, Boolean italic, Boolean underline, Boolean strikeout, Double fontSizeHwpUnit) {
         this.id = id;
         this.textColor = textColor;
         this.bold = bold;
         this.italic = italic;
         this.underline = underline;
         this.strikeout = strikeout;
-        this.fontSize = fontSize;
+        this.fontSizeHwpUnit = fontSizeHwpUnit;
     }
 
     // Getters and Setters
@@ -76,12 +76,22 @@ public class CharPrAttributes {
         this.strikeout = strikeout;
     }
 
-    public Double getFontSize() {
-        return fontSize;
+    // fontSizeHwpUnit에 대한 직접 getter/setter (내부용 또는 HWP Unit을 직접 다룰 때 사용)
+    public Double getFontSizeHwpUnit() {
+        return fontSizeHwpUnit;
     }
 
-    public void setFontSize(Double fontSize) {
-        this.fontSize = fontSize;
+    public void setFontSizeHwpUnit(Double fontSizeHwpUnit) {
+        this.fontSizeHwpUnit = fontSizeHwpUnit;
+    }
+
+    // pt 단위로 변환하는 getter/setter
+    public Double getFontSizePt() {
+        return fontSizeHwpUnit == null ? null : fontSizeHwpUnit / 100.0;
+    }
+
+    public void setFontSizePt(Double fontSizePt) {
+        this.fontSizeHwpUnit = fontSizePt == null ? null : fontSizePt * 100.0;
     }
 
     // toMap, fromMap
@@ -93,7 +103,8 @@ public class CharPrAttributes {
         if (italic != null) map.put("italic", italic);
         if (underline != null) map.put("underline", underline);
         if (strikeout != null) map.put("strikeout", strikeout);
-        if (fontSize != null) map.put("fontSize", fontSize / 100.0); // HWP 단위를 pt로 변환해서 저장
+        // HWP Unit을 pt 단위로 변환하여 "fontSizePt" 키로 저장
+        if (fontSizeHwpUnit != null) map.put("fontSizePt", fontSizeHwpUnit / 100.0);
         return map;
     }
 
@@ -109,15 +120,16 @@ public class CharPrAttributes {
         attr.setUnderline((Boolean) map.get("underline"));
         attr.setStrikeout((Boolean) map.get("strikeout"));
         
-        Object fsObj = map.get("fontSize");
+        // "fontSizePt" 키로 pt 단위 값을 가져와 HWP Unit으로 변환하여 저장
+        Object fsObj = map.get("fontSizePt");
         if (fsObj instanceof Number) {
-            // pt 단위를 HWP 단위로 변환하여 DTO에 저장
-            attr.setFontSize(((Number) fsObj).doubleValue() * 100.0); 
+            attr.setFontSizeHwpUnit(((Number) fsObj).doubleValue() * 100.0); 
         } else if (fsObj instanceof String) {
             try {
-                attr.setFontSize(Double.parseDouble((String) fsObj) * 100.0);
+                attr.setFontSizeHwpUnit(Double.parseDouble((String) fsObj) * 100.0);
             } catch (NumberFormatException e) {
                 // Log error or handle as needed
+                System.err.println("CharPrAttributes.fromMap: 잘못된 fontSizePt 값입니다 - " + fsObj);
             }
         }
         return attr;

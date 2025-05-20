@@ -1,6 +1,6 @@
 package com.hotbros.sejong.examples;
 
-import com.hotbros.sejong.builder.HWPXBuilder;
+import com.hotbros.sejong.HWPXBuilder;
 import com.hotbros.sejong.util.HWPXWriter;
 
 import kr.dogfoot.hwpxlib.object.HWPXFile;

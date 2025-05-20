@@ -7,7 +7,6 @@ import kr.dogfoot.hwpxlib.object.content.header_xml.references.CharPr;
 // 필요한 다른 Enum 타입 import (예: 밑줄 종류 등)
 // import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.UnderlineSort;
 
-import java.util.Map;
 import java.util.Objects;
 
 public class CharPrBuilder {
@@ -160,7 +159,6 @@ public class CharPrBuilder {
         return this;
     }
 
-    // TODO: 밑줄, 글꼴 ID 참조 등 다른 속성 설정 메서드들 추가
 
     public CharPr build() {
         // ID가 여전히 설정되지 않았거나 비정상적이라면 최종적으로 한번 더 보장.
@@ -171,64 +169,45 @@ public class CharPrBuilder {
     }
 
     /**
-     * 원본 CharPr을 기반으로 Map의 내용으로 속성을 덮어쓰는 빌더를 생성하고 반환합니다.
-     * @param originalCharPr 복제할 원본 CharPr 객체. null이면 새로운 CharPr 객체로 시작합니다.
-     * @param attributesToUpdate 덮어쓸 속성들이 담긴 Map.
+     * 원본 CharPr을 기반으로 CharPrAttributes DTO의 내용으로 속성을 덮어쓰는 빌더를 생성하고 반환합니다.
+     * fromMap 메서드는 이 메서드로 대체됩니다.
+     * @param originalCharPr 복제할 원본 CharPr 객체.
+     * @param attributesToApply 적용할 속성이 담긴 CharPrAttributes DTO 객체.
      * @return 속성이 적용된 CharPrBuilder 인스턴스
      */
-    public static CharPrBuilder fromMap(CharPr originalCharPr, Map<String, Object> attributesToUpdate) {
+    public static CharPrBuilder fromAttributes(CharPr originalCharPr, com.hotbros.sejong.dto.CharPrAttributes attributesToApply) {
         CharPrBuilder builder = new CharPrBuilder(originalCharPr);
-        if (attributesToUpdate == null) {
+        if (attributesToApply == null) {
             return builder;
         }
 
-        // 맵의 값이 null이면 해당 속성 변경 시도 안 함 (원본 값 보존 위주)
-        // 단, textColor, shadeColor는 명시적 null로 색 없음을 표현할 수 있으므로 fromMap에서도 null 전달 허용.
-        // (만약 fromMap에서 null을 무시하려면 각 builder.xxx 호출 전에 attributesToUpdate.get(key) != null 체크 필요)
-
-        if (attributesToUpdate.containsKey("id")) {
-            // ID는 null이거나 비면 설정하지 않는 것이 일반적이므로, builder.id() 내부 로직에 맡김
-            builder.id(Objects.toString(attributesToUpdate.get("id"), null));
+        if (attributesToApply.getId() != null) {
+            builder.id(attributesToApply.getId());
         }
         
-        if (attributesToUpdate.containsKey("height")) {
-            Object hVal = attributesToUpdate.get("height");
-            if (hVal instanceof String) builder.height((String) hVal);
-            else if (hVal instanceof Number) builder.height(((Number) hVal).intValue());
-            // hVal이 null이면 builder.height((String)null) 등이 호출되나, 수정된 setter는 null/빈문자열 무시
-        }
-        if (attributesToUpdate.containsKey("textColor")) {
-            // textColor는 null 설정이 의미 있을 수 있음 (색상 제거)
-            builder.textColor(Objects.toString(attributesToUpdate.get("textColor"), null));
-        }
-        if (attributesToUpdate.containsKey("shadeColor")) {
-            // shadeColor도 null 설정이 의미 있을 수 있음
-            builder.shadeColor(Objects.toString(attributesToUpdate.get("shadeColor"), null));
-        }
-
-        if (attributesToUpdate.containsKey("useFontSpace")) {
-            Object ufsVal = attributesToUpdate.get("useFontSpace");
-            if (ufsVal instanceof String) builder.useFontSpace((String) ufsVal);
-            else if (ufsVal instanceof Boolean) builder.useFontSpace((Boolean) ufsVal);
-        }
-        if (attributesToUpdate.containsKey("useKerning")) {
-             Object ukVal = attributesToUpdate.get("useKerning");
-            if (ukVal instanceof String) builder.useKerning((String) ukVal);
-            else if (ukVal instanceof Boolean) builder.useKerning((Boolean) ukVal);
-        }
-
-        if (attributesToUpdate.containsKey("bold")) {
-            Object bVal = attributesToUpdate.get("bold");
-            if (bVal instanceof String) builder.bold((String) bVal);
-            else if (bVal instanceof Boolean) builder.bold((Boolean) bVal);
-        }
-        if (attributesToUpdate.containsKey("italic")) {
-            Object iVal = attributesToUpdate.get("italic");
-            if (iVal instanceof String) builder.italic((String) iVal);
-            else if (iVal instanceof Boolean) builder.italic((Boolean) iVal);
+        if (attributesToApply.getFontSizeHwpUnit() != null) {
+            builder.height(attributesToApply.getFontSizeHwpUnit().intValue());
         }
         
-        // TODO: 다른 속성들도 map에서 꺼내서 설정 (underline, fontIdRef 등)
+        if (attributesToApply.getTextColor() != null) { // textColor는 null일 수 있음 (색 없음)
+            builder.textColor(attributesToApply.getTextColor());
+        }
+        
+        // shadeColor는 현재 CharPrAttributes DTO에 없음. 필요시 DTO에 추가 후 여기서 처리.
+        // if (attributesToApply.getShadeColor() != null) {
+        //     builder.shadeColor(attributesToApply.getShadeColor());
+        // }
+
+        if (attributesToApply.getBold() != null) {
+            builder.bold(attributesToApply.getBold());
+        }
+        if (attributesToApply.getItalic() != null) {
+            builder.italic(attributesToApply.getItalic());
+        }
+
+        
+
+
         return builder;
     }
 } 
