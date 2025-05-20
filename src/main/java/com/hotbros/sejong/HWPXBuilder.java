@@ -1,5 +1,8 @@
-package com.hotbros.sejong.builder;
+package com.hotbros.sejong;
 
+import com.hotbros.sejong.builder.CharPrBuilder;
+import com.hotbros.sejong.builder.ParaPrBuilder;
+import com.hotbros.sejong.builder.StyleBuilder;
 import com.hotbros.sejong.util.HWPXObjectFinder;
 
 import kr.dogfoot.hwpxlib.object.HWPXFile;
