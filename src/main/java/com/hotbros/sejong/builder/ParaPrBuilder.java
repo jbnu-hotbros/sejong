@@ -52,6 +52,9 @@ public class ParaPrBuilder {
     }
 
     public ParaPrBuilder condense(Byte condenseValue) {
+        if (condenseValue == null) {
+            return this;
+        }
         this.workingParaPr.condenseAnd(condenseValue);
         return this;
     }

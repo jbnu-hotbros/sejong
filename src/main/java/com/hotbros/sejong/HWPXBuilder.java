@@ -123,6 +123,7 @@ public class HWPXBuilder {
 
         NumberingBuilder numberingBuilder = NumberingBuilder.fromAttributes(numbering, List.of(attr));
         Numbering updated = numberingBuilder.build();
+        System.out.println(updated.getParaHead(0).text());
 
 
         // 넘버링이 '대체' 되어야 함
@@ -140,7 +141,7 @@ public class HWPXBuilder {
 
     public HWPXFile build() throws Exception {
         addStyle();
-        // addNumbering();
+        addNumbering();
         return hwpxFile;
     }
 }
