@@ -16,12 +16,15 @@ import kr.dogfoot.hwpxlib.object.content.header_xml.references.CharPr;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.ParaPr;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.Style;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.numbering.ParaHead;
+import kr.dogfoot.hwpxlib.object.content.section_xml.SectionXMLFile;
+import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.Para;
+import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.Run;
+import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.RunItem;
 import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.HorizontalAlign2;
 import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.NumberType1;
 import kr.dogfoot.hwpxlib.tool.blankfilemaker.BlankFileMaker;
 import kr.dogfoot.hwpxlib.object.content.header_xml.RefList;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.Numbering;
-
 
 public class HWPXBuilder {
     private static final String ORIGINAL_STYLE_ID = "0"; // 예: 바탕글 스타일 ID
@@ -29,11 +32,15 @@ public class HWPXBuilder {
     private HWPXFile hwpxFile;
     private RefList refList;
     private StyleIdAllocator allocator;
+    private SectionXMLFile section;
+    private boolean hasFirstParagraphText = false;
+
 
     public HWPXBuilder() {
         this.hwpxFile = BlankFileMaker.make();
         this.refList = hwpxFile.headerXMLFile().refList();
         this.allocator = new StyleIdAllocator();
+        this.section = hwpxFile.sectionXMLFileList().get(0);
     }
 
     private void addStyle() {
@@ -110,12 +117,20 @@ public class HWPXBuilder {
         System.out.println("새로운 스타일 '" + customStyle.name() + "' (ID: " + customStyle.id() + ") 추가됨");
         System.out.println("  - 참조 CharPr ID: " + customStyle.charPrIDRef());
         System.out.println("  - 참조 ParaPr ID: " + customStyle.paraPrIDRef());
+
+        
+        addFirstStyledText(customStyle, "이건 첫번재문단");
+        section.addPara(createStyledParagraph(customStyle, "안녕하세요 ㅎㅎㅎㅎㅎ", false));
+        section.addPara(createStyledParagraph(customStyle, "어쩌라고 ㅎㅎ", false));
+        section.addPara(createStyledParagraph(customStyle, "그만해 ㅎㅎ", false));
     }
 
     private void addNumbering() {
+
+
         Numbering numbering = refList.numberings().get(0);
 
-        ParaHeadAttributes attr= new ParaHeadAttributes();
+        ParaHeadAttributes attr = new ParaHeadAttributes();
         attr.setLevel((byte) 1);
         attr.setStart(1);
         attr.setNumFormat(NumberType1.DIGIT);
@@ -125,23 +140,56 @@ public class HWPXBuilder {
         Numbering updated = numberingBuilder.build();
         System.out.println(updated.getParaHead(0).text());
 
-
         // 넘버링이 '대체' 되어야 함
         // 기존 넘버링을 삭제
         refList.numberings().remove(numbering);
         // 새로운 넘버링 추가
         refList.numberings().add(updated);
 
-
         System.out.println("넘버링 추가 완료");
         System.out.println("넘버링 ID: " + updated.id());
         System.out.println("넘버링 시작: " + updated.start());
     }
 
+    private void addFirstStyledText(Style style, String text) {
+        if(hasFirstParagraphText) {
+            return;
+        }
+        Run run= new Run();
+        run.charPrIDRef(style.charPrIDRef());
+        run.addNewT().addText(text);
+
+        Para para=section.getPara(0);
+        para.paraPrIDRef(style.paraPrIDRef());
+        para.addRun(run);
+    }
+
+    private Para createStyledParagraph(Style style, String text, boolean pageBreak) {
+        if (style == null || text == null) {
+            System.out.println("style 또는 text가 null입니다.");
+            return null;
+        }
+
+        Run run = new Run();
+        run.charPrIDRef(style.charPrIDRef());
+        run.addNewT().addText(text);
+
+        // 첫 번째 섹션에 문단 추가
+        Para para = new Para();
+        para.id("0");
+        para.styleIDRef(style.id());
+        para.paraPrIDRef(style.paraPrIDRef());
+        para.pageBreak(pageBreak);
+        para.columnBreak(false);
+        para.merged(false);
+        para.addRun(run);
+
+        return para;
+    }
 
     public HWPXFile build() throws Exception {
         addStyle();
-        addNumbering();
+        // addNumbering();
         return hwpxFile;
     }
 }
