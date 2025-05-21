@@ -5,7 +5,7 @@ import com.hotbros.sejong.dto.ParaHeadAttributes;
 import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.NumberType1;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.numbering.ParaHead;
 
-public class ParaHeadBuilder {
+class ParaHeadBuilder {
 
     private final ParaHead workingParaHead;
 

@@ -3,6 +3,12 @@ package com.hotbros.sejong.builder;
 import com.hotbros.sejong.dto.ParaPrAttributes;
 
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.ParaPr;
+import kr.dogfoot.hwpxlib.object.content.header_xml.references.parapr.LineSpacing;
+import kr.dogfoot.hwpxlib.object.common.HWPXObject;
+import kr.dogfoot.hwpxlib.object.common.compatibility.Case;
+import kr.dogfoot.hwpxlib.object.common.compatibility.Default;
+import kr.dogfoot.hwpxlib.object.common.compatibility.InSwitchObject;
+import kr.dogfoot.hwpxlib.object.common.compatibility.Switch;
 import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.HorizontalAlign2;
 import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.VerticalAlign1;
 
@@ -102,21 +108,98 @@ public class ParaPrBuilder {
         return this;
     }
 
-    public ParaPrBuilder lineSpacingValue(Integer value) { // HWP 단위 값 (예: 160 -> 160%)
+    public ParaPrBuilder lineSpacing(Integer value) { // HWP 단위 값 (예: 160 -> 160%)
         if (value == null) {
             // value가 null이면 아무 작업도 하지 않고 반환
             return this;
         }
         
-        if (this.workingParaPr.lineSpacing() == null) {
-            this.workingParaPr.createLineSpacing();
+        Switch currentSwitch= getSwitch();
+        if (currentSwitch==null) {
+            System.out.println("ParaPrBuilder: switch가 없습니다.");
+            return this;
         }
-        this.workingParaPr.lineSpacing().value(value.intValue());
-        // 기본 단위를 PERCENT로 할지, 아니면 타입을 받는 메서드를 추가할지 결정 필요.
-        // 여기서는 HWP 기본값인 hwpxlib.object.content.header_xml.enumtype.LineSpacingSort.PERCENT 를 가정.
-        // 명시적으로 하려면: this.workingParaPr.lineSpacing().type(kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.LineSpacingSort.PERCENT);
+        Case currentCase= getCase(currentSwitch, "http://www.hancom.co.kr/hwpml/2016/HwpUnitChar");
+        if (currentCase==null) {
+            System.out.println("ParaPrBuilder: case가 없습니다.");
+            return this;
+        }
+        Default currentDefault= getDefault(currentSwitch);
+        if (currentDefault==null) {
+            System.out.println("ParaPrBuilder: default가 없습니다.");
+            return this;
+        }
+
+    
+        LineSpacing CaseLineSpacing = findFirstLineSpacing(currentCase);
+        CaseLineSpacing.value(value);
+
+        LineSpacing defaultLineSpacing = findFirstLineSpacing(currentDefault);
+        defaultLineSpacing.value(value);
+        
+        
         return this;
     }
+
+    private static LineSpacing findFirstLineSpacing(InSwitchObject inSwitchObject) {
+        if (inSwitchObject == null) return null;
+
+        Iterable<HWPXObject> children = inSwitchObject.children();
+        if (children == null) return null;
+
+        for (HWPXObject child : children) {
+            if (child instanceof LineSpacing) {
+                return (LineSpacing) child;
+            }
+        }
+        return null;
+    }
+
+
+    /**
+     * workingParaPr에서 마지막 Switch 객체를 가져오거나 새로 생성합니다.
+     * @return Switch 객체
+     */
+    private Switch getSwitch() {
+        if (this.workingParaPr.switchList() == null || this.workingParaPr.switchList().isEmpty()) {
+            return null;
+        }
+        // 기존 Switch가 여러 개 있을 경우, 마지막 Switch를 가져오는 정책
+        return this.workingParaPr.switchList().get(this.workingParaPr.switchList().size() - 1);
+    }
+
+
+
+    /**
+     * Switch 내에서 특정 requiredNamespace를 가진 Case 객체를 찾거나 새로 생성합니다.
+     * @param sw Switch 객체
+     * @param requiredNamespace 찾거나 생성할 Case의 requiredNamespace
+     * @return 찾거나 생성된 Case 객체
+     */
+    private Case getCase(Switch sw, String requiredNamespace) {
+        if (sw.caseObjects() != null) {
+            for (Case c : sw.caseObjects()) {
+                if (requiredNamespace.equals(c.requiredNamespace())) {
+                    return c;
+                }
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * Switch 내에서 Default 객체를 가져오거나 새로 생성합니다.
+     * @param sw Switch 객체
+     * @return Default 객체
+     */
+    private Default getDefault(Switch sw) {
+        if (sw.defaultObject() == null) {
+            return null;
+        }
+        return sw.defaultObject();
+    }
+
+
 
     public ParaPr build() {
         if (this.workingParaPr.id() == null || this.workingParaPr.id().trim().isEmpty()) {
@@ -142,7 +225,7 @@ public class ParaPrBuilder {
                .condense(attributesToApply.getCondense())
                .alignHorizontal(attributesToApply.getAlignHorizontal())
                .alignVertical(attributesToApply.getAlignVertical())
-               .lineSpacingValue(attributesToApply.getLineSpacing());
+               .lineSpacing(attributesToApply.getLineSpacing());
     
         return builder;
     }
