@@ -28,6 +28,13 @@ import kr.dogfoot.hwpxlib.object.content.header_xml.references.Numbering;
 
 public class HWPXBuilder {
     private static final String ORIGINAL_STYLE_ID = "0"; // 예: 바탕글 스타일 ID
+    private static final String ORIGINAL_OUTLINE_ID_1 = "2"; // 예: 바탕글 넘버링 ID
+    private static final String ORIGINAL_OUTLINE_ID_2 = "3"; // 예: 바탕글 넘버링 ID
+    private static final String ORIGINAL_OUTLINE_ID_3 = "4"; // 예: 바탕글 넘버링 ID
+    private static final String ORIGINAL_OUTLINE_ID_4 = "5"; // 예: 바탕글 넘버링 ID
+    private static final String ORIGINAL_OUTLINE_ID_5 = "6"; // 예: 바탕글 넘버링 ID
+    private static final String ORIGINAL_OUTLINE_ID_6 = "7"; // 예: 바탕글 넘버링 ID
+    private static final String ORIGINAL_OUTLINE_ID_7 = "8"; // 예: 바탕글 넘버링 ID
 
     private HWPXFile hwpxFile;
     private RefList refList;
@@ -45,29 +52,29 @@ public class HWPXBuilder {
 
     private void addStyle() {
         // 원본 스타일 및 참조 객체 찾기
-        Style originalStyle = HWPXObjectFinder.findStyleById(hwpxFile, ORIGINAL_STYLE_ID);
+        Style originalStyle = HWPXObjectFinder.findStyleById(hwpxFile, ORIGINAL_OUTLINE_ID_1);
         if (originalStyle == null) {
-            throw new RuntimeException("원본 스타일(ID: " + ORIGINAL_STYLE_ID + ")을 찾을 수 없습니다. 프로그램 실행을 중단합니다.");
+            throw new RuntimeException("원본 스타일을 찾을 수 없습니다. 프로그램 실행을 중단합니다.");
         }
 
         String originalCharPrId = originalStyle.charPrIDRef();
         if (originalCharPrId == null || originalCharPrId.trim().isEmpty()) {
-            throw new RuntimeException("원본 스타일(ID: " + ORIGINAL_STYLE_ID + ")이 유효한 charPrIDRef를 가지고 있지 않습니다.");
+            throw new RuntimeException("원본 스타일이 유효한 charPrIDRef를 가지고 있지 않습니다.");
         }
         CharPr sourceCharPr = HWPXObjectFinder.findCharPrById(hwpxFile, originalCharPrId);
         if (sourceCharPr == null) {
             throw new RuntimeException(
-                    "원본 스타일(ID: " + ORIGINAL_STYLE_ID + ")이 참조하는 CharPr(ID: " + originalCharPrId + ")을 찾을 수 없습니다.");
+                    "원본 스타일이 참조하는 CharPr을 찾을 수 없습니다.");
         }
 
         String originalParaPrId = originalStyle.paraPrIDRef();
         if (originalParaPrId == null || originalParaPrId.trim().isEmpty()) {
-            throw new RuntimeException("원본 스타일(ID: " + ORIGINAL_STYLE_ID + ")이 유효한 paraPrIDRef를 가지고 있지 않습니다.");
+            throw new RuntimeException("원본 스타일이 유효한 paraPrIDRef를 가지고 있지 않습니다.");
         }
         ParaPr sourceParaPr = HWPXObjectFinder.findParaPrById(hwpxFile, originalParaPrId);
         if (sourceParaPr == null) {
             throw new RuntimeException(
-                    "원본 스타일(ID: " + ORIGINAL_STYLE_ID + ")이 참조하는 ParaPr(ID: " + originalParaPrId + ")을 찾을 수 없습니다.");
+                    "원본 스타일이 참조하는 ParaPr을 찾을 수 없습니다.");
         }
 
         // 1. Attributes DTO 정의
@@ -77,7 +84,7 @@ public class HWPXBuilder {
         charPrDto.setFontSizePt(12.0);
 
         ParaPrAttributes paraPrDto = new ParaPrAttributes();
-        paraPrDto.setAlignHorizontal(HorizontalAlign2.CENTER); // 사용자가 수정한 방식 반영
+        // paraPrDto.setAlignHorizontal(HorizontalAlign2.CENTER); // 사용자가 수정한 방식 반영
         paraPrDto.setLineSpacing(160); // 사용자가 수정한 방식 반영 (Integer)
 
         StyleAttributes styleDto = new StyleAttributes();
@@ -126,17 +133,30 @@ public class HWPXBuilder {
     }
 
     private void addNumbering() {
-
-
         Numbering numbering = refList.numberings().get(0);
 
-        ParaHeadAttributes attr = new ParaHeadAttributes();
-        attr.setLevel((byte) 1);
-        attr.setStart(1);
-        attr.setNumFormat(NumberType1.DIGIT);
-        attr.setText("hhh");
+        ParaHeadAttributes paraHeadAttributes1 = new ParaHeadAttributes();
+        paraHeadAttributes1.setLevel((byte) 1);
+        paraHeadAttributes1.setNumFormat(NumberType1.DIGIT);
+        paraHeadAttributes1.setText("§^1.");
 
-        NumberingBuilder numberingBuilder = NumberingBuilder.fromAttributes(numbering, List.of(attr));
+        ParaHeadAttributes paraHeadAttributes2 = new ParaHeadAttributes();
+        paraHeadAttributes2.setLevel((byte) 2);
+        paraHeadAttributes2.setNumFormat(NumberType1.LATIN_SMALL);
+        paraHeadAttributes2.setText("§^1.^2)");
+
+        ParaHeadAttributes paraHeadAttributes3 = new ParaHeadAttributes();
+        paraHeadAttributes3.setLevel((byte) 3);
+        paraHeadAttributes3.setStart(1);
+        paraHeadAttributes3.setNumFormat(NumberType1.ROMAN_SMALL);
+        paraHeadAttributes3.setText("§^1.^2).^3.");
+
+        ParaHeadAttributes paraHeadAttributes4 = new ParaHeadAttributes();
+        paraHeadAttributes4.setLevel((byte) 4);
+        paraHeadAttributes4.setNumFormat(NumberType1.LATIN_SMALL);
+        paraHeadAttributes4.setText("§^1.^2).^3).^4.");
+
+        NumberingBuilder numberingBuilder = NumberingBuilder.fromAttributes(numbering, List.of(paraHeadAttributes1, paraHeadAttributes2, paraHeadAttributes3, paraHeadAttributes4));
         Numbering updated = numberingBuilder.build();
         System.out.println(updated.getParaHead(0).text());
 
@@ -189,7 +209,7 @@ public class HWPXBuilder {
 
     public HWPXFile build() throws Exception {
         addStyle();
-        // addNumbering();
+        addNumbering();
         return hwpxFile;
     }
 }
