@@ -5,6 +5,7 @@ import java.util.List;
 import kr.dogfoot.hwpxlib.object.HWPXFile;
 import kr.dogfoot.hwpxlib.object.common.baseobject.LeftRightTopBottom;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.BorderFill;
+import kr.dogfoot.hwpxlib.object.content.header_xml.references.borderfill.FillBrush;
 import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.CenterLineSort;
 import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.LineType2;
 import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.LineWidth;
@@ -26,7 +27,7 @@ import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.object.table.Tr;
 public class TableBuilder {
     private HWPXFile hwpxFile;
     private static final long TOTAL_WIDTH = 41954L;
-    private static final long CELL_HEIGHT = 1282L;
+    private static final long CELL_HEIGHT = 1282*2;
 
     public TableBuilder(HWPXFile hwpxFile) {
         this.hwpxFile = hwpxFile;
@@ -37,67 +38,89 @@ public class TableBuilder {
      * @param id 테두리 ID
      * @return 생성된 BorderFill 객체
      */
-    public static BorderFill createBorderFill() {
-        // slash, backslash, border, diagonal 스타일을 받을수 있도록 수정 
+    /**
+     * 테두리 스타일을 생성합니다.
+     * @param hasFill 배경색 채우기 여부
+     * @param faceColor 배경색 (hasFill이 true일 때만 사용)
+     * @return 생성된 BorderFill 객체
+     */
+    public static BorderFill createBorderFill(boolean hasFill, String faceColor) {
         BorderFill borderFill = new BorderFill();
         borderFill.threeD(false);
         borderFill.shadow(false);
         borderFill.centerLine(CenterLineSort.NONE);
         borderFill.breakCellSeparateLine(false);
 
+        // 슬래시 설정
         borderFill.createSlash();
         borderFill.slash()
                 .typeAnd(SlashType.NONE)
                 .CrookedAnd(false)
                 .isCounter(false);
 
+        // 백슬래시 설정
         borderFill.createBackSlash();
         borderFill.backSlash()
                 .typeAnd(SlashType.NONE)
                 .CrookedAnd(false)
                 .isCounter(false);
 
+        // 왼쪽 테두리 설정
         borderFill.createLeftBorder();
         borderFill.leftBorder()
                 .typeAnd(LineType2.SOLID)
-                .widthAnd(LineWidth.MM_0_12) // 0.12 mm
+                .widthAnd(LineWidth.MM_0_12)
                 .colorAnd("#000000");
 
+        // 오른쪽 테두리 설정
         borderFill.createRightBorder();
         borderFill.rightBorder()
                 .typeAnd(LineType2.SOLID)
-                .widthAnd(LineWidth.MM_0_12) // 0.12 mm
+                .widthAnd(LineWidth.MM_0_12)
                 .colorAnd("#000000");
 
+        // 위쪽 테두리 설정
         borderFill.createTopBorder();
         borderFill.topBorder()
                 .typeAnd(LineType2.SOLID)
-                .widthAnd(LineWidth.MM_0_12) // 0.12 mm
+                .widthAnd(LineWidth.MM_0_12)
                 .colorAnd("#000000");
 
+        // 아래쪽 테두리 설정
         borderFill.createBottomBorder();
         borderFill.bottomBorder()
                 .typeAnd(LineType2.SOLID)
-                .widthAnd(LineWidth.MM_0_12) // 0.12 mm
+                .widthAnd(LineWidth.MM_0_12)
                 .colorAnd("#000000");
 
+        // 대각선 설정
         borderFill.createDiagonal();
         borderFill.diagonal()
                 .typeAnd(LineType2.SOLID)
-                .widthAnd(LineWidth.MM_0_1) // 0.1 mm
+                .widthAnd(LineWidth.MM_0_1)
                 .colorAnd("#000000");
+
+        // 채우기 브러시 설정 (hasFill이 true일 때만)
+        if (hasFill) {
+            borderFill.createFillBrush();
+            FillBrush fillBrush = borderFill.fillBrush();
+            fillBrush.createWinBrush();
+            fillBrush.winBrush()
+                    .faceColorAnd(faceColor)
+                    .hatchColorAnd("#999999")  // 기본 해치 색상
+                    .alphaAnd(0.0f);           // 기본 투명도
+        }
                 
         return borderFill;
     }
-    
+
+
     /**
      * HWPXFile에 BorderFill을 추가합니다.
-     * @param hwpxFile HWPX 파일 객체
+     * @param id 보더필 ID
      * @param borderFill 추가할 BorderFill 객체
      */
-    public void addBorderFill(String id) {
-        // BorderFill 생성 및 추가
-        BorderFill borderFill = createBorderFill();
+    public void addBorderFill(String id, BorderFill borderFill) {
         borderFill.id(id);
 
         if (hwpxFile.headerXMLFile().refList().borderFills() == null) {
