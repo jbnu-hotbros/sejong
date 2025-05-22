@@ -38,6 +38,7 @@ public class TableBuilder {
      * @return 생성된 BorderFill 객체
      */
     public static BorderFill createBorderFill() {
+        // slash, backslash, border, diagonal 스타일을 받을수 있도록 수정 
         BorderFill borderFill = new BorderFill();
         borderFill.threeD(false);
         borderFill.shadow(false);
@@ -94,10 +95,10 @@ public class TableBuilder {
      * @param hwpxFile HWPX 파일 객체
      * @param borderFill 추가할 BorderFill 객체
      */
-    public void addBorderFill() {
+    public void addBorderFill(String id) {
         // BorderFill 생성 및 추가
         BorderFill borderFill = createBorderFill();
-        borderFill.id("3");
+        borderFill.id(id);
 
         if (hwpxFile.headerXMLFile().refList().borderFills() == null) {
             hwpxFile.headerXMLFile().refList().createBorderFills();
@@ -105,7 +106,7 @@ public class TableBuilder {
         hwpxFile.headerXMLFile().refList().borderFills().add(borderFill);
     }
 
-    public Table buildTable(int rows, int cols, List<List<String>> contents) {
+    public Table buildTable(int rows, int cols, List<List<String>> contents, String borderFillId) {
         validateContent(rows, cols, contents);
 
         long cellWidth = TOTAL_WIDTH / cols;

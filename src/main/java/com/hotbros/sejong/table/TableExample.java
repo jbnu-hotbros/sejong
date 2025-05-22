@@ -19,7 +19,7 @@ public class TableExample {
 
             // 2. TableBuilder 생성 및 BorderFill 추가
             TableBuilder builder = new TableBuilder(hwpxFile);
-            builder.addBorderFill();
+            builder.addBorderFill("3");
 
             // 3. 표 내용 준비 (2x2 표)
             List<List<String>> contents = Arrays.asList(
