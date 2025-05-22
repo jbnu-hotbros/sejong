@@ -175,12 +175,16 @@ public class HWPXBuilder {
         if(hasFirstParagraphText) {
             return;
         }
+
+
         Run run= new Run();
         run.charPrIDRef(style.charPrIDRef());
         run.addNewT().addText(text);
 
         Para para=section.getPara(0);
         para.paraPrIDRef(style.paraPrIDRef());
+
+        para.removeRun(0);
         para.addRun(run);
     }
 
