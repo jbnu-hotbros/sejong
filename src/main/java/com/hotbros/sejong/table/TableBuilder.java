@@ -1,5 +1,7 @@
 package com.hotbros.sejong.table;
 
+import java.util.List;
+
 import kr.dogfoot.hwpxlib.object.HWPXFile;
 import kr.dogfoot.hwpxlib.object.common.baseobject.LeftRightTopBottom;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.BorderFill;
@@ -23,6 +25,8 @@ import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.object.table.Tr;
 
 public class TableBuilder {
     private HWPXFile hwpxFile;
+    private static final long TOTAL_WIDTH = 41954L;
+    private static final long CELL_HEIGHT = 1282L;
 
     public TableBuilder(HWPXFile hwpxFile) {
         this.hwpxFile = hwpxFile;
@@ -101,12 +105,38 @@ public class TableBuilder {
         hwpxFile.headerXMLFile().refList().borderFills().add(borderFill);
     }
 
-    public Table build() {
+    public Table buildTable(int rows, int cols, List<List<String>> contents) {
+        validateContent(rows, cols, contents);
 
+        long cellWidth = TOTAL_WIDTH / cols;
+        Table table = createTableBase(rows, cols, cellWidth);
 
+        for (int row = 0; row < rows; row++) {
+            Tr tr = table.addNewTr();
+            for (int col = 0; col < cols; col++) {
+                String text = contents.get(row).get(col);
+                Tc cell = createCell(row, col, cellWidth, CELL_HEIGHT, text);
+                tr.addTc(cell);
+            }
+        }
+
+        return table;
+    }
+
+    private void validateContent(int rows, int cols, List<List<String>> contents) {
+        if (contents.size() != rows) {
+            throw new IllegalArgumentException("행 수가 일치하지 않습니다.");
+        }
+        for (int i = 0; i < rows; i++) {
+            if (contents.get(i).size() != cols) {
+                throw new IllegalArgumentException("[" + i + "]행의 열 수가 일치하지 않습니다.");
+            }
+        }
+    }
+
+    private Table createTableBase(int rows, int cols, long cellWidth) {
         Table table = new Table();
 
-        // <hp:tbl> attributes
         table.id("1853460188");
         table.zOrder(0);
         table.numberingType(NumberingType.TABLE);
@@ -116,21 +146,20 @@ public class TableBuilder {
         table.dropcapstyle(DropCapStyle.None);
         table.pageBreak(TablePageBreak.CELL);
         table.repeatHeader(true);
-        table.rowCnt((short) 1);
-        table.colCnt((short) 1);
+        table.rowCnt((short) rows);
+        table.colCnt((short) cols);
         table.cellSpacing(0);
-        table.borderFillIDRef("3"); // 위에서 생성한 BorderFill의 ID 참조
+        table.borderFillIDRef("3");
         table.noAdjust(false);
 
         table.createSZ();
         ShapeSize sz = table.sz();
-        sz.width(41954L);
+        sz.width(TOTAL_WIDTH);
         sz.widthRelTo(WidthRelTo.ABSOLUTE);
-        sz.height(2564L);
+        sz.height(CELL_HEIGHT * rows);
         sz.heightRelTo(HeightRelTo.ABSOLUTE);
         sz.protect(false);
 
-        // <hp:pos>
         table.createPos();
         table.pos().treatAsChar(true);
         table.pos().affectLSpacing(false);
@@ -144,8 +173,6 @@ public class TableBuilder {
         table.pos().vertOffset(0L);
         table.pos().horzOffset(0L);
 
-        // <hp:outMargin>
-        // package kr.dogfoot.hwpxlib.object.common.baseobject; leftrighttopbottom
         table.createOutMargin();
         LeftRightTopBottom outMargin = table.outMargin();
         outMargin.left(283L);
@@ -153,86 +180,83 @@ public class TableBuilder {
         outMargin.top(283L);
         outMargin.bottom(283L);
 
-        // <hp:inMargin>
-        // 파라미터 타입들은 전부다 long인듯 
         table.createInMargin();
-        LeftRightTopBottom inMargin =  table.inMargin();
+        LeftRightTopBottom inMargin = table.inMargin();
         inMargin.left(510L);
         inMargin.right(510L);
         inMargin.top(141L);
         inMargin.bottom(141L);
 
-        // First <hp:tr>
-        Tr tr1 = table.addNewTr();
-
-        // First <hp:tc> in first <hp:tr>
-        Tc tc1_1 = tr1.addNewTc();
-        tc1_1.name("");
-        tc1_1.header(false);
-        tc1_1.hasMargin(false);
-        tc1_1.protect(false);
-        tc1_1.editable(false);
-        tc1_1.dirty(false);
-        tc1_1.borderFillIDRef("3");
-
-        tc1_1.createSubList();
-        SubList subList1_1 = tc1_1.subList();
-        subList1_1.id("");
-        subList1_1.textDirection(TextDirection.HORIZONTAL);
-        subList1_1.lineWrap(LineWrapMethod.BREAK);
-        subList1_1.vertAlign(VerticalAlign2.CENTER);
-        subList1_1.linkListIDRef("0");
-        subList1_1.linkListNextIDRef("0");
-        subList1_1.textWidth(0);
-        subList1_1.textHeight(0);
-        subList1_1.hasTextRef(false);
-        subList1_1.hasNumRef(false);
-
-        Para p1_1 = subList1_1.addNewPara();
-        p1_1.id("0");
-        p1_1.paraPrIDRef("0");
-        p1_1.styleIDRef("0");
-        p1_1.pageBreak(false);
-        p1_1.columnBreak(false);
-        p1_1.merged(false);
-
-        Run run1_1 = p1_1.addNewRun();
-        run1_1.charPrIDRef("0");
-        T t1_1 = run1_1.addNewT();
-        t1_1.addText("11");
-
-        p1_1.createLineSegArray();
-        LineSeg lineSeg1_1 = p1_1.lineSegArray().addNew();
-        lineSeg1_1.textpos(0);
-        lineSeg1_1.vertpos(0);
-        lineSeg1_1.vertsize(1000);
-        lineSeg1_1.textheight(1000);
-        lineSeg1_1.baseline(850);
-        lineSeg1_1.spacing(600);
-        lineSeg1_1.horzpos(0);
-        lineSeg1_1.horzsize(40932);
-        lineSeg1_1.flags(393216);
-
-        tc1_1.createCellAddr();
-        tc1_1.cellAddr().colAddr((short)0);
-        tc1_1.cellAddr().rowAddr((short)0);
-
-        tc1_1.createCellSpan();
-        tc1_1.cellSpan().colSpan((short)1);
-        tc1_1.cellSpan().rowSpan((short)1);
-
-        tc1_1.createCellSz();
-        tc1_1.cellSz().width(20977L);
-        tc1_1.cellSz().height(282L);
-
-        tc1_1.createCellMargin();
-        tc1_1.cellMargin().left(510L);
-        tc1_1.cellMargin().right(510L);
-        tc1_1.cellMargin().top(141L);
-        tc1_1.cellMargin().bottom(141L);
-
-
-
         return table;
+    }
+
+    private Tc createCell(int row, int col, long width, long height, String text) {
+        Tc tc = new Tc();
+        tc.name("");
+        tc.header(false);
+        tc.hasMargin(false);
+        tc.protect(false);
+        tc.editable(false);
+        tc.dirty(false);
+        tc.borderFillIDRef("3");
+
+        tc.createSubList();
+        SubList sl = tc.subList();
+        sl.id("");
+        sl.textDirection(TextDirection.HORIZONTAL);
+        sl.lineWrap(LineWrapMethod.BREAK);
+        sl.vertAlign(VerticalAlign2.CENTER);
+        sl.linkListIDRef("0");
+        sl.linkListNextIDRef("0");
+        sl.textWidth(0);
+        sl.textHeight(0);
+        sl.hasTextRef(false);
+        sl.hasNumRef(false);
+
+        Para para = sl.addNewPara();
+        para.id("para-" + row + "-" + col);
+        para.paraPrIDRef("0");
+        para.styleIDRef("0");
+        para.pageBreak(false);
+        para.columnBreak(false);
+        para.merged(false);
+
+        Run run = para.addNewRun();
+        run.charPrIDRef("0");
+        T t = run.addNewT();
+        t.addText(text);
+
+        para.createLineSegArray();
+        LineSeg seg = para.lineSegArray().addNew();
+        seg.textpos(0);
+        seg.vertpos(0);
+        seg.vertsize(1000);
+        seg.textheight(1000);
+        seg.baseline(850);
+        seg.spacing(600);
+        seg.horzpos(0);
+        seg.horzsize((int)width - 1024);
+        seg.flags(393216);
+
+        tc.createCellAddr();
+        tc.cellAddr().rowAddr((short) row);
+        tc.cellAddr().colAddr((short) col);
+
+        tc.createCellSpan();
+        tc.cellSpan().rowSpan((short) 1);
+        tc.cellSpan().colSpan((short) 1);
+
+        tc.createCellSz();
+        tc.cellSz().width(width);
+        tc.cellSz().height(height);
+
+        tc.createCellMargin();
+        LeftRightTopBottom margin = tc.cellMargin();
+        margin.left(510L);
+        margin.right(510L);
+        margin.top(141L);
+        margin.bottom(141L);
+
+        return tc;
     }
 }
