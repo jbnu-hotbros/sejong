@@ -106,21 +106,23 @@ public class TableBuilder {
         hwpxFile.headerXMLFile().refList().borderFills().add(borderFill);
     }
 
-    public Table buildTable(int rows, int cols, List<List<String>> contents, String borderFillId) {
+    public Table buildTable(int rows, int cols, List<List<String>> contents, String borderFillId, String headerBorderFillId) {
         validateContent(rows, cols, contents);
-
+    
         long cellWidth = TOTAL_WIDTH / cols;
-        Table table = createTableBase(rows, cols, cellWidth);
-
+        Table table = createTableBase(rows, cols, cellWidth, borderFillId);
+    
         for (int row = 0; row < rows; row++) {
             Tr tr = table.addNewTr();
             for (int col = 0; col < cols; col++) {
                 String text = contents.get(row).get(col);
-                Tc cell = createCell(row, col, cellWidth, CELL_HEIGHT, text);
+                // ✅ 행 0 (헤더)에만 headerBorderFillId 사용
+                String effectiveBorderId = (row == 0) ? headerBorderFillId : borderFillId;
+                Tc cell = createCell(row, col, cellWidth, CELL_HEIGHT, text, effectiveBorderId);
                 tr.addTc(cell);
             }
         }
-
+    
         return table;
     }
 
@@ -135,7 +137,7 @@ public class TableBuilder {
         }
     }
 
-    private Table createTableBase(int rows, int cols, long cellWidth) {
+    private Table createTableBase(int rows, int cols, long cellWidth, String borderFillId) {
         Table table = new Table();
 
         table.id("1853460188");
@@ -150,7 +152,7 @@ public class TableBuilder {
         table.rowCnt((short) rows);
         table.colCnt((short) cols);
         table.cellSpacing(0);
-        table.borderFillIDRef("3");
+        table.borderFillIDRef(borderFillId);
         table.noAdjust(false);
 
         table.createSZ();
@@ -191,7 +193,7 @@ public class TableBuilder {
         return table;
     }
 
-    private Tc createCell(int row, int col, long width, long height, String text) {
+    private Tc createCell(int row, int col, long width, long height, String text, String borderFillId) {
         Tc tc = new Tc();
         tc.name("");
         tc.header(false);
@@ -199,8 +201,9 @@ public class TableBuilder {
         tc.protect(false);
         tc.editable(false);
         tc.dirty(false);
-        tc.borderFillIDRef("3");
-
+        // ✅ 전달받은 borderFillId 사용
+        tc.borderFillIDRef(borderFillId);
+    
         tc.createSubList();
         SubList sl = tc.subList();
         sl.id("");
@@ -213,7 +216,7 @@ public class TableBuilder {
         sl.textHeight(0);
         sl.hasTextRef(false);
         sl.hasNumRef(false);
-
+    
         Para para = sl.addNewPara();
         para.id("para-" + row + "-" + col);
         para.paraPrIDRef("0");
@@ -221,12 +224,12 @@ public class TableBuilder {
         para.pageBreak(false);
         para.columnBreak(false);
         para.merged(false);
-
+    
         Run run = para.addNewRun();
         run.charPrIDRef("0");
         T t = run.addNewT();
         t.addText(text);
-
+    
         para.createLineSegArray();
         LineSeg seg = para.lineSegArray().addNew();
         seg.textpos(0);
@@ -238,26 +241,27 @@ public class TableBuilder {
         seg.horzpos(0);
         seg.horzsize((int)width - 1024);
         seg.flags(393216);
-
+    
         tc.createCellAddr();
         tc.cellAddr().rowAddr((short) row);
         tc.cellAddr().colAddr((short) col);
-
+    
         tc.createCellSpan();
         tc.cellSpan().rowSpan((short) 1);
         tc.cellSpan().colSpan((short) 1);
-
+    
         tc.createCellSz();
         tc.cellSz().width(width);
         tc.cellSz().height(height);
-
+    
         tc.createCellMargin();
         LeftRightTopBottom margin = tc.cellMargin();
         margin.left(510L);
         margin.right(510L);
         margin.top(141L);
         margin.bottom(141L);
-
+    
         return tc;
     }
+    
 }
