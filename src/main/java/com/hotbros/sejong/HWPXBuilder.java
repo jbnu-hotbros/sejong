@@ -34,15 +34,6 @@ import com.hotbros.sejong.util.FontPresetManager;
 import com.hotbros.sejong.style.NumberingPresets;
 
 public class HWPXBuilder {
-    private static final String ORIGINAL_STYLE_ID = "0"; // 예: 바탕글 스타일 ID
-    private static final String ORIGINAL_OUTLINE_ID_1 = "2"; // 예: 바탕글 넘버링 ID
-    private static final String ORIGINAL_OUTLINE_ID_2 = "3"; // 예: 바탕글 넘버링 ID
-    private static final String ORIGINAL_OUTLINE_ID_3 = "4"; // 예: 바탕글 넘버링 ID
-    private static final String ORIGINAL_OUTLINE_ID_4 = "5"; // 예: 바탕글 넘버링 ID
-    private static final String ORIGINAL_OUTLINE_ID_5 = "6"; // 예: 바탕글 넘버링 ID
-    private static final String ORIGINAL_OUTLINE_ID_6 = "7"; // 예: 바탕글 넘버링 ID
-    private static final String ORIGINAL_OUTLINE_ID_7 = "8"; // 예: 바탕글 넘버링 ID
-
     private HWPXFile hwpxFile;
     private RefList refList;
     private StyleIdAllocator allocator;
@@ -221,4 +212,5 @@ public class HWPXBuilder {
         // 4. 섹션에 추가
         section.addPara(para);
     }
+
 }
