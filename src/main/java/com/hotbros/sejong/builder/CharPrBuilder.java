@@ -54,6 +54,37 @@ public class CharPrBuilder {
         return this;
     }
     
+    /**
+     * 모든 언어(한글, 영문, 한자, 일본어, 기타, 기호, 사용자)에 대해 동일한 fontRef ID를 설정합니다.
+     * 
+     * @param fontRefId 설정할 fontRef ID 값
+     * @return 현재 빌더 인스턴스
+     */
+    public CharPrBuilder fontRef(String fontRefId) {
+        if (fontRefId == null || fontRefId.trim().isEmpty()) {
+            // ID가 null이거나 비어있으면 fontRef 제거
+            this.workingCharPr.removeFontRef();
+            return this;
+        }
+        
+        // fontRef가 없으면 생성
+        if (this.workingCharPr.fontRef() == null) {
+            this.workingCharPr.createFontRef();
+        }
+        
+        // 모든 언어에 동일한 ID 설정
+        this.workingCharPr.fontRef()
+            .hangulAnd(fontRefId)
+            .latinAnd(fontRefId)
+            .hanjaAnd(fontRefId)
+            .japaneseAnd(fontRefId)
+            .otherAnd(fontRefId)
+            .symbolAnd(fontRefId)
+            .user(fontRefId);
+            
+        return this;
+    }
+    
     public CharPrBuilder bold(Boolean boldValue) {
         if (boldValue == null) {
             return this;
@@ -143,6 +174,11 @@ public class CharPrBuilder {
                .italic(attributesToApply.getItalic())
                .underline(attributesToApply.getUnderline())
                .strikeout(attributesToApply.getStrikeout());
+        
+        // 폰트 참조 설정 (CharPrAttributes에 fontRefId가 있다면)
+        if (attributesToApply.getFontRefId() != null) {
+            builder.fontRef(attributesToApply.getFontRefId());
+        }
         
         return builder;
     }
