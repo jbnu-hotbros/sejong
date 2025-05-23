@@ -11,6 +11,7 @@ public class CharPrAttributes {
     private Boolean underline;  // 밑줄
     private Boolean strikeout;  // 취소선
     private Integer fontSizeHwpUnit; // HWP Unit으로 관리 (예: 1000은 10pt)
+    private String fontRefId;   // 폰트 참조 ID
 
     // 기본 생성자
     public CharPrAttributes() {
@@ -92,6 +93,14 @@ public class CharPrAttributes {
 
     public void setFontSizePt(Double fontSizePt) {
         this.fontSizeHwpUnit = fontSizePt == null ? null : (int)(fontSizePt * 100);
+    }
+
+    public String getFontRefId() {
+        return fontRefId;
+    }
+    
+    public void setFontRefId(String fontRefId) {
+        this.fontRefId = fontRefId;
     }
 
     // toMap, fromMap - Map<String, String>으로 변경

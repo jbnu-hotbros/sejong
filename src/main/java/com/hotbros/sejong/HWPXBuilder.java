@@ -10,6 +10,9 @@ import com.hotbros.sejong.dto.StyleBlock;
 import com.hotbros.sejong.util.HWPXObjectFinder;
 import com.hotbros.sejong.builder.NumberingBuilder;
 import com.hotbros.sejong.util.StyleIdAllocator;
+import com.hotbros.sejong.table.TableBuilder;
+import kr.dogfoot.hwpxlib.object.content.header_xml.references.BorderFill;
+import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.object.Table;
 
 import kr.dogfoot.hwpxlib.object.HWPXFile;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.CharPr;
@@ -25,6 +28,10 @@ import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.NumberType1;
 import kr.dogfoot.hwpxlib.tool.blankfilemaker.BlankFileMaker;
 import kr.dogfoot.hwpxlib.object.content.header_xml.RefList;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.Numbering;
+import com.hotbros.sejong.style.StylePresets;
+import com.hotbros.sejong.style.StyleBuilderBlock;
+import com.hotbros.sejong.util.FontPresetManager;
+import com.hotbros.sejong.style.NumberingPresets;
 
 public class HWPXBuilder {
     private static final String ORIGINAL_STYLE_ID = "0"; // 예: 바탕글 스타일 ID
@@ -48,64 +55,63 @@ public class HWPXBuilder {
         this.refList = hwpxFile.headerXMLFile().refList();
         this.allocator = new StyleIdAllocator();
         this.section = hwpxFile.sectionXMLFileList().get(0);
+        
+        // 기본 스타일, 넘버링 등 초기화
+        init();
     }
 
-    private void addStyle() {
-        // 원본 스타일 및 참조 객체 찾기
-        Style originalStyle = HWPXObjectFinder.findStyleById(hwpxFile, ORIGINAL_OUTLINE_ID_1);
-        if (originalStyle == null) {
-            throw new RuntimeException("원본 스타일을 찾을 수 없습니다. 프로그램 실행을 중단합니다.");
-        }
+    /**
+     * HWPXBuilder 초기화 - 기본 스타일과 넘버링을 설정합니다.
+     * 문서 생성에 필요한 기본 요소들을 미리 등록합니다.
+     */
+    private void init() {
+        // 폰트 프리셋 등록
+        FontPresetManager.registerPresets(refList);
+        // 스타일 등록
+        addAllPresetStyles();
+        // 넘버링 등록
+        addDefaultNumbering();
+        System.out.println("✅ HWPXBuilder 초기화 완료: 기본 스타일 및 넘버링 등록됨");
+    }
+    
+    /**
+     * 모든 프리셋 스타일을 추가합니다.
+     * StylePresets 클래스에서 정의된 모든 스타일을 등록합니다.
+     */
+    private void addAllPresetStyles() {
+        // 각 프리셋 스타일 등록
+        addPresetStyle(StylePresets.titlePreset(hwpxFile));
+        addPresetStyle(StylePresets.bodyPreset(hwpxFile));
+        addPresetStyle(StylePresets.heading1Preset(hwpxFile));
+        addPresetStyle(StylePresets.heading2Preset(hwpxFile));
+        addPresetStyle(StylePresets.heading3Preset(hwpxFile));
+        addPresetStyle(StylePresets.tableHeaderPreset(hwpxFile));
+        addPresetStyle(StylePresets.tableCellPreset(hwpxFile));
+        
+        System.out.println("✅ 프리셋 스타일 등록 완료: 총 8개 스타일");
+    }
+    
+    /**
+     * 단일 프리셋 스타일을 추가합니다.
+     */
+    private void addPresetStyle(StyleBuilderBlock block) {
+        // StyleBuilderBlock에서 빌더를 통해 객체 생성
+        CharPr charPr = block.getCharPrBuilder().build();
+        ParaPr paraPr = block.getParaPrBuilder().build();
+        Style style = block.getStyleBuilder().build();
+        
+        // 실제 ID 할당
+        String styleId = String.valueOf(allocator.nextStyleId());
+        String charPrId = String.valueOf(allocator.nextCharPrId());
+        String paraPrId = String.valueOf(allocator.nextParaPrId());
+        
+        charPr.id(charPrId);
+        paraPr.id(paraPrId);
+        style.id(styleId);
+        style.charPrIDRef(charPrId);
+        style.paraPrIDRef(paraPrId);
 
-        String originalCharPrId = originalStyle.charPrIDRef();
-        if (originalCharPrId == null || originalCharPrId.trim().isEmpty()) {
-            throw new RuntimeException("원본 스타일이 유효한 charPrIDRef를 가지고 있지 않습니다.");
-        }
-        CharPr sourceCharPr = HWPXObjectFinder.findCharPrById(hwpxFile, originalCharPrId);
-        if (sourceCharPr == null) {
-            throw new RuntimeException(
-                    "원본 스타일이 참조하는 CharPr을 찾을 수 없습니다.");
-        }
-
-        String originalParaPrId = originalStyle.paraPrIDRef();
-        if (originalParaPrId == null || originalParaPrId.trim().isEmpty()) {
-            throw new RuntimeException("원본 스타일이 유효한 paraPrIDRef를 가지고 있지 않습니다.");
-        }
-        ParaPr sourceParaPr = HWPXObjectFinder.findParaPrById(hwpxFile, originalParaPrId);
-        if (sourceParaPr == null) {
-            throw new RuntimeException(
-                    "원본 스타일이 참조하는 ParaPr을 찾을 수 없습니다.");
-        }
-
-        // 1. Attributes DTO 정의
-        CharPrAttributes charPrDto = new CharPrAttributes();
-        charPrDto.setTextColor("#FF0000");
-        charPrDto.setBold(true);
-        charPrDto.setFontSizePt(12.0);
-
-        ParaPrAttributes paraPrDto = new ParaPrAttributes();
-        // paraPrDto.setAlignHorizontal(HorizontalAlign2.CENTER); // 사용자가 수정한 방식 반영
-        paraPrDto.setLineSpacing(160); // 사용자가 수정한 방식 반영 (Integer)
-
-        StyleAttributes styleDto = new StyleAttributes();
-        styleDto.setName("나의커스텀스타일");
-        styleDto.setEngName("MyCustomStyle");
-
-        // 2. StyleBlock 생성
-        StyleBlock customBlock = StyleBlock.fromAttributes(
-                sourceCharPr,
-                sourceParaPr,
-                originalStyle,
-                charPrDto,
-                paraPrDto,
-                styleDto,
-                allocator);
-
-        // 3. RefList에 등록 (StyleBlock에서 객체 가져오기)
-        CharPr charPr = customBlock.getCharPr();
-        ParaPr paraPr = customBlock.getParaPr();
-        Style customStyle = customBlock.getStyle();
-
+        // RefList에 등록
         if (refList.charProperties() == null) {
             refList.createCharProperties();
         }
@@ -119,63 +125,30 @@ public class HWPXBuilder {
         if (refList.styles() == null) {
             refList.createStyles();
         }
-        refList.styles().add(customStyle);
+        refList.styles().add(style);
 
-        System.out.println("새로운 스타일 '" + customStyle.name() + "' (ID: " + customStyle.id() + ") 추가됨");
-        System.out.println("  - 참조 CharPr ID: " + customStyle.charPrIDRef());
-        System.out.println("  - 참조 ParaPr ID: " + customStyle.paraPrIDRef());
-
-        
-        addFirstStyledText(customStyle, "이건 첫번재문단");
-        section.addPara(createStyledParagraph(customStyle, "안녕하세요 ㅎㅎㅎㅎㅎ", false));
-        section.addPara(createStyledParagraph(customStyle, "어쩌라고 ㅎㅎ", false));
-        section.addPara(createStyledParagraph(customStyle, "그만해 ㅎㅎ", false));
+        System.out.println("  - 스타일 추가됨: " + style.name() + " (ID: " + style.id() + ")");
     }
-
-    private void addNumbering() {
-        Numbering numbering = refList.numberings().get(0);
-
-        ParaHeadAttributes paraHeadAttributes1 = new ParaHeadAttributes();
-        paraHeadAttributes1.setLevel((byte) 1);
-        paraHeadAttributes1.setNumFormat(NumberType1.DIGIT);
-        paraHeadAttributes1.setText("§^1.");
-
-        ParaHeadAttributes paraHeadAttributes2 = new ParaHeadAttributes();
-        paraHeadAttributes2.setLevel((byte) 2);
-        paraHeadAttributes2.setNumFormat(NumberType1.LATIN_SMALL);
-        paraHeadAttributes2.setText("§^1.^2)");
-
-        ParaHeadAttributes paraHeadAttributes3 = new ParaHeadAttributes();
-        paraHeadAttributes3.setLevel((byte) 3);
-        paraHeadAttributes3.setStart(1);
-        paraHeadAttributes3.setNumFormat(NumberType1.ROMAN_SMALL);
-        paraHeadAttributes3.setText("§^1.^2).^3.");
-
-        ParaHeadAttributes paraHeadAttributes4 = new ParaHeadAttributes();
-        paraHeadAttributes4.setLevel((byte) 4);
-        paraHeadAttributes4.setNumFormat(NumberType1.LATIN_SMALL);
-        paraHeadAttributes4.setText("§^1.^2).^3).^4.");
-
-        NumberingBuilder numberingBuilder = NumberingBuilder.fromAttributes(numbering, List.of(paraHeadAttributes1, paraHeadAttributes2, paraHeadAttributes3, paraHeadAttributes4));
-        Numbering updated = numberingBuilder.build();
-        System.out.println(updated.getParaHead(0).text());
-
-        // 넘버링이 '대체' 되어야 함
-        // 기존 넘버링을 삭제
-        refList.numberings().remove(numbering);
-        // 새로운 넘버링 추가
+    
+    /**
+     * 기본 넘버링을 추가합니다.
+     * 문서에서 사용할 기본 넘버링 형식을 등록합니다.
+     */
+    private void addDefaultNumbering() {
+        Numbering updated = NumberingPresets.createDefaultNumbering(refList);
+        // 기존 넘버링을 모두 삭제하고 새 넘버링을 추가
+        refList.numberings().removeAll();
         refList.numberings().add(updated);
 
-        System.out.println("넘버링 추가 완료");
-        System.out.println("넘버링 ID: " + updated.id());
-        System.out.println("넘버링 시작: " + updated.start());
+        System.out.println("기본 넘버링 추가 완료");
+        System.out.println("  - 넘버링 ID: " + updated.id());
+        System.out.println("  - 넘버링 시작: " + updated.start());
     }
 
-    private void addFirstStyledText(Style style, String text) {
+    public void addFirstStyledText(Style style, String text) {
         if(hasFirstParagraphText) {
             return;
         }
-
 
         Run run= new Run();
         run.charPrIDRef(style.charPrIDRef());
@@ -188,7 +161,7 @@ public class HWPXBuilder {
         para.addRun(run);
     }
 
-    private Para createStyledParagraph(Style style, String text, boolean pageBreak) {
+    public Para createStyledParagraph(Style style, String text, boolean pageBreak) {
         if (style == null || text == null) {
             System.out.println("style 또는 text가 null입니다.");
             return null;
@@ -212,8 +185,40 @@ public class HWPXBuilder {
     }
 
     public HWPXFile build() throws Exception {
-        addStyle();
-        addNumbering();
+        // 초기화는 이미 생성자에서 완료되었으므로 바로 결과 리턴
         return hwpxFile;
+    }
+
+    /**
+     * 2차원 리스트 데이터를 받아 표를 생성하고 섹션에 추가합니다.
+     * 헤더(첫 행)는 회색 배경, 나머지는 일반 셀로 처리합니다.
+     */
+    public void addTableWithHeader(List<List<String>> contents) {
+        if (contents == null || contents.isEmpty() || contents.get(0).isEmpty()) {
+            throw new IllegalArgumentException("contents가 비어있거나 올바르지 않습니다.");
+        }
+        // 1. BorderFill 정의 및 등록
+        BorderFill normalBorderFill = TableBuilder.createBorderFill(false, null);  // 일반 셀용 보더 (배경색 없음)
+        BorderFill headerBorderFill = TableBuilder.createBorderFill(true, "#E6E6E6");  // 헤더 셀용 보더 (회색 배경)
+        TableBuilder.addBorderFill(hwpxFile, "3", normalBorderFill);         // 일반 셀용 보더 등록
+        TableBuilder.addBorderFill(hwpxFile, "4", headerBorderFill);    // 헤더 셀용 보더 등록
+
+        // 2. 표 생성 (헤더는 "4", 일반 셀은 "3" 사용)
+        int rows = contents.size();
+        int cols = contents.get(0).size();
+        Table table = TableBuilder.buildTable(rows, cols, contents, "3", "4");
+
+        // 3. Para 객체 생성 및 표 삽입
+        Para para = new Para();
+        para.id("table-para");
+        para.paraPrIDRef("0");
+        para.styleIDRef("0");
+        para.pageBreak(false);
+        para.columnBreak(false);
+        para.merged(false);
+        para.addNewRun().addNewTable().copyFrom(table);
+
+        // 4. 섹션에 추가
+        section.addPara(para);
     }
 }

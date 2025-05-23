@@ -25,19 +25,9 @@ import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.object.table.Tr;
 
 
 public class TableBuilder {
-    private HWPXFile hwpxFile;
     private static final long TOTAL_WIDTH = 41954L;
     private static final long CELL_HEIGHT = 1282*2;
 
-    public TableBuilder(HWPXFile hwpxFile) {
-        this.hwpxFile = hwpxFile;
-    }
-    
-    /**
-     * 테두리 스타일을 생성합니다.
-     * @param id 테두리 ID
-     * @return 생성된 BorderFill 객체
-     */
     /**
      * 테두리 스타일을 생성합니다.
      * @param hasFill 배경색 채우기 여부
@@ -117,39 +107,35 @@ public class TableBuilder {
 
     /**
      * HWPXFile에 BorderFill을 추가합니다.
+     * @param hwpxFile HWPX 파일 객체
      * @param id 보더필 ID
      * @param borderFill 추가할 BorderFill 객체
      */
-    public void addBorderFill(String id, BorderFill borderFill) {
+    public static void addBorderFill(HWPXFile hwpxFile, String id, BorderFill borderFill) {
         borderFill.id(id);
-
         if (hwpxFile.headerXMLFile().refList().borderFills() == null) {
             hwpxFile.headerXMLFile().refList().createBorderFills();
         }
         hwpxFile.headerXMLFile().refList().borderFills().add(borderFill);
     }
 
-    public Table buildTable(int rows, int cols, List<List<String>> contents, String borderFillId, String headerBorderFillId) {
+    public static Table buildTable(int rows, int cols, List<List<String>> contents, String borderFillId, String headerBorderFillId) {
         validateContent(rows, cols, contents);
-    
         long cellWidth = TOTAL_WIDTH / cols;
         Table table = createTableBase(rows, cols, cellWidth, borderFillId);
-    
         for (int row = 0; row < rows; row++) {
             Tr tr = table.addNewTr();
             for (int col = 0; col < cols; col++) {
                 String text = contents.get(row).get(col);
-                // ✅ 행 0 (헤더)에만 headerBorderFillId 사용
                 String effectiveBorderId = (row == 0) ? headerBorderFillId : borderFillId;
                 Tc cell = createCell(row, col, cellWidth, CELL_HEIGHT, text, effectiveBorderId);
                 tr.addTc(cell);
             }
         }
-    
         return table;
     }
 
-    private void validateContent(int rows, int cols, List<List<String>> contents) {
+    private static void validateContent(int rows, int cols, List<List<String>> contents) {
         if (contents.size() != rows) {
             throw new IllegalArgumentException("행 수가 일치하지 않습니다.");
         }
@@ -160,9 +146,8 @@ public class TableBuilder {
         }
     }
 
-    private Table createTableBase(int rows, int cols, long cellWidth, String borderFillId) {
+    private static Table createTableBase(int rows, int cols, long cellWidth, String borderFillId) {
         Table table = new Table();
-
         table.id("1853460188");
         table.zOrder(0);
         table.numberingType(NumberingType.TABLE);
@@ -177,7 +162,6 @@ public class TableBuilder {
         table.cellSpacing(0);
         table.borderFillIDRef(borderFillId);
         table.noAdjust(false);
-
         table.createSZ();
         ShapeSize sz = table.sz();
         sz.width(TOTAL_WIDTH);
@@ -185,7 +169,6 @@ public class TableBuilder {
         sz.height(CELL_HEIGHT * rows);
         sz.heightRelTo(HeightRelTo.ABSOLUTE);
         sz.protect(false);
-
         table.createPos();
         table.pos().treatAsChar(true);
         table.pos().affectLSpacing(false);
@@ -198,25 +181,22 @@ public class TableBuilder {
         table.pos().horzAlign(HorzAlign.LEFT);
         table.pos().vertOffset(0L);
         table.pos().horzOffset(0L);
-
         table.createOutMargin();
         LeftRightTopBottom outMargin = table.outMargin();
         outMargin.left(283L);
         outMargin.right(283L);
         outMargin.top(283L);
         outMargin.bottom(283L);
-
         table.createInMargin();
         LeftRightTopBottom inMargin = table.inMargin();
         inMargin.left(510L);
         inMargin.right(510L);
         inMargin.top(141L);
         inMargin.bottom(141L);
-
         return table;
     }
 
-    private Tc createCell(int row, int col, long width, long height, String text, String borderFillId) {
+    private static Tc createCell(int row, int col, long width, long height, String text, String borderFillId) {
         Tc tc = new Tc();
         tc.name("");
         tc.header(false);
@@ -224,9 +204,7 @@ public class TableBuilder {
         tc.protect(false);
         tc.editable(false);
         tc.dirty(false);
-        // ✅ 전달받은 borderFillId 사용
         tc.borderFillIDRef(borderFillId);
-    
         tc.createSubList();
         SubList sl = tc.subList();
         sl.id("");
@@ -239,7 +217,6 @@ public class TableBuilder {
         sl.textHeight(0);
         sl.hasTextRef(false);
         sl.hasNumRef(false);
-    
         Para para = sl.addNewPara();
         para.id("para-" + row + "-" + col);
         para.paraPrIDRef("0");
@@ -247,12 +224,10 @@ public class TableBuilder {
         para.pageBreak(false);
         para.columnBreak(false);
         para.merged(false);
-    
         Run run = para.addNewRun();
         run.charPrIDRef("0");
         T t = run.addNewT();
         t.addText(text);
-    
         para.createLineSegArray();
         LineSeg seg = para.lineSegArray().addNew();
         seg.textpos(0);
@@ -264,26 +239,21 @@ public class TableBuilder {
         seg.horzpos(0);
         seg.horzsize((int)width - 1024);
         seg.flags(393216);
-    
         tc.createCellAddr();
         tc.cellAddr().rowAddr((short) row);
         tc.cellAddr().colAddr((short) col);
-    
         tc.createCellSpan();
         tc.cellSpan().rowSpan((short) 1);
         tc.cellSpan().colSpan((short) 1);
-    
         tc.createCellSz();
         tc.cellSz().width(width);
         tc.cellSz().height(height);
-    
         tc.createCellMargin();
         LeftRightTopBottom margin = tc.cellMargin();
         margin.left(510L);
         margin.right(510L);
         margin.top(141L);
         margin.bottom(141L);
-    
         return tc;
     }
     

@@ -18,14 +18,14 @@ public class TableExample {
             // 1. 빈 HWPX 파일 생성
             HWPXFile hwpxFile = BlankFileMaker.make();
 
-            // 2. TableBuilder 생성
-            TableBuilder builder = new TableBuilder(hwpxFile);
+            // 2. TableBuilder 생성 (삭제)
+            // TableBuilder builder = new TableBuilder(hwpxFile);
 
             // 3. BorderFill 정의 및 등록
             BorderFill normalBorderFill = TableBuilder.createBorderFill(false, null);  // 일반 셀용 보더 (배경색 없음)
             BorderFill headerBorderFill = TableBuilder.createBorderFill(true, "#E6E6E6");  // 헤더 셀용 보더 (회색 배경)
-            builder.addBorderFill("3", normalBorderFill);         // 일반 셀용 보더 등록
-            builder.addBorderFill("4", headerBorderFill);    // 헤더 셀용 보더 등록
+            TableBuilder.addBorderFill(hwpxFile, "3", normalBorderFill);         // 일반 셀용 보더 등록
+            TableBuilder.addBorderFill(hwpxFile, "4", headerBorderFill);    // 헤더 셀용 보더 등록
 
             // 4. 내용 준비 (10행 10열)
             List<List<String>> contents = Arrays.asList(
@@ -42,7 +42,7 @@ public class TableExample {
             );
 
             // 5. 표 생성 (헤더는 "4", 일반 셀은 "3" 사용)
-            Table table = builder.buildTable(10, 10, contents, "3", "4");
+            Table table = TableBuilder.buildTable(10, 10, contents, "3", "4");
 
             // 6. Para 객체 생성 및 표 삽입
             Para para = new Para();
