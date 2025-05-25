@@ -1,4 +1,4 @@
-package com.hotbros.sejong.builder;
+package com.hotbros.sejong.numbering.request;
 
 import com.hotbros.sejong.dto.ParaHeadAttributes;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.Numbering;

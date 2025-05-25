@@ -1,4 +1,4 @@
-package com.hotbros.sejong.builder;
+package com.hotbros.sejong.style.request;
 
 import com.hotbros.sejong.dto.ParaPrAttributes;
 

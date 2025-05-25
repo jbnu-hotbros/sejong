@@ -1,10 +1,10 @@
-package com.hotbros.sejong.builder;
+package com.hotbros.sejong.style.request;
 
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.Style;
 import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.StyleType;
 
 
-public class StyleBuilder {
+public class StyleTagBuilder {
 
     private Style workingStyle;
 
@@ -14,28 +14,28 @@ public class StyleBuilder {
      * @param originalStyle 복제할 원본 Style 객체. null일 수 없습니다.
      * @throws IllegalArgumentException originalStyle이 null인 경우 발생합니다.
      */
-    public StyleBuilder(Style originalStyle) {
+    public StyleTagBuilder(Style originalStyle) {
         if (originalStyle == null) {
             throw new IllegalArgumentException("Original Style cannot be null. StyleBuilder requires a base Style to work upon.");
         }
         this.workingStyle = originalStyle.clone();
     }
     
-    public StyleBuilder id(String id) {
+    public StyleTagBuilder id(String id) {
         if (id != null && !id.trim().isEmpty()) {
             this.workingStyle.id(id);
         }
         return this;
     }
 
-    public StyleBuilder type(StyleType type) {
+    public StyleTagBuilder type(StyleType type) {
         if (type != null) {
             this.workingStyle.typeAnd(type);
         }
         return this;
     }
 
-    public StyleBuilder type(String typeStr) {
+    public StyleTagBuilder type(String typeStr) {
         if (typeStr != null && !typeStr.trim().isEmpty()) {
             try {
                 this.workingStyle.typeAnd(StyleType.valueOf(typeStr.toUpperCase()));
@@ -46,56 +46,56 @@ public class StyleBuilder {
         return this;
     }
 
-    public StyleBuilder name(String name) {
+    public StyleTagBuilder name(String name) {
         if (name != null && !name.trim().isEmpty()) {
             this.workingStyle.nameAnd(name);
         }
         return this;
     }
 
-    public StyleBuilder engName(String engName) {
+    public StyleTagBuilder engName(String engName) {
         if (engName != null) {
             this.workingStyle.engNameAnd(engName);
         }
         return this;
     }
 
-    public StyleBuilder paraPrIDRef(String paraPrIDRef) {
+    public StyleTagBuilder paraPrIDRef(String paraPrIDRef) {
         if (paraPrIDRef != null && !paraPrIDRef.trim().isEmpty()) {
             this.workingStyle.paraPrIDRefAnd(paraPrIDRef);
         }
         return this;
     }
 
-    public StyleBuilder charPrIDRef(String charPrIDRef) {
+    public StyleTagBuilder charPrIDRef(String charPrIDRef) {
         if (charPrIDRef != null && !charPrIDRef.trim().isEmpty()) {
             this.workingStyle.charPrIDRefAnd(charPrIDRef);
         }
         return this;
     }
 
-    public StyleBuilder nextStyleIDRef(String nextStyleIDRef) {
+    public StyleTagBuilder nextStyleIDRef(String nextStyleIDRef) {
         if (nextStyleIDRef != null && !nextStyleIDRef.trim().isEmpty()) {
             this.workingStyle.nextStyleIDRefAnd(nextStyleIDRef);
         }
         return this;
     }
 
-    public StyleBuilder langID(String langID) {
+    public StyleTagBuilder langID(String langID) {
         if ((langID != null)) {
             this.workingStyle.langIDAnd(langID);
         }
         return this;
     }
 
-    public StyleBuilder lockForm(Boolean lockForm) {
+    public StyleTagBuilder lockForm(Boolean lockForm) {
         if (lockForm != null) {
             this.workingStyle.lockFormAnd(lockForm);
         }
         return this;
     }
     
-    public StyleBuilder lockForm(String lockFormStr) {
+    public StyleTagBuilder lockForm(String lockFormStr) {
         if (lockFormStr != null && !lockFormStr.trim().isEmpty()) {
             boolean val = "1".equals(lockFormStr) || "true".equalsIgnoreCase(lockFormStr);
             this.workingStyle.lockFormAnd(val);
@@ -122,8 +122,8 @@ public class StyleBuilder {
      *                          (StyleAttributes DTO는 type, charPrIDRef, paraPrIDRef 필드를 포함하도록 확장되었다고 가정)
      * @return 속성이 적용된 StyleBuilder 인스턴스
      */
-    public static StyleBuilder fromAttributes(Style originalStyle, com.hotbros.sejong.dto.StyleAttributes attributesToApply) {
-        StyleBuilder builder = new StyleBuilder(originalStyle);
+    public static StyleTagBuilder fromAttributes(Style originalStyle, com.hotbros.sejong.style.request.StyleAttributes attributesToApply) {
+        StyleTagBuilder builder = new StyleTagBuilder(originalStyle);
         if (attributesToApply == null) {
             return builder;
         }

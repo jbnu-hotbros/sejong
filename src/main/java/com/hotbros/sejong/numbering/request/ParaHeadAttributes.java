@@ -1,4 +1,4 @@
-package com.hotbros.sejong.dto;
+package com.hotbros.sejong.numbering.request;
 
 import java.util.HashMap;
 import java.util.Map;

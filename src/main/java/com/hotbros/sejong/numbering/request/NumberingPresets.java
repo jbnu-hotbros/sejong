@@ -1,4 +1,4 @@
-package com.hotbros.sejong.style;
+package com.hotbros.sejong.numbering.request;
 
 import kr.dogfoot.hwpxlib.object.content.header_xml.RefList;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.Numbering;

@@ -1,4 +1,4 @@
-package com.hotbros.sejong.builder;
+package com.hotbros.sejong.style.request;
 
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.CharPr;
 import com.hotbros.sejong.dto.CharPrAttributes;

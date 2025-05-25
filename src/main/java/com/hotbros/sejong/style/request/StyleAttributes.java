@@ -1,4 +1,4 @@
-package com.hotbros.sejong.dto;
+package com.hotbros.sejong.style.request;
 
 
 public class StyleAttributes {

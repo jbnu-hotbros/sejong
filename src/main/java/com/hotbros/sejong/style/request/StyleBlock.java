@@ -1,13 +1,10 @@
-package com.hotbros.sejong.dto;
+package com.hotbros.sejong.style.request;
 
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.CharPr;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.ParaPr;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.Style;
 
-import com.hotbros.sejong.builder.CharPrBuilder;
-import com.hotbros.sejong.builder.ParaPrBuilder;
-import com.hotbros.sejong.builder.StyleBuilder; 
-import com.hotbros.sejong.util.StyleIdAllocator;
+import com.hotbros.sejong.util.IdGenerator;
 
 public class StyleBlock {
     private final CharPr charPr;
@@ -47,7 +44,7 @@ public class StyleBlock {
         CharPrAttributes charAttrs,
         ParaPrAttributes paraAttrs,
         StyleAttributes styleAttrs,
-        StyleIdAllocator allocator
+        IdGenerator allocator
     ) {
         String styleId = String.valueOf(allocator.nextStyleId());
         String charPrId = String.valueOf(allocator.nextCharPrId());
@@ -62,7 +59,7 @@ public class StyleBlock {
 
         CharPr charPr = CharPrBuilder.fromAttributes(baseCharPr, charAttrs).build();
         ParaPr paraPr = ParaPrBuilder.fromAttributes(baseParaPr, paraAttrs).build();
-        Style style = StyleBuilder.fromAttributes(baseStyle, styleAttrs).build();
+        Style style = StyleTagBuilder.fromAttributes(baseStyle, styleAttrs).build();
 
 
         return new StyleBlock(charPr, paraPr, style);   

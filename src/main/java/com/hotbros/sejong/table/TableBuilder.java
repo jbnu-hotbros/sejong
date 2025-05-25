@@ -1,4 +1,4 @@
-package com.hotbros.sejong.table;
+package com.hotbros.sejong.builder;
 
 import java.util.List;
 
@@ -28,96 +28,7 @@ public class TableBuilder {
     private static final long TOTAL_WIDTH = 41954L;
     private static final long CELL_HEIGHT = 1282*2;
 
-    /**
-     * 테두리 스타일을 생성합니다.
-     * @param hasFill 배경색 채우기 여부
-     * @param faceColor 배경색 (hasFill이 true일 때만 사용)
-     * @return 생성된 BorderFill 객체
-     */
-    public static BorderFill createBorderFill(boolean hasFill, String faceColor) {
-        BorderFill borderFill = new BorderFill();
-        borderFill.threeD(false);
-        borderFill.shadow(false);
-        borderFill.centerLine(CenterLineSort.NONE);
-        borderFill.breakCellSeparateLine(false);
 
-        // 슬래시 설정
-        borderFill.createSlash();
-        borderFill.slash()
-                .typeAnd(SlashType.NONE)
-                .CrookedAnd(false)
-                .isCounter(false);
-
-        // 백슬래시 설정
-        borderFill.createBackSlash();
-        borderFill.backSlash()
-                .typeAnd(SlashType.NONE)
-                .CrookedAnd(false)
-                .isCounter(false);
-
-        // 왼쪽 테두리 설정
-        borderFill.createLeftBorder();
-        borderFill.leftBorder()
-                .typeAnd(LineType2.SOLID)
-                .widthAnd(LineWidth.MM_0_12)
-                .colorAnd("#000000");
-
-        // 오른쪽 테두리 설정
-        borderFill.createRightBorder();
-        borderFill.rightBorder()
-                .typeAnd(LineType2.SOLID)
-                .widthAnd(LineWidth.MM_0_12)
-                .colorAnd("#000000");
-
-        // 위쪽 테두리 설정
-        borderFill.createTopBorder();
-        borderFill.topBorder()
-                .typeAnd(LineType2.SOLID)
-                .widthAnd(LineWidth.MM_0_12)
-                .colorAnd("#000000");
-
-        // 아래쪽 테두리 설정
-        borderFill.createBottomBorder();
-        borderFill.bottomBorder()
-                .typeAnd(LineType2.SOLID)
-                .widthAnd(LineWidth.MM_0_12)
-                .colorAnd("#000000");
-
-        // 대각선 설정
-        borderFill.createDiagonal();
-        borderFill.diagonal()
-                .typeAnd(LineType2.SOLID)
-                .widthAnd(LineWidth.MM_0_1)
-                .colorAnd("#000000");
-
-        // 채우기 브러시 설정 (hasFill이 true일 때만)
-        if (hasFill) {
-            borderFill.createFillBrush();
-            FillBrush fillBrush = borderFill.fillBrush();
-            fillBrush.createWinBrush();
-            fillBrush.winBrush()
-                    .faceColorAnd(faceColor)
-                    .hatchColorAnd("#999999")  // 기본 해치 색상
-                    .alphaAnd(0.0f);           // 기본 투명도
-        }
-                
-        return borderFill;
-    }
-
-
-    /**
-     * HWPXFile에 BorderFill을 추가합니다.
-     * @param hwpxFile HWPX 파일 객체
-     * @param id 보더필 ID
-     * @param borderFill 추가할 BorderFill 객체
-     */
-    public static void addBorderFill(HWPXFile hwpxFile, String id, BorderFill borderFill) {
-        borderFill.id(id);
-        if (hwpxFile.headerXMLFile().refList().borderFills() == null) {
-            hwpxFile.headerXMLFile().refList().createBorderFills();
-        }
-        hwpxFile.headerXMLFile().refList().borderFills().add(borderFill);
-    }
 
     public static Table buildTable(int rows, int cols, List<List<String>> contents, String borderFillId, String headerBorderFillId) {
         validateContent(rows, cols, contents);

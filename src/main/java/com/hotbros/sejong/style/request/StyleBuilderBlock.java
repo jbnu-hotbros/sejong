@@ -1,8 +1,7 @@
-package com.hotbros.sejong.style;
+package com.hotbros.sejong.style.request;
 
-import com.hotbros.sejong.builder.CharPrBuilder;
-import com.hotbros.sejong.builder.ParaPrBuilder;
-import com.hotbros.sejong.builder.StyleBuilder;
+import com.hotbros.sejong.style.StyleBuilder;
+
 import kr.dogfoot.hwpxlib.object.HWPXFile;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.CharPr;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.ParaPr;
@@ -14,12 +13,12 @@ import kr.dogfoot.hwpxlib.object.content.header_xml.references.Style;
 public class StyleBuilderBlock {
     private final CharPrBuilder charPrBuilder;
     private final ParaPrBuilder paraPrBuilder;
-    private final StyleBuilder styleBuilder;
+    private final StyleTagBuilder styleBuilder;
     private String charPrId;
     private String paraPrId;
     private String styleId;
 
-    public StyleBuilderBlock(CharPrBuilder charPrBuilder, ParaPrBuilder paraPrBuilder, StyleBuilder styleBuilder) {
+    public StyleBuilderBlock(CharPrBuilder charPrBuilder, ParaPrBuilder paraPrBuilder, StyleTagBuilder styleBuilder) {
         this.charPrBuilder = charPrBuilder;
         this.paraPrBuilder = paraPrBuilder;
         this.styleBuilder = styleBuilder;
@@ -31,7 +30,7 @@ public class StyleBuilderBlock {
     public ParaPrBuilder getParaPrBuilder() {
         return paraPrBuilder;
     }
-    public StyleBuilder getStyleBuilder() {
+    public StyleTagBuilder getStyleBuilder() {
         return styleBuilder;
     }
 

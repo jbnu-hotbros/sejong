@@ -5,6 +5,7 @@ import kr.dogfoot.hwpxlib.object.content.header_xml.RefList;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.Style;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.ParaPr;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.CharPr;
+import kr.dogfoot.hwpxlib.object.content.header_xml.references.Numbering;
 
 public class HWPXObjectFinder {
 
@@ -87,5 +88,44 @@ public class HWPXObjectFinder {
         }
         System.err.println("HWPXObjectFinder.findCharPrById: ID '" + charPrId + "'에 해당하는 CharPr을 찾지 못했습니다.");
         return null;
+    }
+
+    /**
+     * HWPXFile에서 ID를 기준으로 Numbering 객체를 찾습니다.
+     *
+     * @param hwpxFile 검색할 HWPXFile 객체
+     * @param numberingId 찾을 Numbering의 ID
+     * @return 찾아낸 Numbering 객체. 없으면 null.
+     */
+    public static Numbering findNumberingById(HWPXFile hwpxFile, String numberingId) {
+        if (hwpxFile == null || numberingId == null) {
+            System.err.println("HWPXObjectFinder.findNumberingById: hwpxFile 또는 numberingId가 null입니다.");
+            return null;
+        }
+        RefList refList = hwpxFile.headerXMLFile().refList();
+        if (refList == null || refList.numberings() == null) {
+            System.err.println("HWPXObjectFinder.findNumberingById: RefList 또는 Numberings가 null입니다. (HWPXFile: " + hwpxFile + ", NumberingID: " + numberingId + ")");
+            return null;
+        }
+
+        for (Numbering numbering : refList.numberings().items()) {
+            if (numberingId.equals(numbering.id())) {
+                return numbering;
+            }
+        }
+        System.err.println("HWPXObjectFinder.findNumberingById: ID '" + numberingId + "'에 해당하는 Numbering을 찾지 못했습니다.");
+        return null;
+    }
+
+    /**
+     * RefList에서 첫 번째 Numbering 객체를 반환합니다.
+     * 없으면 null 반환.
+     */
+    public static Numbering findFirstNumbering(RefList refList) {
+        if (refList == null || refList.numberings() == null || refList.numberings().empty()) {
+            System.err.println("HWPXObjectFinder.findFirstNumbering: RefList 또는 Numberings가 null이거나 비어있습니다.");
+            return null;
+        }
+        return refList.numberings().get(0);
     }
 } 
