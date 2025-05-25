@@ -41,8 +41,6 @@ public class HWPXBuilder {
     private RefList refList;
 
     private static final String NORMAL_PARA_ID = "0";
-    private static final String NORMAL_BORDER_ID = "default";
-    private static final String HEADER_BORDER_ID = "grayFill";
 
     public HWPXBuilder() {
         this.hwpxFile = BlankFileMaker.make();
@@ -66,8 +64,10 @@ public class HWPXBuilder {
         return run;
     }
 
-    // 스타일 이름, 텍스트, 페이지브레이크로 Para를 생성하고 바로 섹션에 추가
-    public void addParagraph(String styleName, String text, boolean pageBreak) {
+    /**
+     * 스타일 이름, 텍스트, pageBreak 등 주요 속성을 받아 Para를 생성하는 공통 메서드
+     */
+    private Para createPara(String styleName, String text, boolean pageBreak) {
         Style style = styleRegistry.getStyleById(styleName);
         if (style == null) {
             throw new IllegalArgumentException("해당 이름의 스타일을 찾을 수 없습니다: " + styleName);
@@ -79,24 +79,41 @@ public class HWPXBuilder {
         para.pageBreak(pageBreak);
         para.columnBreak(false);
         para.merged(false);
-        para.addRun(createStyledRun(style, text));
-        section.addPara(para);
+        if (text != null) {
+            para.addRun(createStyledRun(style, text));
+        }
+        return para;
+    }
+
+    /**
+     * 첫 문단은 교체(set), 이후 문단은 추가(add)하는 내부 유틸
+     */
+    private void addParaSmart(Para para) {
+        if (!hasFirstParagraphText) {
+            Para first = section.getPara(0);
+            first.styleIDRef(para.styleIDRef());
+            first.paraPrIDRef(para.paraPrIDRef());
+            first.pageBreak(para.pageBreak());
+            first.columnBreak(para.columnBreak());
+            first.merged(para.merged());
+            first.removeAllRuns();
+            for (Run run : para.runs()) {
+                first.addRun(run);
+            }
+            hasFirstParagraphText = true;
+        } else {
+            section.addPara(para);
+        }
+    }
+
+    // 스타일 이름, 텍스트, 페이지브레이크로 Para를 생성하고 바로 섹션에 추가
+    public void addParagraph(String styleName, String text, boolean pageBreak) {
+        Para para = createPara(styleName, text, pageBreak);
+        addParaSmart(para);
     }
 
     // 첫 번째 문단 텍스트를 스타일과 함께 교체
-    public void addFirstStyledText(String styleName, String text) {
-        Style style = styleRegistry.getStyleById(styleName);
-        if (style == null) {
-            throw new IllegalArgumentException("해당 이름의 스타일을 찾을 수 없습니다: " + styleName);
-        }
-        if (hasFirstParagraphText) {
-            return;
-        }
-        Para para = section.getPara(0);
-        para.paraPrIDRef(style.paraPrIDRef());
-        para.removeRun(0);
-        para.addRun(createStyledRun(style, text));
-    }
+    // 더 이상 필요 없음: addParagraph에서 자동 처리
 
     // 표를 추가하는 함수 (기존과 동일)
     public void addTableWithHeader(List<List<String>> contents) {
@@ -110,15 +127,9 @@ public class HWPXBuilder {
         BorderFill headerBorderFill = borderFillRegistry.getBorderFillByName("grayFill");
         Table table = TableBuilder.buildTable(rows, cols, contents, normalBorderFill.id(), headerBorderFill.id());
 
-        Para para = new Para();
-        para.id("0");
-        para.paraPrIDRef(styleRegistry.getStyleById("표 본문").paraPrIDRef());
-        para.styleIDRef(styleRegistry.getStyleById("표 본문").id());
-        para.pageBreak(false);
-        para.columnBreak(false);
-        para.merged(false);
+        Para para = createPara("표 본문", null, false);
         para.addNewRun().addNewTable().copyFrom(table);
-        section.addPara(para);
+        addParaSmart(para);
     }
 
     public HWPXFile build() {
