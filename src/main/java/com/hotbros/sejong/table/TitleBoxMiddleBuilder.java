@@ -27,11 +27,6 @@ public class TitleBoxMiddleBuilder {
     private static final long CELL_HEIGHT = 3414L;
     private static final long[] CELL_WIDTHS = { 3060L, 565L, 44265L };
     public static final String[] BORDER_FILL_NAMES = { "TITLE_BOX_MIDDLE_LEFT", "TITLE_BOX_MIDDLE_CENTER", "TITLE_BOX_MIDDLE_RIGHT" };
-    private final BorderFillRegistry borderFillRegistry;
-
-    public TitleBoxMiddleBuilder(BorderFillRegistry borderFillRegistry) {
-        this.borderFillRegistry = borderFillRegistry;
-    }
 
     /**
      * 타이틀 테이블을 생성합니다.
@@ -42,11 +37,12 @@ public class TitleBoxMiddleBuilder {
      * @param paraPrIds     각 셀의 paraPrId (3개)
      * @param charPrIds     각 셀의 charPrId (3개)
      * @param styleIds      각 셀의 styleId (3개)
+     * @param tableBorderFillId 테이블의 borderFillId
      * @return Table 객체
      */
-    public Table build(
+    public static Table build(
             String number, String title,
-            String[] borderFillIds, Style numberStyle, Style contentStyle) {
+            String[] borderFillIds, Style numberStyle, Style contentStyle, String tableBorderFillId) {
         String[] cellTexts = { number, "", title };
         Table table = new Table();
         table.id("1856248017");
@@ -61,7 +57,7 @@ public class TitleBoxMiddleBuilder {
         table.rowCnt((short) 1);
         table.colCnt((short) 3);
         table.cellSpacing(0);
-        table.borderFillIDRef(borderFillRegistry.getBorderFillByName("default").id());
+        table.borderFillIDRef(tableBorderFillId);
         table.noAdjust(false);
         table.createSZ();
         table.sz().width(TOTAL_WIDTH);

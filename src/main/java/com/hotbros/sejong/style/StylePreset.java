@@ -38,13 +38,6 @@ public class StylePreset {
     // ===== 스타일 ID 상수 =====
     private static final String TITLE_STYLE_ID = "0";
     private static final String BODY_STYLE_ID = "0";
-    private static final String HEADING1_STYLE_ID = "2";
-    private static final String HEADING2_STYLE_ID = "3";
-    private static final String HEADING3_STYLE_ID = "4";
-    private static final String HEADING4_STYLE_ID = "5";
-    private static final String HEADING5_STYLE_ID = "6";
-    private static final String HEADING6_STYLE_ID = "7";
-    private static final String HEADING7_STYLE_ID = "8";
     private static final String TABLE_HEADER_STYLE_ID = "0";
     private static final String TABLE_CELL_STYLE_ID = "0";
 
@@ -260,39 +253,6 @@ public class StylePreset {
         return new StyleBlock(charPr, paraPr, styleTag);
     }
 
-    public StyleBlock heading3Preset() {
-        Style styleTag = HWPXObjectFinder.findStyleById(hwpxFile, HEADING3_STYLE_ID).clone();
-        CharPr charPr = HWPXObjectFinder.findCharPrById(hwpxFile, styleTag.charPrIDRef()).clone();
-        ParaPr paraPr = HWPXObjectFinder.findParaPrById(hwpxFile, styleTag.paraPrIDRef()).clone();
-
-        String fontId = fontRegistry.getFontByName("맑은 고딕").id();
-        charPr.fontRef().setAll(fontId);
-        charPr.createBold();
-        charPr.height(1200);
-        charPr.textColor("#000000");
-
-        paraPr.align().horizontal(HorizontalAlign2.LEFT);
-        setLineSpacingBoth(paraPr, 160);
-        setIntentBoth(paraPr, 4500);
-
-
-        styleTag.name("개요3");
-        styleTag.engName("Heading3");
-
-        String charPrId = String.valueOf(idGenerator.nextCharPrId());
-        String paraPrId = String.valueOf(idGenerator.nextParaPrId());
-        String styleId = String.valueOf(idGenerator.nextStyleId());
-
-        charPr.id(charPrId);
-        paraPr.id(paraPrId);
-        styleTag.id(styleId);
-
-        styleTag.charPrIDRef(charPrId);
-        styleTag.paraPrIDRef(paraPrId);
-
-        return new StyleBlock(charPr, paraPr, styleTag);
-    }
-
     // 본문 왼쪽정렬용 프리셋
     public StyleBlock bodyLeftPreset() {
         Style styleTag = HWPXObjectFinder.findStyleById(hwpxFile, BODY_STYLE_ID).clone();
@@ -387,7 +347,7 @@ public class StylePreset {
         charPr.height(1000);
         charPr.textColor("#000000");
 
-        paraPr.align().horizontal(HorizontalAlign2.LEFT);
+        paraPr.align().horizontal(HorizontalAlign2.JUSTIFY);
         setLineSpacingBoth(paraPr, 160);
 
         styleTag.name("표 내용");
@@ -409,14 +369,14 @@ public class StylePreset {
 
     // ===== 제목 테이블 번호 =====
     public StyleBlock titleTableNumberPreset() {
-        Style styleTag = HWPXObjectFinder.findStyleById(hwpxFile, "0").clone();
+        Style styleTag = HWPXObjectFinder.findStyleById(hwpxFile, BODY_STYLE_ID).clone();
         CharPr charPr = HWPXObjectFinder.findCharPrById(hwpxFile, styleTag.charPrIDRef()).clone();
         ParaPr paraPr = HWPXObjectFinder.findParaPrById(hwpxFile, styleTag.paraPrIDRef()).clone();
 
         String fontId = fontRegistry.getFontByName("함초롬바탕").id();
         charPr.fontRef().setAll(fontId);
         charPr.height(1600);
-        charPr.textColor("#000000");
+        charPr.textColor("#FFFFFF");
         charPr.shadeColor("none");
         charPr.useFontSpace(false);
         charPr.useKerning(false);
@@ -463,7 +423,7 @@ public class StylePreset {
 
     // ===== 제목 테이블 내용 =====
     public StyleBlock titleTableContentPreset() {
-        Style styleTag = HWPXObjectFinder.findStyleById(hwpxFile, "0").clone();
+        Style styleTag = HWPXObjectFinder.findStyleById(hwpxFile, BODY_STYLE_ID).clone();
         CharPr charPr = HWPXObjectFinder.findCharPrById(hwpxFile, styleTag.charPrIDRef()).clone();
         ParaPr paraPr = HWPXObjectFinder.findParaPrById(hwpxFile, styleTag.paraPrIDRef()).clone();
 
@@ -513,5 +473,21 @@ public class StylePreset {
         styleTag.paraPrIDRef(paraPrId);
 
         return new StyleBlock(charPr, paraPr, styleTag);
+    }
+
+    // 모든 프리셋을 배열로 반환
+    public StyleBlock[] getAllPresets() {
+        return new StyleBlock[] {
+            titlePreset(),
+            bodyPreset(),
+            heading1Preset(),
+            heading2Preset(),
+            tableHeaderPreset(),
+            tableCellPreset(),
+            titleTableNumberPreset(),
+            titleTableContentPreset(),
+            bodyLeftPreset(),
+            bodyCenterPreset(),
+        };
     }
 }

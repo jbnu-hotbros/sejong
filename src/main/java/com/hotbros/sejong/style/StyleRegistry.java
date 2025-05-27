@@ -31,19 +31,7 @@ public class StyleRegistry {
     // 생성자에서 필요한 스타일을 등록
     private void initialize() {
         // 모든 프리셋 메서드를 호출하여 스타일 등록
-        StyleBlock[] presets = {
-                preset.titlePreset(),
-                preset.bodyPreset(),
-                preset.heading1Preset(),
-                preset.heading2Preset(),
-                preset.heading3Preset(),
-                preset.tableHeaderPreset(),
-                preset.tableCellPreset(),
-                preset.titleTableNumberPreset(),
-                preset.titleTableContentPreset(),
-                preset.bodyLeftPreset(),
-                preset.bodyCenterPreset(),
-        };
+        StyleBlock[] presets = preset.getAllPresets();
 
         for (StyleBlock block : presets) {
             // 스타일이 이미 등록되어 있는지 확인 (이름으로 체크)

@@ -33,15 +33,15 @@ public class BorderFillRegistry {
 
         // 타이틀 테이블용 커스텀 BorderFill 등록 (XML 예시와 동일하게)
         registerBorderFill("TITLE_BOX_MIDDLE_LEFT", createCustomBorderFill(
-            LineType2.SOLID, "#8CC620", LineWidth.MM_0_1,
-            LineType2.SOLID, "#8CC620", LineWidth.MM_0_1,
-            LineType2.SOLID, "#8CC620", LineWidth.MM_0_1,
-            LineType2.SOLID, "#8CC620", LineWidth.MM_0_1,
-            LineType2.SOLID, "#000000", LineWidth.MM_0_1,
-            true, "#88C11F", "#000000"
+            LineType2.SOLID, "#003366", LineWidth.MM_0_1,
+            LineType2.SOLID, "#003366", LineWidth.MM_0_1,
+            LineType2.SOLID, "#003366", LineWidth.MM_0_1,
+            LineType2.SOLID, "#003366", LineWidth.MM_0_1,
+            LineType2.NONE, "#000000", LineWidth.MM_0_1,
+            true, "#003366", "#000000"
         ));
         registerBorderFill("TITLE_BOX_MIDDLE_CENTER", createCustomBorderFill(
-            LineType2.SOLID, "#8CC620", LineWidth.MM_0_1,
+            LineType2.SOLID, "#003366", LineWidth.MM_0_1,
             LineType2.SOLID, "#999999", LineWidth.MM_0_12,
             LineType2.NONE, "#003366", LineWidth.MM_0_6,
             LineType2.NONE, "#003366", LineWidth.MM_0_6,
@@ -56,7 +56,6 @@ public class BorderFillRegistry {
             LineType2.SOLID, "#999999", LineWidth.MM_0_12,
             true, "#F2F2F2", "#999999"
         ));
-
         registerBorderFill("TITLE_BOX_MAIN", createCustomBorderFill(
             LineType2.NONE, "#000000", LineWidth.MM_0_12, // leftBorder
             LineType2.NONE, "#000000", LineWidth.MM_0_12, // rightBorder
@@ -65,18 +64,18 @@ public class BorderFillRegistry {
             LineType2.SOLID, "#000000", LineWidth.MM_0_1, // diagonal
             false, null, null
         ));
-
+        // #27588b
         // Sub 타이틀박스용 BorderFill 등록 (left, center, right 순)
         registerBorderFill("TITLE_BOX_SUB_LEFT", createCustomBorderFill(
-            LineType2.SOLID, "#003366", LineWidth.MM_0_1, // left
-            LineType2.SOLID, "#003366", LineWidth.MM_0_1, // right
-            LineType2.SOLID, "#003366", LineWidth.MM_0_1, // top
-            LineType2.SOLID, "#003366", LineWidth.MM_0_1, // bottom
-            LineType2.SOLID, "#000000", LineWidth.MM_0_1, // diagonal
-            true, "#003366", "#000000"
+            LineType2.SOLID, "#27588b", LineWidth.MM_0_1, // left
+            LineType2.SOLID, "#27588b", LineWidth.MM_0_1, // right
+            LineType2.SOLID, "#27588b", LineWidth.MM_0_1, // top
+            LineType2.SOLID, "#27588b", LineWidth.MM_0_1, // bottom
+            LineType2.NONE, "#000000", LineWidth.MM_0_1, // diagonal
+            true, "#27588b", "#000000"
         ));
         registerBorderFill("TITLE_BOX_SUB_CENTER", createCustomBorderFill(
-            LineType2.SOLID, "#003366", LineWidth.MM_0_1, // left
+            LineType2.SOLID, "#27588b", LineWidth.MM_0_1, // left
             LineType2.NONE, "#999999", LineWidth.MM_0_12, // right
             LineType2.NONE, "#003366", LineWidth.MM_0_6, // top
             LineType2.NONE, "#C0C0C0", LineWidth.MM_0_6, // bottom
@@ -87,7 +86,7 @@ public class BorderFillRegistry {
             LineType2.NONE, "#999999", LineWidth.MM_0_12, // left
             LineType2.NONE, "#999999", LineWidth.MM_0_12, // right
             LineType2.NONE, "#003366", LineWidth.MM_0_5, // top
-            LineType2.SOLID, "#003366", LineWidth.MM_0_5, // bottom
+            LineType2.SOLID, "#27588b", LineWidth.MM_0_5, // bottom
             LineType2.SOLID, "#000000", LineWidth.MM_0_1, // diagonal
             false, null, null
         ));

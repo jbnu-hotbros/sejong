@@ -30,11 +30,8 @@ public class TitleBoxMainBuilder {
     private static final long OUT_MARGIN = 283L;
     private static final long IN_MARGIN_LEFT_RIGHT = 510L;
     private static final long IN_MARGIN_TOP_BOTTOM = 141L;
-    private final BorderFillRegistry borderFillRegistry;
 
-    public TitleBoxMainBuilder(BorderFillRegistry borderFillRegistry) {
-        this.borderFillRegistry = borderFillRegistry;
-    }
+    private TitleBoxMainBuilder() {}
 
     /**
      * XML 예시와 동일한 1행 1열 메인 타이틀 테이블 생성
@@ -43,7 +40,7 @@ public class TitleBoxMainBuilder {
      * @param style 셀 스타일
      * @return Table 객체
      */
-    public Table build(String title, String borderFillId, String cellBorderFillId, Style style) {
+    public static Table build(String title, String borderFillId, String cellBorderFillId, Style style) {
         Table table = new Table();
         table.id("1856905794");
         table.zOrder(0);
@@ -57,7 +54,7 @@ public class TitleBoxMainBuilder {
         table.rowCnt((short) 1);
         table.colCnt((short) 1);
         table.cellSpacing(0);
-        table.borderFillIDRef(borderFillRegistry.getBorderFillByName("default").id());
+        table.borderFillIDRef(borderFillId);
         table.noAdjust(false);
         table.createSZ();
         table.sz().width(TOTAL_WIDTH);
@@ -90,11 +87,11 @@ public class TitleBoxMainBuilder {
 
         // 행 생성
         var tr = table.addNewTr();
-        tr.addTc(createTableCell(title, borderFillRegistry.getBorderFillByName("TITLE_BOX_MAIN").id(), style));
+        tr.addTc(createTableCell(title, cellBorderFillId, style));
         return table;
     }
 
-    private static Tc createTableCell(String title, String borderFillId, Style style) {
+    public static Tc createTableCell(String title, String borderFillId, Style style) {
         Tc tc = new Tc();
         tc.name("");
         tc.header(false);

@@ -44,17 +44,10 @@ public class HWPXBuilder {
     private final FontRegistry fontRegistry;
     private final RefList refList;
     private final BulletRegistry bulletRegistry;
-    private final TitleBoxMiddleBuilder titleBoxMiddleBuilder;
-    private final TitleBoxMainBuilder titleBoxMainBuilder;
-    private final TitleBoxSubBuilder titleBoxSubBuilder;
 
     private static final String NORMAL_PARA_ID = "0";
 
     private boolean hasFirstParagraphText = false;
-
-    public HWPXFile getHwpxFile() {
-        return hwpxFile.clone();
-    }
 
     public HWPXBuilder() {
         this.hwpxFile = BlankFileMaker.make();
@@ -67,9 +60,6 @@ public class HWPXBuilder {
         this.bulletRegistry = new BulletRegistry(refList);
 
         this.styleRegistry = new StyleRegistry(refList, new StylePreset(hwpxFile, idGenerator, fontRegistry, bulletRegistry));
-        this.titleBoxMiddleBuilder = new TitleBoxMiddleBuilder(borderFillRegistry);
-        this.titleBoxMainBuilder = new TitleBoxMainBuilder(borderFillRegistry);
-        this.titleBoxSubBuilder = new TitleBoxSubBuilder(borderFillRegistry);
 
         initialize();
     }
@@ -172,58 +162,62 @@ public class HWPXBuilder {
         addParaSmart(para);
     }
 
-    /**
-     * Table 객체를 직접 받아서 문단에 삽입하는 메서드 (타이틀 테이블 등 커스텀 테이블용)
-     */
-    public void addTitleBoxMiddle(String number, String title) {
-        String[] borderFillIds = Arrays.stream(TitleBoxMiddleBuilder.BORDER_FILL_NAMES)
-            .map(name -> borderFillRegistry.getBorderFillByName(name).id())
-            .toArray(String[]::new);
-
-        Style numberStyle = styleRegistry.getStyleByName("제목 테이블 번호");
-        Style contentStyle = styleRegistry.getStyleByName("제목 테이블 내용");
-
-        Table table = titleBoxMiddleBuilder.build(number, title, 
-            borderFillIds,
-            numberStyle,
-            contentStyle
-        );
-
-        Para para = createPara("내용", null, false);
-        para.addNewRun().addNewTable().copyFrom(table);
-        addParaSmart(para);
-    }
-
-    /**
-     * Main TitleBox 테이블을 문단에 삽입하는 메서드
-     */
+    // 메인 타이틀 박스 추가
     public void addTitleBoxMain(String title) {
         String borderFillId = borderFillRegistry.getBorderFillByName("default").id();
         String cellBorderFillId = borderFillRegistry.getBorderFillByName("TITLE_BOX_MAIN").id();
         Style style = styleRegistry.getStyleByName("제목");
 
-        Table table = titleBoxMainBuilder.build(title, borderFillId, cellBorderFillId, style);
+        Table table = TitleBoxMainBuilder.build(title, borderFillId, cellBorderFillId, style);
 
         Para para = createPara("내용", null, false);
         para.addNewRun().addNewTable().copyFrom(table);
         addParaSmart(para);
     }
 
-    /**
-     * Sub TitleBox 테이블을 문단에 삽입하는 메서드
-     */
+    // 서브 타이틀 박스 추가
     public void addTitleBoxSub(String number, String title) {
-        // 스타일 이름 배열 (left, center, right)
         String[] styleNames = { "제목 테이블 번호", "내용", "제목 테이블 내용" };
         Style[] styles = new Style[3];
         for (int i = 0; i < 3; i++) {
             styles[i] = styleRegistry.getStyleByName(styleNames[i]);
         }
-        Table table = titleBoxSubBuilder.build(
+        String tableBorderFillId = borderFillRegistry.getBorderFillByName("default").id();
+        String[] cellBorderFillIds = {
+            borderFillRegistry.getBorderFillByName("TITLE_BOX_SUB_LEFT").id(),
+            borderFillRegistry.getBorderFillByName("TITLE_BOX_SUB_CENTER").id(),
+            borderFillRegistry.getBorderFillByName("TITLE_BOX_SUB_RIGHT").id()
+        };
+        Table table = TitleBoxSubBuilder.build(
             number, title,
-            styles
+            styles,
+            tableBorderFillId,
+            cellBorderFillIds
         );
         Para para = createPara("내용 왼쪽정렬", null, false);
+        para.addNewRun().addNewTable().copyFrom(table);
+        addParaSmart(para);
+    }
+
+    // 미들 타이틀 박스 추가
+    public void addTitleBoxMiddle(String number, String title) {
+        String[] borderFillIds = {
+            borderFillRegistry.getBorderFillByName("TITLE_BOX_MIDDLE_LEFT").id(),
+            borderFillRegistry.getBorderFillByName("TITLE_BOX_MIDDLE_CENTER").id(),
+            borderFillRegistry.getBorderFillByName("TITLE_BOX_MIDDLE_RIGHT").id()
+        };
+        Style numberStyle = styleRegistry.getStyleByName("제목 테이블 번호");
+        Style contentStyle = styleRegistry.getStyleByName("제목 테이블 내용");
+        String tableBorderFillId = borderFillRegistry.getBorderFillByName("default").id();
+
+        Table table = TitleBoxMiddleBuilder.build(
+            number, title,
+            borderFillIds,
+            numberStyle,
+            contentStyle,
+            tableBorderFillId
+        );
+        Para para = createPara("내용", null, false);
         para.addNewRun().addNewTable().copyFrom(table);
         addParaSmart(para);
     }

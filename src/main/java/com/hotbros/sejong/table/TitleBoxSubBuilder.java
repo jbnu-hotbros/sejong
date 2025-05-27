@@ -21,22 +21,20 @@ public class TitleBoxSubBuilder {
         "TITLE_BOX_SUB_LEFT", "TITLE_BOX_SUB_CENTER", "TITLE_BOX_SUB_RIGHT"
     };
 
-    private final BorderFillRegistry borderFillRegistry;
-
-    public TitleBoxSubBuilder(BorderFillRegistry borderFillRegistry) {
-        this.borderFillRegistry = borderFillRegistry;
-    }
-
     /**
      * Sub 타이틀 테이블 생성
      * @param number 왼쪽 셀 텍스트 (예: "1")
      * @param title 오른쪽 셀 텍스트 (예: "사업명")
      * @param styles 각 셀의 Style (3개, left/center/right)
+     * @param tableBorderFillId 테이블 전체 borderFillId
+     * @param cellBorderFillIds 각 셀의 borderFillId (3개)
      * @return Table 객체
      */
-    public Table build(
+    public static Table build(
             String number, String title,
-            Style[] styles
+            Style[] styles,
+            String tableBorderFillId,
+            String[] cellBorderFillIds
     ) {
         String[] cellTexts = { number, "", title };
         Table table = new Table();
@@ -52,7 +50,7 @@ public class TitleBoxSubBuilder {
         table.rowCnt((short) 1);
         table.colCnt((short) 3);
         table.cellSpacing(0);
-        table.borderFillIDRef(borderFillRegistry.getBorderFillByName("default").id());
+        table.borderFillIDRef(tableBorderFillId);
         table.noAdjust(false);
         table.createSZ();
         table.sz().width(TOTAL_WIDTH);
@@ -86,7 +84,7 @@ public class TitleBoxSubBuilder {
         // 행 생성
         var tr = table.addNewTr();
         for (int col = 0; col < 3; col++) {
-            String borderFillId = borderFillRegistry.getBorderFillByName(BORDER_FILL_NAMES[col]).id();
+            String borderFillId = cellBorderFillIds[col];
             Style style = styles[col];
             tr.addTc(createTableCell(
                     col,
