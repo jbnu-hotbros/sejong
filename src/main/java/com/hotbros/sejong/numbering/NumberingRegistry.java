@@ -1,43 +1,76 @@
 package com.hotbros.sejong.numbering;
 
+import kr.dogfoot.hwpxlib.object.content.header_xml.RefList;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.Numbering;
-import java.util.HashMap;
-import java.util.Map;
+import kr.dogfoot.hwpxlib.object.content.header_xml.references.numbering.ParaHead;
+import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.NumberType1;
+import com.hotbros.sejong.util.HWPXObjectFinder;
 
 /**
- * 넘버링 객체들을 관리하는 레지스트리
- * 이름으로 넘버링을 등록하고 조회할 수 있습니다.
+ * 넘버링 레지스트리: 넘버링은 항상 1개만 존재하며, 등록 시 기존 넘버링을 무조건 제거 후 새로 등록한다.
+ * id는 항상 "1"로 고정된다.
  */
 public class NumberingRegistry {
-    private final Map<String, Numbering> numberings = new HashMap<>();
-    
-    /**
-     * 새로운 넘버링을 레지스트리에 등록합니다.
-     * 
-     * @param name 등록할 넘버링의 이름
-     * @param numbering 등록할 넘버링 객체
-     * @throws IllegalArgumentException 넘버링이 null이거나 이름이 null 또는 빈 문자열인 경우
-     */
-    public void register(String name, Numbering numbering) {
-        if (numbering == null) {
-            throw new IllegalArgumentException("넘버링이 null입니다");
-        }
-        if (name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("이름이 null이거나 비어있습니다");
-        }
-        numberings.put(name, numbering);
+    private final RefList refList;
+
+    public NumberingRegistry(RefList refList) {
+        this.refList = refList;
+        initialize();
     }
-    
-    /**
-     * 등록된 넘버링 중 지정된 이름의 넘버링을 반환합니다.
-     * 
-     * @param name 가져올 넘버링의 이름
-     * @return 해당 이름의 넘버링 (없을 경우 null)
-     */
-    public Numbering get(String name) {
-        if (name == null) {
-            return null;
+
+    private void initialize() {
+        registerNumbering(defaultNumberingPreset());
+    }
+
+    // 넘버링 등록 (기존 넘버링이 있으면 무조건 제거 후 등록, id는 항상 "1")
+    public void registerNumbering(Numbering numbering) {
+        if (refList != null && refList.numberings() != null) {
+            refList.numberings().removeAll();
+            refList.numberings().add(numbering);
         }
-        return numberings.get(name);
+    }
+
+    // 현재 넘버링 반환 (없으면 null)
+    public Numbering getNumbering() {
+        return HWPXObjectFinder.findFirstNumbering(refList);
+    }
+
+    /**
+     * 넘버링에서 특정 레벨의 ParaHead를 찾아 반환합니다. 없으면 null 반환.
+     */
+    public static ParaHead findParaHeadByLevel(Numbering numbering, int level) {
+        for (ParaHead ph : numbering.paraHeads()) {
+            if (ph.level() != null && ph.level() == level) {
+                return ph;
+            }
+        }
+        return null;
+    }
+
+    // ===== 프리셋 메서드 예시 =====
+    public Numbering defaultNumberingPreset() {
+        Numbering base = HWPXObjectFinder.findFirstNumbering(refList).clone();
+        base.id("1");
+
+        // 기존 ParaHead를 제거하지 않고, 레벨별로 수정 또는 추가
+        ParaHead head1 = findParaHeadByLevel(base, 1);
+        if (head1 != null) {
+            head1.numFormat(NumberType1.DIGIT);
+            head1.text("^1.");
+        }
+
+        ParaHead head2 = findParaHeadByLevel(base, 2);
+        if (head2 != null) {
+            head2.numFormat(NumberType1.LATIN_SMALL);
+            head2.text("❍");
+        }
+
+        ParaHead head3 = findParaHeadByLevel(base, 3);
+        if (head3 != null) {
+            head3.numFormat(NumberType1.ROMAN_SMALL);
+            head3.text("-");
+        }
+
+        return base;
     }
 } 
