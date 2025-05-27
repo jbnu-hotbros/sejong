@@ -1,4 +1,4 @@
-package com.hotbros.sejong.builder;
+package com.hotbros.sejong.table;
 
 import java.util.List;
 
@@ -30,7 +30,7 @@ public class TableBuilder {
 
 
 
-    public static Table buildTable(int rows, int cols, List<List<String>> contents, String borderFillId, String headerBorderFillId) {
+    public static Table buildTable(int rows, int cols, List<List<String>> contents, String borderFillId, String headerBorderFillId, String headerStyleId, String bodyStyleId, String headerCharPrId, String bodyCharPrId, String headerParaPrId, String bodyParaPrId) {
         validateContent(rows, cols, contents);
         long cellWidth = TOTAL_WIDTH / cols;
         Table table = createTableBase(rows, cols, cellWidth, borderFillId);
@@ -39,7 +39,10 @@ public class TableBuilder {
             for (int col = 0; col < cols; col++) {
                 String text = contents.get(row).get(col);
                 String effectiveBorderId = (row == 0) ? headerBorderFillId : borderFillId;
-                Tc cell = createCell(row, col, cellWidth, CELL_HEIGHT, text, effectiveBorderId);
+                String styleId = (row == 0) ? headerStyleId : bodyStyleId;
+                String charPrId = (row == 0) ? headerCharPrId : bodyCharPrId;
+                String paraPrId = (row == 0) ? headerParaPrId : bodyParaPrId;
+                Tc cell = createCell(row, col, cellWidth, CELL_HEIGHT, text, effectiveBorderId, styleId, charPrId, paraPrId);
                 tr.addTc(cell);
             }
         }
@@ -107,7 +110,7 @@ public class TableBuilder {
         return table;
     }
 
-    private static Tc createCell(int row, int col, long width, long height, String text, String borderFillId) {
+    private static Tc createCell(int row, int col, long width, long height, String text, String borderFillId, String styleId, String charPrId, String paraPrId) {
         Tc tc = new Tc();
         tc.name("");
         tc.header(false);
@@ -130,26 +133,26 @@ public class TableBuilder {
         sl.hasNumRef(false);
         Para para = sl.addNewPara();
         para.id("para-" + row + "-" + col);
-        para.paraPrIDRef("0");
-        para.styleIDRef("0");
+        para.paraPrIDRef(paraPrId);
+        para.styleIDRef(styleId);
         para.pageBreak(false);
         para.columnBreak(false);
         para.merged(false);
         Run run = para.addNewRun();
-        run.charPrIDRef("0");
+        run.charPrIDRef(charPrId);
         T t = run.addNewT();
         t.addText(text);
         para.createLineSegArray();
-        LineSeg seg = para.lineSegArray().addNew();
-        seg.textpos(0);
-        seg.vertpos(0);
-        seg.vertsize(1000);
-        seg.textheight(1000);
-        seg.baseline(850);
-        seg.spacing(600);
-        seg.horzpos(0);
-        seg.horzsize((int)width - 1024);
-        seg.flags(393216);
+        // LineSeg seg = para.lineSegArray().addNew();
+        // seg.textpos(0);
+        // seg.vertpos(0);
+        // seg.vertsize(1000);
+        // seg.textheight(1000);
+        // seg.baseline(850);
+        // seg.spacing(600);
+        // seg.horzpos(0);
+        // seg.horzsize((int)width - 1024);
+        // seg.flags(393216);
         tc.createCellAddr();
         tc.cellAddr().rowAddr((short) row);
         tc.cellAddr().colAddr((short) col);

@@ -62,19 +62,13 @@ public class NumberingRegistry {
         ParaHead head2 = findParaHeadByLevel(base, 2);
         if (head2 != null) {
             head2.numFormat(NumberType1.LATIN_SMALL);
-            head2.text("^1.^2)");
+            head2.text("❍");
         }
 
         ParaHead head3 = findParaHeadByLevel(base, 3);
         if (head3 != null) {
             head3.numFormat(NumberType1.ROMAN_SMALL);
-            head3.text("^1.^2)^3.");
-        }
-
-        ParaHead head4 = findParaHeadByLevel(base, 4);
-        if (head4 != null) {
-            head4.numFormat(NumberType1.LATIN_SMALL);
-            head4.text("^1.^2)^3)^4.");
+            head3.text("-");
         }
 
         return base;

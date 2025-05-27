@@ -1,7 +1,9 @@
 package com.hotbros.sejong.style;
+// FQDN: com.hotbros.sejong.style.StyleRegistry
 
 import kr.dogfoot.hwpxlib.object.content.header_xml.RefList;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.Style;
+import com.hotbros.sejong.util.HWPXObjectFinder;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -14,7 +16,6 @@ import java.util.Map;
  */
 public class StyleRegistry {
 
-    // 스타일을 관리하는 Map (ID → Style 객체)
     private final Map<String, Style> styleMap;
     private final StylePreset preset;
     private final RefList refList;
@@ -30,23 +31,23 @@ public class StyleRegistry {
     // 생성자에서 필요한 스타일을 등록
     private void initialize() {
         // 모든 프리셋 메서드를 호출하여 스타일 등록
-        Style[] presets = {
+        StyleBlock[] presets = {
                 preset.titlePreset(),
                 preset.bodyPreset(),
                 preset.heading1Preset(),
                 preset.heading2Preset(),
                 preset.heading3Preset(),
-                preset.heading4Preset(),
-                preset.heading5Preset(),
-                preset.heading6Preset(),
-                preset.heading7Preset(),
                 preset.tableHeaderPreset(),
-                preset.tableCellPreset()
+                preset.tableCellPreset(),
+                preset.titleTableNumberPreset(),
+                preset.titleTableContentPreset(),
+                preset.bodyLeftPreset(),
+                preset.bodyCenterPreset(),
         };
 
-        for (Style style : presets) {
+        for (StyleBlock block : presets) {
             // 스타일이 이미 등록되어 있는지 확인 (이름으로 체크)
-            String styleName = style.name();
+            String styleName = block.getStyle().name();
             if (styleName != null) {
                 for (Style existingStyle : refList.styles().items()) {
                     if (styleName.equals(existingStyle.name())) {
@@ -55,19 +56,48 @@ public class StyleRegistry {
                 }
             }
 
-            styleMap.put(style.name(), style);
-            refList.styles().add(style);
+            // CharPr 등록 (id 기준 중복 체크)
+            String charPrId = block.getCharPr().id();
+            boolean charPrExists = false;
+            for (var existingCharPr : refList.charProperties().items()) {
+                if (charPrId.equals(existingCharPr.id())) {
+                    charPrExists = true;
+                    break;
+                }
+            }
+            if (!charPrExists) {
+                refList.charProperties().add(block.getCharPr());
+            }
+
+            // ParaPr 등록 (id 기준 중복 체크)
+            String paraPrId = block.getParaPr().id();
+            boolean paraPrExists = false;
+            for (var existingParaPr : refList.paraProperties().items()) {
+                if (paraPrId.equals(existingParaPr.id())) {
+                    paraPrExists = true;
+                    break;
+                }
+            }
+            if (!paraPrExists) {
+                refList.paraProperties().add(block.getParaPr());
+            }
+
+            //등록됨
+            System.out.println("등록됨: " + block.getStyle().name());
+
+            styleMap.put(block.getStyle().name(), block.getStyle());
+            refList.styles().add(block.getStyle());
         }
     }
 
     /**
-     * ID를 통해 스타일을 조회하는 메서드
+     * 스타일 이름(name)으로 Style을 조회하는 메서드
      *
-     * @param id 스타일 ID (예: "TITLE")
+     * @param name 스타일 이름 (예: "제목 테이블")
      * @return Style 객체 (null 반환 가능)
      */
-    public Style getStyleById(String id) {
-        return styleMap.get(id);
+    public Style getStyleByName(String name) {
+        return styleMap.get(name);
     }
 
     /**

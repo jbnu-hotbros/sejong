@@ -4,7 +4,7 @@ public class IdGenerator {
     private int charPrId = 7;
     private int paraPrId = 16;
     private int styleId = 18;
-    private int fontId = 3;
+    private int fontId = 2;
     private int borderFillId = 3;
     
     public int nextCharPrId() {

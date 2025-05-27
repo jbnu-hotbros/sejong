@@ -111,38 +111,38 @@
 //         return this;
 //     }
 
-//     public ParaPrBuilder lineSpacing(Integer value) { // HWP 단위 값 (예: 160 -> 160%)
-//         if (value == null) {
-//             // value가 null이면 아무 작업도 하지 않고 반환
-//             return this;
-//         }
+    // public ParaPrBuilder lineSpacing(Integer value) { // HWP 단위 값 (예: 160 -> 160%)
+    //     if (value == null) {
+    //         // value가 null이면 아무 작업도 하지 않고 반환
+    //         return this;
+    //     }
         
-//         Switch currentSwitch= getSwitch();
-//         if (currentSwitch==null) {
-//             System.out.println("ParaPrBuilder: switch가 없습니다.");
-//             return this;
-//         }
-//         Case currentCase= getCase(currentSwitch, "http://www.hancom.co.kr/hwpml/2016/HwpUnitChar");
-//         if (currentCase==null) {
-//             System.out.println("ParaPrBuilder: case가 없습니다.");
-//             return this;
-//         }
-//         Default currentDefault= getDefault(currentSwitch);
-//         if (currentDefault==null) {
-//             System.out.println("ParaPrBuilder: default가 없습니다.");
-//             return this;
-//         }
+    //     Switch currentSwitch= getSwitch();
+    //     if (currentSwitch==null) {
+    //         System.out.println("ParaPrBuilder: switch가 없습니다.");
+    //         return this;
+    //     }
+    //     Case currentCase= getCase(currentSwitch, "http://www.hancom.co.kr/hwpml/2016/HwpUnitChar");
+    //     if (currentCase==null) {
+    //         System.out.println("ParaPrBuilder: case가 없습니다.");
+    //         return this;
+    //     }
+    //     Default currentDefault= getDefault(currentSwitch);
+    //     if (currentDefault==null) {
+    //         System.out.println("ParaPrBuilder: default가 없습니다.");
+    //         return this;
+    //     }
 
     
-//         LineSpacing CaseLineSpacing = findFirstLineSpacing(currentCase);
-//         CaseLineSpacing.value(value);
+    //     LineSpacing CaseLineSpacing = findFirstLineSpacing(currentCase);
+    //     CaseLineSpacing.value(value);
 
-//         LineSpacing defaultLineSpacing = findFirstLineSpacing(currentDefault);
-//         defaultLineSpacing.value(value);
+    //     LineSpacing defaultLineSpacing = findFirstLineSpacing(currentDefault);
+    //     defaultLineSpacing.value(value);
         
         
-//         return this;
-//     }
+    //     return this;
+    // }
 
 //     private static LineSpacing findFirstLineSpacing(InSwitchObject inSwitchObject) {
 //         if (inSwitchObject == null) return null;
