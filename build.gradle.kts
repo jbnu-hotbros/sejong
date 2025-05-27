@@ -21,7 +21,7 @@ dependencies {
 }
 
 group = "com.hotbros"
-version = "1.0-SNAPSHOT"
+version = "0.0.4"
 description = "sejong"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
