@@ -1,13 +1,9 @@
 package com.hotbros.sejong.style;
-// FQDN: com.hotbros.sejong.style.StyleRegistry
 
 import kr.dogfoot.hwpxlib.object.content.header_xml.RefList;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.Style;
-import com.hotbros.sejong.util.HWPXObjectFinder;
+import com.hotbros.sejong.util.IdGenerator;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * 사전에 정의된 스타일 레지스트리 클래스.
@@ -16,23 +12,18 @@ import java.util.Map;
  */
 public class StyleRegistry {
 
-    private final Map<String, Style> styleMap;
-    private final StylePreset preset;
+    // private final Map<String, Style> styleMap;
     private final RefList refList;
+    private final IdGenerator idGenerator;
 
-    public StyleRegistry(RefList refList, StylePreset preset) {
-        this.styleMap = new HashMap<>();
-        this.preset = preset;
+    public StyleRegistry(RefList refList, IdGenerator idGenerator, StyleBlock[] presets) {
         this.refList = refList;
-
-        initialize();
+        this.idGenerator = idGenerator;
+        initialize(presets);
     }
 
-    // 생성자에서 필요한 스타일을 등록
-    private void initialize() {
+    private void initialize(StyleBlock[] presets) {
         // 모든 프리셋 메서드를 호출하여 스타일 등록
-        StyleBlock[] presets = preset.getAllPresets();
-
         for (StyleBlock block : presets) {
             // 스타일이 이미 등록되어 있는지 확인 (이름으로 체크)
             String styleName = block.getStyle().name();
@@ -44,8 +35,18 @@ public class StyleRegistry {
                 }
             }
 
+            // CharPr, ParaPr, Style에 id를 할당 (등록 시점)
+            String charPrId = String.valueOf(idGenerator.nextCharPrId());
+            String paraPrId = String.valueOf(idGenerator.nextParaPrId());
+            String styleId = String.valueOf(idGenerator.nextStyleId());
+
+            block.getCharPr().id(charPrId);
+            block.getParaPr().id(paraPrId);
+            block.getStyle().id(styleId);
+            block.getStyle().charPrIDRef(charPrId);
+            block.getStyle().paraPrIDRef(paraPrId);
+
             // CharPr 등록 (id 기준 중복 체크)
-            String charPrId = block.getCharPr().id();
             boolean charPrExists = false;
             for (var existingCharPr : refList.charProperties().items()) {
                 if (charPrId.equals(existingCharPr.id())) {
@@ -58,7 +59,6 @@ public class StyleRegistry {
             }
 
             // ParaPr 등록 (id 기준 중복 체크)
-            String paraPrId = block.getParaPr().id();
             boolean paraPrExists = false;
             for (var existingParaPr : refList.paraProperties().items()) {
                 if (paraPrId.equals(existingParaPr.id())) {
@@ -73,7 +73,6 @@ public class StyleRegistry {
             //등록됨
             System.out.println("등록됨: " + block.getStyle().name());
 
-            styleMap.put(block.getStyle().name(), block.getStyle());
             refList.styles().add(block.getStyle());
         }
     }
@@ -85,34 +84,14 @@ public class StyleRegistry {
      * @return Style 객체 (null 반환 가능)
      */
     public Style getStyleByName(String name) {
-        return styleMap.get(name);
-    }
-
-    /**
-     * 지원하는 모든 스타일 ID 리스트를 반환
-     *
-     * @return Unmodifiable Map of IDs and Styles
-     */
-    public Map<String, Style> getAllStyles() {
-        return Collections.unmodifiableMap(styleMap);
-    }
-
-    /**
-     * 스타일의 간단한 설명 제공 (예: 디버깅용)
-     */
-    public String describeStyle(String id) {
-        Style style = styleMap.get(id);
-        if (style == null) {
-            return "존재하지 않는 스타일입니다: " + id;
+        if (refList.styles() == null) return null;
+        for (Style style : refList.styles().items()) {
+            if (name.equals(style.name())) {
+                return style;
+            }
         }
-        return String.format("Style ID: %s, Name: %s", id, style.name());
+        return null;
     }
 
-    // 레지스트리에 새로운 스타일 추가 (내부용)
-    public void registerStyle(String id, Style style) {
-        if (styleMap.containsKey(id)) {
-            throw new IllegalArgumentException("이미 존재하는 스타일 ID입니다: " + id);
-        }
-        styleMap.put(id, style);
-    }
+
 }

@@ -6,6 +6,7 @@ public class IdGenerator {
     private int styleId = 18;
     private int fontId = 2;
     private int borderFillId = 3;
+    private int bulletId = 0;
     
     public int nextCharPrId() {
         return charPrId++;
@@ -25,5 +26,9 @@ public class IdGenerator {
 
     public int nextBorderFillId() {
         return borderFillId++;
+    }
+
+    public int nextBulletId() {
+        return bulletId++;
     }
 }

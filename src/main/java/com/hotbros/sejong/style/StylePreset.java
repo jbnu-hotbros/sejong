@@ -1,18 +1,14 @@
 package com.hotbros.sejong.style;
 
 import com.hotbros.sejong.util.HWPXObjectFinder;
-import com.hotbros.sejong.util.IdGenerator;
 import com.hotbros.sejong.font.FontRegistry;
 import com.hotbros.sejong.bullet.BulletRegistry;
 
 import kr.dogfoot.hwpxlib.object.HWPXFile;
 import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.HorizontalAlign2;
-import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.VerticalAlign1;
-import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.StyleType;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.CharPr;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.ParaPr;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.Style;
-import kr.dogfoot.hwpxlib.tool.blankfilemaker.BlankFileMaker;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.parapr.LineSpacing;
 import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.SymMarkSort;
 import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.UnderlineType;
@@ -26,6 +22,7 @@ import kr.dogfoot.hwpxlib.object.common.compatibility.Default;
 import kr.dogfoot.hwpxlib.object.common.HWPXObject;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.parapr.ParaMargin;
 import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.ParaHeadingType;
+import kr.dogfoot.hwpxlib.object.content.header_xml.RefList;
 
 
 /**
@@ -36,19 +33,14 @@ import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.ParaHeadingType;
 public class StylePreset {
 
     // ===== 스타일 ID 상수 =====
-    private static final String TITLE_STYLE_ID = "0";
-    private static final String BODY_STYLE_ID = "0";
-    private static final String TABLE_HEADER_STYLE_ID = "0";
-    private static final String TABLE_CELL_STYLE_ID = "0";
+    private static final String DEFAULT_STYLE_ID = "0";
 
-    private final IdGenerator idGenerator;
-    private final HWPXFile hwpxFile;
+    private final RefList refList;
     private final FontRegistry fontRegistry;
     private final BulletRegistry bulletRegistry;
 
-    public StylePreset(HWPXFile hwpxFile, IdGenerator idGenerator, FontRegistry fontRegistry, BulletRegistry bulletRegistry) {
-        this.hwpxFile = hwpxFile;
-        this.idGenerator = idGenerator;
+    public StylePreset(RefList refList, FontRegistry fontRegistry, BulletRegistry bulletRegistry) {
+        this.refList = refList;
         this.fontRegistry = fontRegistry;
         this.bulletRegistry = bulletRegistry;
     }
@@ -57,7 +49,7 @@ public class StylePreset {
     /**
      * case/default 모두에 줄간격(LineSpacing) 값을 일괄 적용
      */
-    public static void setLineSpacingBoth(ParaPr paraPr, int value) {
+    private static void setLineSpacingBoth(ParaPr paraPr, int value) {
         if (paraPr == null || paraPr.switchList() == null || paraPr.switchList().isEmpty()) return;
         Switch sw = (Switch) paraPr.switchList().get(paraPr.switchList().size() - 1);
         if (sw == null) return;
@@ -85,7 +77,7 @@ public class StylePreset {
     /**
      * case/default 모두에 들여쓰기(intent) 값을 일괄 적용
      */
-    public static void setIntentBoth(ParaPr paraPr, int value) {
+    private static void setIntentBoth(ParaPr paraPr, int value) {
         if (paraPr == null || paraPr.switchList() == null || paraPr.switchList().isEmpty()) return;
         Switch sw = (Switch) paraPr.switchList().get(paraPr.switchList().size() - 1);
         if (sw == null) return;
@@ -118,9 +110,9 @@ public class StylePreset {
 
     // ===== 제목 프리셋 =====
     public StyleBlock titlePreset() {
-        Style styleTag = HWPXObjectFinder.findStyleById(hwpxFile, TITLE_STYLE_ID).clone();
-        CharPr charPr = HWPXObjectFinder.findCharPrById(hwpxFile, styleTag.charPrIDRef()).clone();
-        ParaPr paraPr = HWPXObjectFinder.findParaPrById(hwpxFile, styleTag.paraPrIDRef()).clone();
+        Style styleTag = HWPXObjectFinder.findStyleById(refList, DEFAULT_STYLE_ID).clone();
+        CharPr charPr = HWPXObjectFinder.findCharPrById(refList, styleTag.charPrIDRef()).clone();
+        ParaPr paraPr = HWPXObjectFinder.findParaPrById(refList, styleTag.paraPrIDRef()).clone();
 
         String fontId = fontRegistry.getFontByName("HY헤드라인M").id();
         System.out.println("HY헤드라인M fontId: " + fontId);
@@ -135,25 +127,14 @@ public class StylePreset {
         styleTag.name("제목");
         styleTag.engName("Title");
 
-        String charPrId = String.valueOf(idGenerator.nextCharPrId());
-        String paraPrId = String.valueOf(idGenerator.nextParaPrId());
-        String styleId = String.valueOf(idGenerator.nextStyleId());
-
-        charPr.id(charPrId);
-        paraPr.id(paraPrId);
-        styleTag.id(styleId);
-
-        styleTag.charPrIDRef(charPrId);
-        styleTag.paraPrIDRef(paraPrId);
-
         return new StyleBlock(charPr, paraPr, styleTag);
     }
 
     // ===== 내용 프리셋 =====
     public StyleBlock bodyPreset() {
-        Style styleTag = HWPXObjectFinder.findStyleById(hwpxFile, BODY_STYLE_ID).clone();
-        CharPr charPr = HWPXObjectFinder.findCharPrById(hwpxFile, styleTag.charPrIDRef()).clone();
-        ParaPr paraPr = HWPXObjectFinder.findParaPrById(hwpxFile, styleTag.paraPrIDRef()).clone();
+        Style styleTag = HWPXObjectFinder.findStyleById(refList, DEFAULT_STYLE_ID).clone();
+        CharPr charPr = HWPXObjectFinder.findCharPrById(refList, styleTag.charPrIDRef()).clone();
+        ParaPr paraPr = HWPXObjectFinder.findParaPrById(refList, styleTag.paraPrIDRef()).clone();
 
         String fontId = fontRegistry.getFontByName("맑은 고딕").id();
         System.out.println("맑은 고딕 fontId: " + fontId);
@@ -168,25 +149,14 @@ public class StylePreset {
         styleTag.name("내용");
         styleTag.engName("Body");
 
-        String charPrId = String.valueOf(idGenerator.nextCharPrId());
-        String paraPrId = String.valueOf(idGenerator.nextParaPrId());
-        String styleId = String.valueOf(idGenerator.nextStyleId());
-
-        charPr.id(charPrId);
-        paraPr.id(paraPrId);
-        styleTag.id(styleId);
-
-        styleTag.charPrIDRef(charPrId);
-        styleTag.paraPrIDRef(paraPrId);
-
         return new StyleBlock(charPr, paraPr, styleTag);
     }
 
     // ===== 개요 프리셋 (1~7) =====
     public StyleBlock heading1Preset() {
-        Style styleTag = HWPXObjectFinder.findStyleById(hwpxFile, BODY_STYLE_ID).clone();
-        CharPr charPr = HWPXObjectFinder.findCharPrById(hwpxFile, styleTag.charPrIDRef()).clone();
-        ParaPr paraPr = HWPXObjectFinder.findParaPrById(hwpxFile, styleTag.paraPrIDRef()).clone();
+        Style styleTag = HWPXObjectFinder.findStyleById(refList, DEFAULT_STYLE_ID).clone();
+        CharPr charPr = HWPXObjectFinder.findCharPrById(refList, styleTag.charPrIDRef()).clone();
+        ParaPr paraPr = HWPXObjectFinder.findParaPrById(refList, styleTag.paraPrIDRef()).clone();
 
         String fontId = fontRegistry.getFontByName("함초롬바탕").id();
         charPr.fontRef().setAll(fontId);
@@ -204,24 +174,13 @@ public class StylePreset {
         styleTag.name("개요1");
         styleTag.engName("Heading1");
 
-        String charPrId = String.valueOf(idGenerator.nextCharPrId());
-        String paraPrId = String.valueOf(idGenerator.nextParaPrId());
-        String styleId = String.valueOf(idGenerator.nextStyleId());
-
-        charPr.id(charPrId);
-        paraPr.id(paraPrId);
-        styleTag.id(styleId);
-
-        styleTag.charPrIDRef(charPrId);
-        styleTag.paraPrIDRef(paraPrId);
-
         return new StyleBlock(charPr, paraPr, styleTag);
     }
 
     public StyleBlock heading2Preset() {
-        Style styleTag = HWPXObjectFinder.findStyleById(hwpxFile, BODY_STYLE_ID).clone();
-        CharPr charPr = HWPXObjectFinder.findCharPrById(hwpxFile, styleTag.charPrIDRef()).clone();
-        ParaPr paraPr = HWPXObjectFinder.findParaPrById(hwpxFile, styleTag.paraPrIDRef()).clone();
+        Style styleTag = HWPXObjectFinder.findStyleById(refList, DEFAULT_STYLE_ID).clone();
+        CharPr charPr = HWPXObjectFinder.findCharPrById(refList, styleTag.charPrIDRef()).clone();
+        ParaPr paraPr = HWPXObjectFinder.findParaPrById(refList, styleTag.paraPrIDRef()).clone();
 
         String fontId = fontRegistry.getFontByName("함초롬바탕").id();
         charPr.fontRef().setAll(fontId);
@@ -239,66 +198,33 @@ public class StylePreset {
         styleTag.name("개요2");
         styleTag.engName("Heading2");
 
-        String charPrId = String.valueOf(idGenerator.nextCharPrId());
-        String paraPrId = String.valueOf(idGenerator.nextParaPrId());
-        String styleId = String.valueOf(idGenerator.nextStyleId());
-
-        charPr.id(charPrId);
-        paraPr.id(paraPrId);
-        styleTag.id(styleId);
-
-        styleTag.charPrIDRef(charPrId);
-        styleTag.paraPrIDRef(paraPrId);
-
         return new StyleBlock(charPr, paraPr, styleTag);
     }
 
     // 본문 왼쪽정렬용 프리셋
     public StyleBlock bodyLeftPreset() {
-        Style styleTag = HWPXObjectFinder.findStyleById(hwpxFile, BODY_STYLE_ID).clone();
-        CharPr charPr = HWPXObjectFinder.findCharPrById(hwpxFile, styleTag.charPrIDRef()).clone();
-        ParaPr paraPr = HWPXObjectFinder.findParaPrById(hwpxFile, styleTag.paraPrIDRef()).clone();
+        Style styleTag = HWPXObjectFinder.findStyleById(refList, DEFAULT_STYLE_ID).clone();
+        CharPr charPr = HWPXObjectFinder.findCharPrById(refList, styleTag.charPrIDRef()).clone();
+        ParaPr paraPr = HWPXObjectFinder.findParaPrById(refList, styleTag.paraPrIDRef()).clone();
 
         paraPr.align().horizontal(HorizontalAlign2.LEFT);
 
         styleTag.name("내용 왼쪽정렬");
         styleTag.engName("BodyLeft");
 
-        String charPrId = String.valueOf(idGenerator.nextCharPrId());
-        String paraPrId = String.valueOf(idGenerator.nextParaPrId());
-        String styleId = String.valueOf(idGenerator.nextStyleId());
-
-        charPr.id(charPrId);
-        paraPr.id(paraPrId);
-        styleTag.id(styleId);
-
-        styleTag.charPrIDRef(charPrId);
-        styleTag.paraPrIDRef(paraPrId);
-
         return new StyleBlock(charPr, paraPr, styleTag);
     }
 
     // 본문 가운데정렬용 프리셋
     public StyleBlock bodyCenterPreset() {
-        Style styleTag = HWPXObjectFinder.findStyleById(hwpxFile, BODY_STYLE_ID).clone();
-        CharPr charPr = HWPXObjectFinder.findCharPrById(hwpxFile, styleTag.charPrIDRef()).clone();
-        ParaPr paraPr = HWPXObjectFinder.findParaPrById(hwpxFile, styleTag.paraPrIDRef()).clone();
+        Style styleTag = HWPXObjectFinder.findStyleById(refList, DEFAULT_STYLE_ID).clone();
+        CharPr charPr = HWPXObjectFinder.findCharPrById(refList, styleTag.charPrIDRef()).clone();
+        ParaPr paraPr = HWPXObjectFinder.findParaPrById(refList, styleTag.paraPrIDRef()).clone();
 
         paraPr.align().horizontal(HorizontalAlign2.CENTER);
 
         styleTag.name("내용 가운데정렬");
         styleTag.engName("BodyCenter");
-
-        String charPrId = String.valueOf(idGenerator.nextCharPrId());
-        String paraPrId = String.valueOf(idGenerator.nextParaPrId());
-        String styleId = String.valueOf(idGenerator.nextStyleId());
-
-        charPr.id(charPrId);
-        paraPr.id(paraPrId);
-        styleTag.id(styleId);
-
-        styleTag.charPrIDRef(charPrId);
-        styleTag.paraPrIDRef(paraPrId);
 
         return new StyleBlock(charPr, paraPr, styleTag);
     }
@@ -306,9 +232,9 @@ public class StylePreset {
 
     // ===== 표 프리셋 =====
     public StyleBlock tableHeaderPreset() {
-        Style styleTag = HWPXObjectFinder.findStyleById(hwpxFile, TABLE_HEADER_STYLE_ID).clone();
-        CharPr charPr = HWPXObjectFinder.findCharPrById(hwpxFile, styleTag.charPrIDRef()).clone();
-        ParaPr paraPr = HWPXObjectFinder.findParaPrById(hwpxFile, styleTag.paraPrIDRef()).clone();
+        Style styleTag = HWPXObjectFinder.findStyleById(refList, DEFAULT_STYLE_ID).clone();
+        CharPr charPr = HWPXObjectFinder.findCharPrById(refList, styleTag.charPrIDRef()).clone();
+        ParaPr paraPr = HWPXObjectFinder.findParaPrById(refList, styleTag.paraPrIDRef()).clone();
 
         String fontId = fontRegistry.getFontByName("맑은 고딕").id();
         charPr.fontRef().setAll(fontId);
@@ -322,24 +248,13 @@ public class StylePreset {
         styleTag.name("표 헤더");
         styleTag.engName("TableHeader");
 
-        String charPrId = String.valueOf(idGenerator.nextCharPrId());
-        String paraPrId = String.valueOf(idGenerator.nextParaPrId());
-        String styleId = String.valueOf(idGenerator.nextStyleId());
-
-        charPr.id(charPrId);
-        paraPr.id(paraPrId);
-        styleTag.id(styleId);
-
-        styleTag.charPrIDRef(charPrId);
-        styleTag.paraPrIDRef(paraPrId);
-
         return new StyleBlock(charPr, paraPr, styleTag);
     }
 
     public StyleBlock tableCellPreset() {
-        Style styleTag = HWPXObjectFinder.findStyleById(hwpxFile, TABLE_CELL_STYLE_ID).clone();
-        CharPr charPr = HWPXObjectFinder.findCharPrById(hwpxFile, styleTag.charPrIDRef()).clone();
-        ParaPr paraPr = HWPXObjectFinder.findParaPrById(hwpxFile, styleTag.paraPrIDRef()).clone();
+        Style styleTag = HWPXObjectFinder.findStyleById(refList, DEFAULT_STYLE_ID).clone();
+        CharPr charPr = HWPXObjectFinder.findCharPrById(refList, styleTag.charPrIDRef()).clone();
+        ParaPr paraPr = HWPXObjectFinder.findParaPrById(refList, styleTag.paraPrIDRef()).clone();
 
         String fontId = fontRegistry.getFontByName("맑은 고딕").id();
         charPr.fontRef().setAll(fontId);
@@ -353,25 +268,14 @@ public class StylePreset {
         styleTag.name("표 내용");
         styleTag.engName("TableCell");
 
-        String charPrId = String.valueOf(idGenerator.nextCharPrId());
-        String paraPrId = String.valueOf(idGenerator.nextParaPrId());
-        String styleId = String.valueOf(idGenerator.nextStyleId());
-
-        charPr.id(charPrId);
-        paraPr.id(paraPrId);
-        styleTag.id(styleId);
-
-        styleTag.charPrIDRef(charPrId);
-        styleTag.paraPrIDRef(paraPrId);
-
         return new StyleBlock(charPr, paraPr, styleTag);
     }
 
     // ===== 제목 테이블 번호 =====
     public StyleBlock titleTableNumberPreset() {
-        Style styleTag = HWPXObjectFinder.findStyleById(hwpxFile, BODY_STYLE_ID).clone();
-        CharPr charPr = HWPXObjectFinder.findCharPrById(hwpxFile, styleTag.charPrIDRef()).clone();
-        ParaPr paraPr = HWPXObjectFinder.findParaPrById(hwpxFile, styleTag.paraPrIDRef()).clone();
+        Style styleTag = HWPXObjectFinder.findStyleById(refList, DEFAULT_STYLE_ID).clone();
+        CharPr charPr = HWPXObjectFinder.findCharPrById(refList, styleTag.charPrIDRef()).clone();
+        ParaPr paraPr = HWPXObjectFinder.findParaPrById(refList, styleTag.paraPrIDRef()).clone();
 
         String fontId = fontRegistry.getFontByName("함초롬바탕").id();
         charPr.fontRef().setAll(fontId);
@@ -407,25 +311,14 @@ public class StylePreset {
         styleTag.name("제목 테이블 번호");
         styleTag.engName("TitleTableNumber");
 
-        String charPrId = String.valueOf(idGenerator.nextCharPrId());
-        String paraPrId = String.valueOf(idGenerator.nextParaPrId());
-        String styleId = String.valueOf(idGenerator.nextStyleId());
-
-        charPr.id(charPrId);
-        paraPr.id(paraPrId);
-        styleTag.id(styleId);
-
-        styleTag.charPrIDRef(charPrId);
-        styleTag.paraPrIDRef(paraPrId);
-
         return new StyleBlock(charPr, paraPr, styleTag);
     }
 
     // ===== 제목 테이블 내용 =====
     public StyleBlock titleTableContentPreset() {
-        Style styleTag = HWPXObjectFinder.findStyleById(hwpxFile, BODY_STYLE_ID).clone();
-        CharPr charPr = HWPXObjectFinder.findCharPrById(hwpxFile, styleTag.charPrIDRef()).clone();
-        ParaPr paraPr = HWPXObjectFinder.findParaPrById(hwpxFile, styleTag.paraPrIDRef()).clone();
+        Style styleTag = HWPXObjectFinder.findStyleById(refList, DEFAULT_STYLE_ID).clone();
+        CharPr charPr = HWPXObjectFinder.findCharPrById(refList, styleTag.charPrIDRef()).clone();
+        ParaPr paraPr = HWPXObjectFinder.findParaPrById(refList, styleTag.paraPrIDRef()).clone();
 
         String fontId = fontRegistry.getFontByName("HY헤드라인M").id();
         charPr.fontRef().setAll(fontId);
@@ -460,17 +353,6 @@ public class StylePreset {
 
         styleTag.name("제목 테이블 내용");
         styleTag.engName("TitleTableContent");
-
-        String charPrId = String.valueOf(idGenerator.nextCharPrId());
-        String paraPrId = String.valueOf(idGenerator.nextParaPrId());
-        String styleId = String.valueOf(idGenerator.nextStyleId());
-
-        charPr.id(charPrId);
-        paraPr.id(paraPrId);
-        styleTag.id(styleId);
-
-        styleTag.charPrIDRef(charPrId);
-        styleTag.paraPrIDRef(paraPrId);
 
         return new StyleBlock(charPr, paraPr, styleTag);
     }

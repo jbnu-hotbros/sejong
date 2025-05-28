@@ -2,35 +2,24 @@ package com.hotbros.sejong.table;
 
 import java.util.List;
 
-import kr.dogfoot.hwpxlib.object.HWPXFile;
 import kr.dogfoot.hwpxlib.object.common.baseobject.LeftRightTopBottom;
-import kr.dogfoot.hwpxlib.object.content.header_xml.references.BorderFill;
-import kr.dogfoot.hwpxlib.object.content.header_xml.references.borderfill.FillBrush;
-import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.CenterLineSort;
-import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.LineType2;
-import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.LineWidth;
-import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.SlashType;
 import kr.dogfoot.hwpxlib.object.content.section_xml.SubList;
 import kr.dogfoot.hwpxlib.object.content.section_xml.enumtype.*;
-
 import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.Para;
 import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.Run;
 import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.T;
-import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.LineSeg;
-
 import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.object.Table;
 import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.object.shapeobject.ShapeSize;
 import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.object.table.Tc;
 import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.object.table.Tr;
 
-
 public class TableBuilder {
     private static final long TOTAL_WIDTH = 41954L;
-    private static final long CELL_HEIGHT = 1282*2;
+    private static final long CELL_HEIGHT = 1282 * 2;
 
-
-
-    public static Table buildTable(int rows, int cols, List<List<String>> contents, String borderFillId, String headerBorderFillId, String headerStyleId, String bodyStyleId, String headerCharPrId, String bodyCharPrId, String headerParaPrId, String bodyParaPrId) {
+    public static Table buildTable(int rows, int cols, List<List<String>> contents, String borderFillId,
+            String headerBorderFillId, String headerStyleId, String bodyStyleId, String headerCharPrId,
+            String bodyCharPrId, String headerParaPrId, String bodyParaPrId) {
         validateContent(rows, cols, contents);
         long cellWidth = TOTAL_WIDTH / cols;
         Table table = createTableBase(rows, cols, cellWidth, borderFillId);
@@ -42,7 +31,8 @@ public class TableBuilder {
                 String styleId = (row == 0) ? headerStyleId : bodyStyleId;
                 String charPrId = (row == 0) ? headerCharPrId : bodyCharPrId;
                 String paraPrId = (row == 0) ? headerParaPrId : bodyParaPrId;
-                Tc cell = createCell(row, col, cellWidth, CELL_HEIGHT, text, effectiveBorderId, styleId, charPrId, paraPrId);
+                Tc cell = createCell(row, col, cellWidth, CELL_HEIGHT, text, effectiveBorderId, styleId, charPrId,
+                        paraPrId);
                 tr.addTc(cell);
             }
         }
@@ -110,7 +100,8 @@ public class TableBuilder {
         return table;
     }
 
-    private static Tc createCell(int row, int col, long width, long height, String text, String borderFillId, String styleId, String charPrId, String paraPrId) {
+    private static Tc createCell(int row, int col, long width, long height, String text, String borderFillId,
+            String styleId, String charPrId, String paraPrId) {
         Tc tc = new Tc();
         tc.name("");
         tc.header(false);
@@ -170,5 +161,5 @@ public class TableBuilder {
         margin.bottom(141L);
         return tc;
     }
-    
+
 }

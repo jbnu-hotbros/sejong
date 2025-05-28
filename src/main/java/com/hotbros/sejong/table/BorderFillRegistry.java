@@ -28,11 +28,11 @@ public class BorderFillRegistry {
     }
 
     private void initialize() {
-        registerBorderFill("default", createBorderFill(false, null));
-        registerBorderFill("grayFill", createBorderFill(true, "#E6E6E6"));
+        registerBorderFill("default", buildBorderFill(false, null));
+        registerBorderFill("grayFill", buildBorderFill(true, "#E6E6E6"));
 
         // 타이틀 테이블용 커스텀 BorderFill 등록 (XML 예시와 동일하게)
-        registerBorderFill("TITLE_BOX_MIDDLE_LEFT", createCustomBorderFill(
+        registerBorderFill("TITLE_BOX_MIDDLE_LEFT", buildCustomBorderFill(
             LineType2.SOLID, "#003366", LineWidth.MM_0_1,
             LineType2.SOLID, "#003366", LineWidth.MM_0_1,
             LineType2.SOLID, "#003366", LineWidth.MM_0_1,
@@ -40,7 +40,7 @@ public class BorderFillRegistry {
             LineType2.NONE, "#000000", LineWidth.MM_0_1,
             true, "#003366", "#000000"
         ));
-        registerBorderFill("TITLE_BOX_MIDDLE_CENTER", createCustomBorderFill(
+        registerBorderFill("TITLE_BOX_MIDDLE_CENTER", buildCustomBorderFill(
             LineType2.SOLID, "#003366", LineWidth.MM_0_1,
             LineType2.SOLID, "#999999", LineWidth.MM_0_12,
             LineType2.NONE, "#003366", LineWidth.MM_0_6,
@@ -48,7 +48,7 @@ public class BorderFillRegistry {
             LineType2.SOLID, null, LineWidth.MM_0_1,
             false, null, null
         ));
-        registerBorderFill("TITLE_BOX_MIDDLE_RIGHT", createCustomBorderFill(
+        registerBorderFill("TITLE_BOX_MIDDLE_RIGHT", buildCustomBorderFill(
             LineType2.SOLID, "#999999", LineWidth.MM_0_12,
             LineType2.SOLID, "#999999", LineWidth.MM_0_12,
             LineType2.SOLID, "#999999", LineWidth.MM_0_12,
@@ -56,7 +56,7 @@ public class BorderFillRegistry {
             LineType2.SOLID, "#999999", LineWidth.MM_0_12,
             true, "#F2F2F2", "#999999"
         ));
-        registerBorderFill("TITLE_BOX_MAIN", createCustomBorderFill(
+        registerBorderFill("TITLE_BOX_MAIN", buildCustomBorderFill(
             LineType2.NONE, "#000000", LineWidth.MM_0_12, // leftBorder
             LineType2.NONE, "#000000", LineWidth.MM_0_12, // rightBorder
             LineType2.SOLID, "#3A3C84", LineWidth.MM_1_5, // topBorder
@@ -66,7 +66,7 @@ public class BorderFillRegistry {
         ));
         // #27588b
         // Sub 타이틀박스용 BorderFill 등록 (left, center, right 순)
-        registerBorderFill("TITLE_BOX_SUB_LEFT", createCustomBorderFill(
+        registerBorderFill("TITLE_BOX_SUB_LEFT", buildCustomBorderFill(
             LineType2.SOLID, "#27588b", LineWidth.MM_0_1, // left
             LineType2.SOLID, "#27588b", LineWidth.MM_0_1, // right
             LineType2.SOLID, "#27588b", LineWidth.MM_0_1, // top
@@ -74,7 +74,7 @@ public class BorderFillRegistry {
             LineType2.NONE, "#000000", LineWidth.MM_0_1, // diagonal
             true, "#27588b", "#000000"
         ));
-        registerBorderFill("TITLE_BOX_SUB_CENTER", createCustomBorderFill(
+        registerBorderFill("TITLE_BOX_SUB_CENTER", buildCustomBorderFill(
             LineType2.SOLID, "#27588b", LineWidth.MM_0_1, // left
             LineType2.NONE, "#999999", LineWidth.MM_0_12, // right
             LineType2.NONE, "#003366", LineWidth.MM_0_6, // top
@@ -82,7 +82,7 @@ public class BorderFillRegistry {
             LineType2.SOLID, "#000000", LineWidth.MM_0_1, // diagonal
             false, null, null
         ));
-        registerBorderFill("TITLE_BOX_SUB_RIGHT", createCustomBorderFill(
+        registerBorderFill("TITLE_BOX_SUB_RIGHT", buildCustomBorderFill(
             LineType2.NONE, "#999999", LineWidth.MM_0_12, // left
             LineType2.NONE, "#999999", LineWidth.MM_0_12, // right
             LineType2.NONE, "#003366", LineWidth.MM_0_5, // top
@@ -92,27 +92,95 @@ public class BorderFillRegistry {
         ));
     }
 
-    // BorderFill 등록 (name으로)
-    public void registerBorderFill(String name, BorderFill borderFill) {
-        if (borderFillMap.containsKey(name)) {
-            throw new IllegalArgumentException("이미 존재하는 BorderFill 이름입니다: " + name);
+    // 1. 객체만 생성 (id 없음, 등록X)
+    public BorderFill buildBorderFill(boolean hasFill, String faceColor) {
+        BorderFill borderFill = new BorderFill();
+        borderFill.threeD(false);
+        borderFill.shadow(false);
+        borderFill.centerLine(CenterLineSort.NONE);
+        borderFill.breakCellSeparateLine(false);
+
+        // 슬래시, 백슬래시
+        borderFill.createSlash();
+        borderFill.slash().typeAnd(SlashType.NONE).CrookedAnd(false).isCounter(false);
+        borderFill.createBackSlash();
+        borderFill.backSlash().typeAnd(SlashType.NONE).CrookedAnd(false).isCounter(false);
+
+        // 왼쪽 테두리
+        borderFill.createLeftBorder();
+        borderFill.leftBorder()
+            .typeAnd(LineType2.SOLID)
+            .widthAnd(LineWidth.MM_0_12)
+            .colorAnd(faceColor != null ? faceColor : "#000000");
+
+        // 오른쪽 테두리
+        borderFill.createRightBorder();
+        borderFill.rightBorder()
+            .typeAnd(LineType2.SOLID)
+            .widthAnd(LineWidth.MM_0_12)
+            .colorAnd(faceColor != null ? faceColor : "#000000");
+
+        // 위쪽 테두리
+        borderFill.createTopBorder();
+        borderFill.topBorder()
+            .typeAnd(LineType2.SOLID)
+            .widthAnd(LineWidth.MM_0_12)
+            .colorAnd(faceColor != null ? faceColor : "#000000");
+
+        // 아래쪽 테두리
+        borderFill.createBottomBorder();
+        borderFill.bottomBorder()
+            .typeAnd(LineType2.SOLID)
+            .widthAnd(LineWidth.MM_0_12)
+            .colorAnd(faceColor != null ? faceColor : "#000000");
+
+        // 대각선
+        borderFill.createDiagonal();
+        borderFill.diagonal()
+            .typeAnd(LineType2.SOLID)
+            .widthAnd(LineWidth.MM_0_1)
+            .colorAnd(faceColor != null ? faceColor : "#000000");
+
+        // 채우기 브러시 (hasFill이 true일 때만)
+        if (hasFill && faceColor != null) {
+            borderFill.createFillBrush();
+            FillBrush fillBrush = borderFill.fillBrush();
+            fillBrush.createWinBrush();
+            fillBrush.winBrush()
+                .faceColorAnd(faceColor)
+                .alphaAnd(0.0f);
         }
-        // id는 이미 생성 시 할당됨
-        borderFillMap.put(name, borderFill);
-        addBorderFillToRefList(borderFill);
+        return borderFill;
     }
 
-    // name으로 BorderFill 조회
+    // 2. BorderFill을 레지스트리에 등록 (id 부여, 중복 방지)
+    public BorderFill registerBorderFill(String name, BorderFill borderFill) {
+        if (borderFillMap.containsKey(name)) {
+            return borderFillMap.get(name);
+        }
+        String id = String.valueOf(idGenerator.nextBorderFillId());
+        borderFill.id(id);
+        borderFillMap.put(name, borderFill);
+        addBorderFillToRefList(borderFill);
+        return borderFill;
+    }
+
+    // 3. 이름으로 바로 등록 (내부적으로 build+register)
+    public BorderFill addBorderFill(String name, boolean hasFill, String faceColor) {
+        BorderFill borderFill = buildBorderFill(hasFill, faceColor);
+        return registerBorderFill(name, borderFill);
+    }
+
+    // 4. 조회
     public BorderFill getBorderFillByName(String name) {
         return borderFillMap.get(name);
     }
 
-    // 전체 BorderFill 반환 (읽기 전용)
+    // 5. 전체 조회
     public Map<String, BorderFill> getAllBorderFills() {
         return Collections.unmodifiableMap(borderFillMap);
     }
 
-    // RefList에 BorderFill 추가
     private void addBorderFillToRefList(BorderFill borderFill) {
         if (refList == null || refList.borderFills() == null) {
             return;
@@ -121,7 +189,7 @@ public class BorderFillRegistry {
     }
 
     // 복잡한 커스텀 BorderFill 생성 (정확한 타입 사용)
-    public BorderFill createCustomBorderFill(
+    public BorderFill buildCustomBorderFill(
         LineType2 leftType, String leftColor, LineWidth leftWidth,
         LineType2 rightType, String rightColor, LineWidth rightWidth,
         LineType2 topType, String topColor, LineWidth topWidth,
@@ -189,17 +257,5 @@ public class BorderFillRegistry {
                 .alphaAnd(0.0f);
         }
         return borderFill;
-    }
-
-    // 간단한 기본 BorderFill 생성 (정확한 타입 사용)
-    public BorderFill createBorderFill(boolean hasFill, String faceColor) {
-        return createCustomBorderFill(
-            LineType2.SOLID, "#000000", LineWidth.MM_0_12,
-            LineType2.SOLID, "#000000", LineWidth.MM_0_12,
-            LineType2.SOLID, "#000000", LineWidth.MM_0_12,
-            LineType2.SOLID, "#000000", LineWidth.MM_0_12,
-            LineType2.SOLID, "#000000", LineWidth.MM_0_1,
-            hasFill, faceColor, null
-        );
     }
 }

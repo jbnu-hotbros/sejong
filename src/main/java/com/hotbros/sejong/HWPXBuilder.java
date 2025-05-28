@@ -1,16 +1,13 @@
 package com.hotbros.sejong;
 
-import java.util.Arrays;
 import java.util.List;
 
-import com.hotbros.sejong.util.HWPXObjectFinder;
 import com.hotbros.sejong.util.IdGenerator;
 import com.hotbros.sejong.style.StylePreset;
 import com.hotbros.sejong.style.StyleRegistry;
 import com.hotbros.sejong.table.BorderFillRegistry;
 import com.hotbros.sejong.bullet.BulletRegistry;
 import com.hotbros.sejong.font.FontRegistry;
-import com.hotbros.sejong.numbering.NumberingRegistry;
 import com.hotbros.sejong.section.SectionPreset;
 import com.hotbros.sejong.table.TableBuilder;
 import com.hotbros.sejong.table.TitleBoxMiddleBuilder;
@@ -20,20 +17,13 @@ import com.hotbros.sejong.table.TitleBoxSubBuilder;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.BorderFill;
 import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.object.Table;
 
-import kr.dogfoot.hwpxlib.object.HWPXFile;
-import kr.dogfoot.hwpxlib.object.content.header_xml.references.CharPr;
-import kr.dogfoot.hwpxlib.object.content.header_xml.references.ParaPr;
+import kr.dogfoot.hwpxlib.object.HWPXFile;;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.Style;
-import kr.dogfoot.hwpxlib.object.content.header_xml.references.numbering.ParaHead;
 import kr.dogfoot.hwpxlib.object.content.section_xml.SectionXMLFile;
 import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.Para;
 import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.Run;
-import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.RunItem;
-import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.HorizontalAlign2;
-import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.NumberType1;
 import kr.dogfoot.hwpxlib.tool.blankfilemaker.BlankFileMaker;
 import kr.dogfoot.hwpxlib.object.content.header_xml.RefList;
-import kr.dogfoot.hwpxlib.object.content.header_xml.references.Numbering;
 
 public class HWPXBuilder {
     private final HWPXFile hwpxFile;
@@ -57,18 +47,14 @@ public class HWPXBuilder {
         
         this.fontRegistry = new FontRegistry(refList, idGenerator);
         this.borderFillRegistry = new BorderFillRegistry(refList, idGenerator);
-        this.bulletRegistry = new BulletRegistry(refList);
+        this.bulletRegistry = new BulletRegistry(refList, idGenerator);
 
-        this.styleRegistry = new StyleRegistry(refList, new StylePreset(hwpxFile, idGenerator, fontRegistry, bulletRegistry));
+        StylePreset stylePreset = new StylePreset(refList, fontRegistry, bulletRegistry);
+        this.styleRegistry = new StyleRegistry(refList, idGenerator, stylePreset.getAllPresets());
 
-        initialize();
-    }
-    
-
-    private void initialize() {
         SectionPreset.setFirstRunSecPrDefault(section);
     }
-    
+
     // 2. 중복 로직 유틸리티 메서드로 분리 (1번, 3번)
     private Run createStyledRun(Style style, String text) {
         Run run = new Run();

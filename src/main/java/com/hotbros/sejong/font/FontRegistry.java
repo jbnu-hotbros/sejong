@@ -22,68 +22,17 @@ public class FontRegistry {
     }
 
     private void initialize() {
-        // 기존 폰트 등록
-        addFontToRefList(createFont("HY헤드라인M"));
-        addFontToRefList(createFont("맑은 고딕"));
-        // RefList에서 함초롬 폰트 찾아서 등록 (중복 방지)
-        // 이미 refList에 있으면 추가하지 않음
+        // 가장 많이 쓸 addFont로 기본 폰트 등록
+        addFont("HY헤드라인M");
+        addFont("맑은 고딕");
     }
 
-    // 폰트 이름으로 Font 객체 조회 (refList에서 직접 탐색)
-    public Font getFontByName(String name) {
-        if (refList != null && refList.fontfaces() != null) {
-            for (var fontface : refList.fontfaces().fontfaces()) {
-                for (var font : fontface.fonts()) {
-                    // System.out.println(font.face());
-                    if (font.face().equals(name)) {
-                        return font;
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    // 전체 Font 리스트 반환 (읽기 전용, refList에서 직접 수집)
-    public List<Font> getAllFonts() {
-        List<Font> fonts = new ArrayList<>();
-        if (refList != null && refList.fontfaces() != null) {
-            for (var fontface : refList.fontfaces().fontfaces()) {
-                for (var font : fontface.fonts()) {
-                    fonts.add(font);
-                }
-            }
-        }
-        return Collections.unmodifiableList(fonts);
-    }
-
-    // RefList에 Font 추가 (중복 방지)
-    private void addFontToRefList(Font font) {
-        if (refList == null || refList.fontfaces() == null || font == null) {
-            return;
-        }
-        for (var fontface : refList.fontfaces().fontfaces()) {
-            boolean exists = false;
-            for (var f : fontface.fonts()) {
-                if (f.face().equals(font.face())) {
-                    exists = true;
-                    break;
-                }
-            }
-            if (!exists) {
-                fontface.addFont(font);
-            }
-        }
-    }
-
-    // Font 생성 유틸 (id는 생성 시 할당)
-    public Font createFont(String fontName) {
+    // 1. 객체만 생성 (id 없음, 등록X)
+    public Font buildFont(String fontName) {
         Font font = new Font();
-        String id = String.valueOf(idGenerator.nextFontId());
         font.face(fontName);
         font.type(FontType.TTF);
         font.isEmbedded(false);
-        font.id(id);
         font.createTypeInfo();
         var typeInfo = font.typeInfo();
         typeInfo.familyType(FontFamilyType.FCAT_GOTHIC);
@@ -97,4 +46,81 @@ public class FontRegistry {
         typeInfo.xHeight(1);
         return font;
     }
-} 
+
+    // 2. Font를 레지스트리에 등록 (id 부여, 중복 방지)
+    public Font registerFont(String name, Font font) {
+        if (getFontByName(name) != null) {
+            return getFontByName(name);
+        }
+        String id = String.valueOf(idGenerator.nextFontId());
+        font.id(id);
+        addFontToRefList(font);
+        return font;
+    }
+
+    // 3. 이름으로 바로 등록 (내부적으로 build+register)
+    public Font addFont(String fontName) {
+        Font font = buildFont(fontName);
+        return registerFont(fontName, font);
+    }
+
+    // 4. 조회
+    public Font getFontByName(String name) {
+        System.out.println("getFontByName: " + name);
+        if (refList != null && refList.fontfaces() != null && refList.fontfaces().fontfaces() != null) {
+            for (var fontface : refList.fontfaces().fontfaces()) {
+                if (fontface.fonts() != null) {
+                    for (var font : fontface.fonts()) {
+                        if (font.face().equals(name)) {
+                            return font;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    // 5. 전체 Font 리스트 반환 (읽기 전용)
+    public List<Font> getAllFonts() {
+        List<Font> fonts = new ArrayList<>();
+        if (refList != null && refList.fontfaces() != null && refList.fontfaces().fontfaces() != null) {
+            for (var fontface : refList.fontfaces().fontfaces()) {
+                if (fontface.fonts() != null) {
+                    for (var font : fontface.fonts()) {
+                        fonts.add(font);
+                    }
+                }
+            }
+        }
+        return Collections.unmodifiableList(fonts);
+    }
+
+    // RefList에 Font 추가 (중복 방지)
+    private void addFontToRefList(Font font) {
+        if (refList == null || font == null) {
+            return;
+        }
+        if (refList.fontfaces() == null) {
+            refList.createFontfaces();
+        }
+        if (!refList.fontfaces().fontfaces().iterator().hasNext()) {
+            refList.fontfaces().addNewFontface();
+        }
+
+        for (var fontface : refList.fontfaces().fontfaces()) {
+            boolean exists = false;
+            if (fontface.fonts() != null) {
+                for (var f : fontface.fonts()) {
+                    if (f.face().equals(font.face())) {
+                        exists = true;
+                        break;
+                    }
+                }
+            }
+            if (!exists) {
+                fontface.addFont(font);
+            }
+        }
+    }
+}

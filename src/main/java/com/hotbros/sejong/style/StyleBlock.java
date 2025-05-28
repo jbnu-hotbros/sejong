@@ -1,5 +1,4 @@
 package com.hotbros.sejong.style;
-// package com.hotbros.sejong.style.request;
 
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.CharPr;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.ParaPr;

@@ -1,8 +1,6 @@
 package com.hotbros.sejong.table;
 
 import java.util.Arrays;
-
-import com.hotbros.sejong.HWPXBuilder;
 import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.object.table.Tc;
 import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.object.Table;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.Style;

@@ -10,23 +10,21 @@ import kr.dogfoot.hwpxlib.object.content.header_xml.references.Numbering;
 public class HWPXObjectFinder {
 
     /**
-     * HWPXFile에서 ID를 기준으로 Style 객체를 찾습니다.
+     * RefList에서 ID를 기준으로 Style 객체를 찾습니다.
      *
-     * @param hwpxFile 검색할 HWPXFile 객체
+     * @param refList 검색할 RefList 객체
      * @param styleId 찾을 Style의 ID
      * @return 찾아낸 Style 객체. 없으면 null.
      */
-    public static Style findStyleById(HWPXFile hwpxFile, String styleId) {
-        if (hwpxFile == null || styleId == null) {
-            System.err.println("HWPXObjectFinder.findStyleById: hwpxFile 또는 styleId가 null입니다.");
+    public static Style findStyleById(RefList refList, String styleId) {
+        if (refList == null || styleId == null) {
+            System.err.println("HWPXObjectFinder.findStyleById: refList 또는 styleId가 null입니다.");
             return null;
         }
-        RefList refList = hwpxFile.headerXMLFile().refList();
-        if (refList == null || refList.styles() == null) {
-            System.err.println("HWPXObjectFinder.findStyleById: RefList 또는 Styles가 null입니다. (HWPXFile: " + hwpxFile + ", StyleID: " + styleId + ")");
+        if (refList.styles() == null) {
+            System.err.println("HWPXObjectFinder.findStyleById: Styles가 null입니다. (RefList: " + refList + ", StyleID: " + styleId + ")");
             return null;
         }
-
         for (Style style : refList.styles().items()) {
             if (styleId.equals(style.id())) {
                 return style;
@@ -37,23 +35,21 @@ public class HWPXObjectFinder {
     }
 
     /**
-     * HWPXFile에서 ID를 기준으로 ParaPr 객체를 찾습니다.
+     * RefList에서 ID를 기준으로 ParaPr 객체를 찾습니다.
      *
-     * @param hwpxFile 검색할 HWPXFile 객체
+     * @param refList 검색할 RefList 객체
      * @param paraPrId 찾을 ParaPr의 ID
      * @return 찾아낸 ParaPr 객체. 없으면 null.
      */
-    public static ParaPr findParaPrById(HWPXFile hwpxFile, String paraPrId) {
-        if (hwpxFile == null || paraPrId == null) {
-            System.err.println("HWPXObjectFinder.findParaPrById: hwpxFile 또는 paraPrId가 null입니다.");
+    public static ParaPr findParaPrById(RefList refList, String paraPrId) {
+        if (refList == null || paraPrId == null) {
+            System.err.println("HWPXObjectFinder.findParaPrById: refList 또는 paraPrId가 null입니다.");
             return null;
         }
-        RefList refList = hwpxFile.headerXMLFile().refList();
-        if (refList == null || refList.paraProperties() == null) {
-            System.err.println("HWPXObjectFinder.findParaPrById: RefList 또는 ParaProperties가 null입니다. (HWPXFile: " + hwpxFile + ", ParaPrID: " + paraPrId + ")");
+        if (refList.paraProperties() == null) {
+            System.err.println("HWPXObjectFinder.findParaPrById: ParaProperties가 null입니다. (RefList: " + refList + ", ParaPrID: " + paraPrId + ")");
             return null;
         }
-
         for (ParaPr paraPr : refList.paraProperties().items()) {
             if (paraPrId.equals(paraPr.id())) {
                 return paraPr;
@@ -64,23 +60,21 @@ public class HWPXObjectFinder {
     }
 
     /**
-     * HWPXFile에서 ID를 기준으로 CharPr 객체를 찾습니다.
+     * RefList에서 ID를 기준으로 CharPr 객체를 찾습니다.
      *
-     * @param hwpxFile 검색할 HWPXFile 객체
+     * @param refList 검색할 RefList 객체
      * @param charPrId 찾을 CharPr의 ID
      * @return 찾아낸 CharPr 객체. 없으면 null.
      */
-    public static CharPr findCharPrById(HWPXFile hwpxFile, String charPrId) {
-        if (hwpxFile == null || charPrId == null) {
-            System.err.println("HWPXObjectFinder.findCharPrById: hwpxFile 또는 charPrId가 null입니다.");
+    public static CharPr findCharPrById(RefList refList, String charPrId) {
+        if (refList == null || charPrId == null) {
+            System.err.println("HWPXObjectFinder.findCharPrById: refList 또는 charPrId가 null입니다.");
             return null;
         }
-        RefList refList = hwpxFile.headerXMLFile().refList();
-        if (refList == null || refList.charProperties() == null) {
-            System.err.println("HWPXObjectFinder.findCharPrById: RefList 또는 CharProperties가 null입니다. (HWPXFile: " + hwpxFile + ", CharPrID: " + charPrId + ")");
+        if (refList.charProperties() == null) {
+            System.err.println("HWPXObjectFinder.findCharPrById: CharProperties가 null입니다. (RefList: " + refList + ", CharPrID: " + charPrId + ")");
             return null;
         }
-
         for (CharPr charPr : refList.charProperties().items()) {
             if (charPrId.equals(charPr.id())) {
                 return charPr;
@@ -91,23 +85,21 @@ public class HWPXObjectFinder {
     }
 
     /**
-     * HWPXFile에서 ID를 기준으로 Numbering 객체를 찾습니다.
+     * RefList에서 ID를 기준으로 Numbering 객체를 찾습니다.
      *
-     * @param hwpxFile 검색할 HWPXFile 객체
+     * @param refList 검색할 RefList 객체
      * @param numberingId 찾을 Numbering의 ID
      * @return 찾아낸 Numbering 객체. 없으면 null.
      */
-    public static Numbering findNumberingById(HWPXFile hwpxFile, String numberingId) {
-        if (hwpxFile == null || numberingId == null) {
-            System.err.println("HWPXObjectFinder.findNumberingById: hwpxFile 또는 numberingId가 null입니다.");
+    public static Numbering findNumberingById(RefList refList, String numberingId) {
+        if (refList == null || numberingId == null) {
+            System.err.println("HWPXObjectFinder.findNumberingById: refList 또는 numberingId가 null입니다.");
             return null;
         }
-        RefList refList = hwpxFile.headerXMLFile().refList();
-        if (refList == null || refList.numberings() == null) {
-            System.err.println("HWPXObjectFinder.findNumberingById: RefList 또는 Numberings가 null입니다. (HWPXFile: " + hwpxFile + ", NumberingID: " + numberingId + ")");
+        if (refList.numberings() == null) {
+            System.err.println("HWPXObjectFinder.findNumberingById: Numberings가 null입니다. (RefList: " + refList + ", NumberingID: " + numberingId + ")");
             return null;
         }
-
         for (Numbering numbering : refList.numberings().items()) {
             if (numberingId.equals(numbering.id())) {
                 return numbering;
