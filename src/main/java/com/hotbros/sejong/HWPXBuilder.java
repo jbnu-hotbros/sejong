@@ -17,7 +17,7 @@ import com.hotbros.sejong.table.TitleBoxSubBuilder;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.BorderFill;
 import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.object.Table;
 
-import kr.dogfoot.hwpxlib.object.HWPXFile;;
+import kr.dogfoot.hwpxlib.object.HWPXFile;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.Style;
 import kr.dogfoot.hwpxlib.object.content.section_xml.SectionXMLFile;
 import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.Para;

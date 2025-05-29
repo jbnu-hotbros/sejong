@@ -198,8 +198,6 @@ public class BorderFillRegistry {
         boolean hasFill, String faceColor, String hatchColor
     ) {
         BorderFill borderFill = new BorderFill();
-        String id = String.valueOf(idGenerator.nextBorderFillId());
-        borderFill.id(id);
         borderFill.threeD(false);
         borderFill.shadow(false);
         borderFill.centerLine(CenterLineSort.NONE);
