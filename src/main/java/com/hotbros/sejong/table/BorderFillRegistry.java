@@ -111,35 +111,35 @@ public class BorderFillRegistry {
         borderFill.leftBorder()
             .typeAnd(LineType2.SOLID)
             .widthAnd(LineWidth.MM_0_12)
-            .colorAnd(faceColor != null ? faceColor : "#000000");
+            .colorAnd("#000000");
 
         // 오른쪽 테두리
         borderFill.createRightBorder();
         borderFill.rightBorder()
             .typeAnd(LineType2.SOLID)
             .widthAnd(LineWidth.MM_0_12)
-            .colorAnd(faceColor != null ? faceColor : "#000000");
+            .colorAnd("#000000");
 
         // 위쪽 테두리
         borderFill.createTopBorder();
         borderFill.topBorder()
             .typeAnd(LineType2.SOLID)
             .widthAnd(LineWidth.MM_0_12)
-            .colorAnd(faceColor != null ? faceColor : "#000000");
+            .colorAnd("#000000");
 
         // 아래쪽 테두리
         borderFill.createBottomBorder();
         borderFill.bottomBorder()
             .typeAnd(LineType2.SOLID)
             .widthAnd(LineWidth.MM_0_12)
-            .colorAnd(faceColor != null ? faceColor : "#000000");
+            .colorAnd("#000000");
 
         // 대각선
         borderFill.createDiagonal();
         borderFill.diagonal()
-            .typeAnd(LineType2.SOLID)
+            .typeAnd(LineType2.NONE)
             .widthAnd(LineWidth.MM_0_1)
-            .colorAnd(faceColor != null ? faceColor : "#000000");
+            .colorAnd("#000000");
 
         // 채우기 브러시 (hasFill이 true일 때만)
         if (hasFill && faceColor != null) {

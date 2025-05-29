@@ -78,13 +78,13 @@ public class TitleBoxMiddleBuilder {
         table.pos().vertOffset(0L);
         table.pos().horzOffset(0L);
         table.createOutMargin();
-        table.outMargin().left(141L);
-        table.outMargin().right(141L);
-        table.outMargin().top(141L);
-        table.outMargin().bottom(141L);
+        table.outMargin().left(283L);
+        table.outMargin().right(283L);
+        table.outMargin().top(283L);
+        table.outMargin().bottom(283L);
         table.createInMargin();
-        table.inMargin().left(141L);
-        table.inMargin().right(141L);
+        table.inMargin().left(510L);
+        table.inMargin().right(510L);
         table.inMargin().top(141L);
         table.inMargin().bottom(141L);
 
@@ -179,8 +179,8 @@ public class TitleBoxMiddleBuilder {
 
         // 셀 여백 설정
         tc.createCellMargin();
-        tc.cellMargin().left(141L);
-        tc.cellMargin().right(141L);
+        tc.cellMargin().left(510L);
+        tc.cellMargin().right(510L);
         tc.cellMargin().top(141L);
         tc.cellMargin().bottom(141L);
  

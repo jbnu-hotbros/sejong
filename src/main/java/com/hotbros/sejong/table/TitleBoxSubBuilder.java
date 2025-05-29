@@ -12,7 +12,7 @@ public class TitleBoxSubBuilder {
     private static final long[] CELL_WIDTHS = { 2573L, 1131L, 17073L };
     private static final long TOTAL_WIDTH = Arrays.stream(CELL_WIDTHS).sum();
     private static final long OUT_MARGIN = 283L;
-    private static final long IN_MARGIN_LEFT_RIGHT = 141L;
+    private static final long IN_MARGIN_LEFT_RIGHT = 510L;
     private static final long IN_MARGIN_TOP_BOTTOM = 141L;
 
     private static final String[] BORDER_FILL_NAMES = {
