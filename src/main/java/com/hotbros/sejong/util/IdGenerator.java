@@ -6,7 +6,7 @@ public class IdGenerator {
     private int styleId = 18;
     private int fontId = 2;
     private int borderFillId = 3;
-    private int bulletId = 0;
+    private int bulletId = 1;
     
     public int nextCharPrId() {
         return charPrId++;

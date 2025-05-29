@@ -77,7 +77,7 @@ public class StylePreset {
     /**
      * case/default 모두에 들여쓰기(intent) 값을 일괄 적용
      */
-    private static void setIntentBoth(ParaPr paraPr, int value) {
+    private static void setMarginLeftBoth(ParaPr paraPr, int value) {
         if (paraPr == null || paraPr.switchList() == null || paraPr.switchList().isEmpty()) return;
         Switch sw = (Switch) paraPr.switchList().get(paraPr.switchList().size() - 1);
         if (sw == null) return;
@@ -87,8 +87,8 @@ public class StylePreset {
                 for (HWPXObject child : c.children()) {
                     if (child instanceof ParaMargin) {
                         ParaMargin margin = (ParaMargin) child;
-                        if (margin.intent() != null) {
-                            margin.intent().value(value);
+                        if (margin.left() != null) {
+                            margin.left().value(value);
                         }
                     }
                 }
@@ -100,8 +100,8 @@ public class StylePreset {
             for (HWPXObject child : def.children()) {
                 if (child instanceof ParaMargin) {
                     ParaMargin margin = (ParaMargin) child;
-                    if (margin.intent() != null) {
-                        margin.intent().value(value*2);
+                    if (margin.left() != null) {
+                        margin.left().value(value*2);
                     }
                 }
             }
@@ -165,7 +165,7 @@ public class StylePreset {
 
         paraPr.align().horizontal(HorizontalAlign2.LEFT);
         setLineSpacingBoth(paraPr, 150);
-        setIntentBoth(paraPr, 3000);
+        setMarginLeftBoth(paraPr, 1500);
 
         paraPr.heading().type(ParaHeadingType.BULLET);
         paraPr.heading().idRef(bulletRegistry.getBulletByName("개요1").id());
@@ -189,7 +189,7 @@ public class StylePreset {
 
         paraPr.align().horizontal(HorizontalAlign2.LEFT);
         setLineSpacingBoth(paraPr, 150);
-        setIntentBoth(paraPr, 3000);
+        setMarginLeftBoth(paraPr, 3000);
 
         paraPr.heading().type(ParaHeadingType.BULLET);
         paraPr.heading().idRef(bulletRegistry.getBulletByName("개요2").id());
