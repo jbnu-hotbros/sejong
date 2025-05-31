@@ -41,5 +41,5 @@ tasks.withType<Javadoc>() {
 
 application {
     // 여기에 실제 실행할 메인 클래스의 FQCN(패키지 포함 전체 이름) 지정
-    mainClass.set("com.hotbros.sejong.examples.HWPXBuilderExample")
+    mainClass.set("com.hotbros.sejong.examples.HwpxRefactorExample")
 }
