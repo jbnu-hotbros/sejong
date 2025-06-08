@@ -143,7 +143,7 @@ public class TitleBoxSubBuilder {
         // 텍스트 런 설정
         var run = para.addNewRun();
         run.charPrIDRef(charPrId);
-        if (!text.isEmpty()) {
+        if (text != null && !text.isEmpty()) {
             var t = run.addNewT();
             t.addText(text);
         }

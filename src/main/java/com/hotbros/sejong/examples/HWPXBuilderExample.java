@@ -19,9 +19,9 @@ public class HWPXBuilderExample {
             builder.addTitleBoxMain("2024년 Q1 디지털 플랫폼 구축 프로젝트 진행 현황 및 성과 보고서");
 
             // 사업명 및 기본 정보
-            builder.addThemedHeading(0, "사업명");
-            builder.addThemedHeading(1, "보고일: 2024년 3월 31일");
-            builder.addThemedHeading(1, "작성자: 프로젝트 관리팀");
+            builder.addThemedHeading(1, "사업명");
+            builder.addThemedHeading(2, "보고일: 2024년 3월 31일");
+            builder.addThemedHeading(2, "작성자: 프로젝트 관리팀");
 
             // 1. 프로젝트 개요
             builder.addTitleBoxMiddle("Ⅰ", "프로젝트 개요");
