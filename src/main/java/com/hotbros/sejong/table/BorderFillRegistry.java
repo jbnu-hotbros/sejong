@@ -3,7 +3,9 @@ package com.hotbros.sejong.table;
 import kr.dogfoot.hwpxlib.object.content.header_xml.RefList;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.BorderFill;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.borderfill.FillBrush;
+import kr.dogfoot.hwpxlib.object.content.header_xml.references.borderfill.Gradation;
 import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.CenterLineSort;
+import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.GradationType;
 import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.LineType2;
 import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.LineWidth;
 import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.SlashType;
@@ -90,6 +92,37 @@ public class BorderFillRegistry {
             LineType2.SOLID, "#000000", LineWidth.MM_0_1, // diagonal
             false, null, null
         ));
+
+        // 타이틀박스 메인용 BorderFill 등록
+        registerBorderFill("TITLE_BOX_MIDDLE_LEFT_GRAY", buildCustomBorderFill(
+            LineType2.NONE, "#003366", LineWidth.MM_0_1, // left
+            LineType2.NONE, "#003366", LineWidth.MM_0_1, // right
+            LineType2.NONE, "#003366", LineWidth.MM_0_1, // top
+            LineType2.NONE, "#003366", LineWidth.MM_0_1, // bottom
+            LineType2.NONE, "#000000", LineWidth.MM_0_1, // diagonal
+            true, "#808080", "#000000"
+        ));
+        
+        registerBorderFill("TITLE_BOX_MIDDLE_CENTER_GRAY", buildGradationBorderFill(
+            LineType2.NONE, "#999999", LineWidth.MM_0_12, // left
+            LineType2.NONE, "#999999", LineWidth.MM_0_12, // right
+            LineType2.NONE, "#999999", LineWidth.MM_0_12, // top
+            LineType2.NONE, "#999999", LineWidth.MM_0_12, // bottom
+            LineType2.SOLID, "#999999", LineWidth.MM_0_12, // diagonal
+            new String[]{"#BFBFBF", "#FFFFFF"} // 그라데이션 색상
+        ));
+
+        // TITLE_BOX_MAIN_GRAY - Gray 테마용 메인 타이틀박스
+        registerBorderFill("TITLE_BOX_MAIN_GRAY", buildCustomBorderFill(
+            LineType2.SOLID, "#000000", LineWidth.MM_0_4, // leftBorder
+            LineType2.SOLID, "#000000", LineWidth.MM_0_6, // rightBorder
+            LineType2.SOLID, "#000000", LineWidth.MM_0_4, // topBorder
+            LineType2.SOLID, "#000000", LineWidth.MM_0_6, // bottomBorder
+            LineType2.SOLID, "#000000", LineWidth.MM_0_1, // diagonal
+            false, null, null
+        ));
+
+        
     }
 
     // 1. 객체만 생성 (id 없음, 등록X)
@@ -254,6 +287,82 @@ public class BorderFillRegistry {
                 .hatchColorAnd(hatchColor != null ? hatchColor : "#999999")
                 .alphaAnd(0.0f);
         }
+        return borderFill;
+    }
+
+    // 그라데이션을 지원하는 커스텀 BorderFill 생성
+    public BorderFill buildGradationBorderFill(
+        LineType2 leftType, String leftColor, LineWidth leftWidth,
+        LineType2 rightType, String rightColor, LineWidth rightWidth,
+        LineType2 topType, String topColor, LineWidth topWidth,
+        LineType2 bottomType, String bottomColor, LineWidth bottomWidth,
+        LineType2 diagonalType, String diagonalColor, LineWidth diagonalWidth,
+        String[] gradationColors
+    ) {
+        BorderFill borderFill = new BorderFill();
+        borderFill.threeD(false);
+        borderFill.shadow(false);
+        borderFill.centerLine(CenterLineSort.NONE);
+        borderFill.breakCellSeparateLine(false);
+
+        // 슬래시, 백슬래시
+        borderFill.createSlash();
+        borderFill.slash().typeAnd(SlashType.NONE).CrookedAnd(false).isCounter(false);
+        borderFill.createBackSlash();
+        borderFill.backSlash().typeAnd(SlashType.NONE).CrookedAnd(false).isCounter(false);
+
+        // 테두리 설정
+        borderFill.createLeftBorder();
+        borderFill.leftBorder()
+            .typeAnd(leftType != null ? leftType : LineType2.SOLID)
+            .widthAnd(leftWidth != null ? leftWidth : LineWidth.MM_0_12)
+            .colorAnd(leftColor != null ? leftColor : "#000000");
+
+        borderFill.createRightBorder();
+        borderFill.rightBorder()
+            .typeAnd(rightType != null ? rightType : LineType2.SOLID)
+            .widthAnd(rightWidth != null ? rightWidth : LineWidth.MM_0_12)
+            .colorAnd(rightColor != null ? rightColor : "#000000");
+
+        borderFill.createTopBorder();
+        borderFill.topBorder()
+            .typeAnd(topType != null ? topType : LineType2.SOLID)
+            .widthAnd(topWidth != null ? topWidth : LineWidth.MM_0_12)
+            .colorAnd(topColor != null ? topColor : "#000000");
+
+        borderFill.createBottomBorder();
+        borderFill.bottomBorder()
+            .typeAnd(bottomType != null ? bottomType : LineType2.SOLID)
+            .widthAnd(bottomWidth != null ? bottomWidth : LineWidth.MM_0_12)
+            .colorAnd(bottomColor != null ? bottomColor : "#000000");
+
+        borderFill.createDiagonal();
+        borderFill.diagonal()
+            .typeAnd(diagonalType != null ? diagonalType : LineType2.SOLID)
+            .widthAnd(diagonalWidth != null ? diagonalWidth : LineWidth.MM_0_1)
+            .colorAnd(diagonalColor != null ? diagonalColor : "#000000");
+
+        // 그라데이션 FillBrush 생성
+        if (gradationColors != null && gradationColors.length >= 2) {
+            borderFill.createFillBrush();
+            FillBrush fillBrush = borderFill.fillBrush();
+            fillBrush.createGradation();
+            Gradation gradation = fillBrush.gradation();
+            
+            gradation.type(GradationType.LINEAR);
+            gradation.angle(90);
+            gradation.centerX(0);
+            gradation.centerY(0);
+            gradation.step((short) 255);
+            gradation.stepCenter((short) 80);
+            gradation.alpha(0.0f);
+            
+            // 색상들 추가 (colorNum은 자동으로 colorList.size()로 계산됨)
+            for (String color : gradationColors) {
+                gradation.addNewColor().value(color);
+            }
+        }
+
         return borderFill;
     }
 }

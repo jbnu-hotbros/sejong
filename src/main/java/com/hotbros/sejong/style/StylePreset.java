@@ -38,11 +38,13 @@ public class StylePreset {
     private final RefList refList;
     private final FontRegistry fontRegistry;
     private final BulletRegistry bulletRegistry;
+    private final Theme theme;
 
-    public StylePreset(RefList refList, FontRegistry fontRegistry, BulletRegistry bulletRegistry) {
+    public StylePreset(RefList refList, FontRegistry fontRegistry, BulletRegistry bulletRegistry, Theme theme) {
         this.refList = refList;
         this.fontRegistry = fontRegistry;
         this.bulletRegistry = bulletRegistry;
+        this.theme = theme;
     }
 
 
@@ -165,7 +167,10 @@ public class StylePreset {
 
         paraPr.align().horizontal(HorizontalAlign2.LEFT);
         setLineSpacingBoth(paraPr, 150);
-        setMarginLeftBoth(paraPr, 1500);
+        
+        // 테마에 따른 marginLeft 설정
+        int marginLeft = (theme == Theme.GRAY) ? 3000 : 1500;
+        setMarginLeftBoth(paraPr, marginLeft);
 
         paraPr.heading().type(ParaHeadingType.BULLET);
         paraPr.heading().idRef(bulletRegistry.getBulletByName("개요1").id());
@@ -189,7 +194,10 @@ public class StylePreset {
 
         paraPr.align().horizontal(HorizontalAlign2.LEFT);
         setLineSpacingBoth(paraPr, 150);
-        setMarginLeftBoth(paraPr, 3000);
+        
+        // 테마에 따른 marginLeft 설정
+        int marginLeft = (theme == Theme.GRAY) ? 4500 : 3000;
+        setMarginLeftBoth(paraPr, marginLeft);
 
         paraPr.heading().type(ParaHeadingType.BULLET);
         paraPr.heading().idRef(bulletRegistry.getBulletByName("개요2").id());
@@ -197,6 +205,33 @@ public class StylePreset {
 
         styleTag.name("개요2");
         styleTag.engName("Heading2");
+        return new StyleBlock(charPr, paraPr, styleTag);
+        
+    }
+
+    public StyleBlock heading0Preset() {
+        Style styleTag = HWPXObjectFinder.findStyleById(refList, DEFAULT_STYLE_ID).clone();
+        CharPr charPr = HWPXObjectFinder.findCharPrById(refList, styleTag.charPrIDRef()).clone();
+        ParaPr paraPr = HWPXObjectFinder.findParaPrById(refList, styleTag.paraPrIDRef()).clone();
+
+        String fontId = fontRegistry.getFontByName("함초롬바탕").id();
+        charPr.fontRef().setAll(fontId);
+        charPr.height(1400);
+        charPr.textColor("#000000");
+        charPr.createBold();
+
+        paraPr.align().horizontal(HorizontalAlign2.LEFT);
+        setLineSpacingBoth(paraPr, 150);
+        
+        // heading0는 항상 1500 (테마 관계없이 동일)
+        setMarginLeftBoth(paraPr, 1500);
+
+        paraPr.heading().type(ParaHeadingType.BULLET);
+        paraPr.heading().idRef(bulletRegistry.getBulletByName("개요0").id());
+        paraPr.heading().level((byte) 0);
+
+        styleTag.name("개요0");
+        styleTag.engName("Heading0");
 
         return new StyleBlock(charPr, paraPr, styleTag);
     }
@@ -362,6 +397,7 @@ public class StylePreset {
         return new StyleBlock[] {
             titlePreset(),
             bodyPreset(),
+            heading0Preset(),
             heading1Preset(),
             heading2Preset(),
             tableHeaderPreset(),

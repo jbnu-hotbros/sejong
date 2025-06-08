@@ -8,6 +8,7 @@ import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.ValueUnit1;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
 import com.hotbros.sejong.util.IdGenerator;
 
 public class BulletRegistry {
@@ -29,6 +30,8 @@ public class BulletRegistry {
         //     bulletMap.put(b.id(), b);
         // }
         System.out.println("BulletRegistry initialize");
+
+        addBullet("개요0", "");
         addBullet("개요1", "❍");
         addBullet("개요2", "-");
     }

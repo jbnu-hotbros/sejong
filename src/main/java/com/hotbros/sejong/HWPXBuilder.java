@@ -5,12 +5,14 @@ import java.util.List;
 import com.hotbros.sejong.util.IdGenerator;
 import com.hotbros.sejong.style.StylePreset;
 import com.hotbros.sejong.style.StyleRegistry;
+import com.hotbros.sejong.style.Theme;
 import com.hotbros.sejong.table.BorderFillRegistry;
 import com.hotbros.sejong.bullet.BulletRegistry;
 import com.hotbros.sejong.font.FontRegistry;
 import com.hotbros.sejong.section.SectionPreset;
 import com.hotbros.sejong.table.TableBuilder;
 import com.hotbros.sejong.table.TitleBoxMiddleBuilder;
+import com.hotbros.sejong.table.TitleBoxMiddleGrayBuilder;
 import com.hotbros.sejong.table.TitleBoxMainBuilder;
 import com.hotbros.sejong.table.TitleBoxSubBuilder;
 
@@ -34,12 +36,18 @@ public class HWPXBuilder {
     private final FontRegistry fontRegistry;
     private final RefList refList;
     private final BulletRegistry bulletRegistry;
+    private final Theme currentTheme;
 
     private static final String NORMAL_PARA_ID = "0";
 
     private boolean hasFirstParagraphText = false;
 
     public HWPXBuilder() {
+        this(Theme.GRAY); // 기본값은 BLUE 테마
+    }
+
+    public HWPXBuilder(Theme theme) {
+        this.currentTheme = theme;
         this.hwpxFile = BlankFileMaker.make();
         this.idGenerator = new IdGenerator();
         this.section = hwpxFile.sectionXMLFileList().get(0);
@@ -49,7 +57,7 @@ public class HWPXBuilder {
         this.borderFillRegistry = new BorderFillRegistry(refList, idGenerator);
         this.bulletRegistry = new BulletRegistry(refList, idGenerator);
 
-        StylePreset stylePreset = new StylePreset(refList, fontRegistry, bulletRegistry);
+        StylePreset stylePreset = new StylePreset(refList, fontRegistry, bulletRegistry, this.currentTheme);
         this.styleRegistry = new StyleRegistry(refList, idGenerator, stylePreset.getAllPresets());
 
         SectionPreset.setFirstRunSecPrDefault(section);
@@ -151,7 +159,15 @@ public class HWPXBuilder {
     // 메인 타이틀 박스 추가
     public void addTitleBoxMain(String title) {
         String borderFillId = borderFillRegistry.getBorderFillByName("default").id();
-        String cellBorderFillId = borderFillRegistry.getBorderFillByName("TITLE_BOX_MAIN").id();
+        String cellBorderFillId;
+        
+        // 테마에 따라 다른 BorderFill 사용
+        if (currentTheme == Theme.GRAY) {
+            cellBorderFillId = borderFillRegistry.getBorderFillByName("TITLE_BOX_MAIN_GRAY").id();
+        } else {
+            cellBorderFillId = borderFillRegistry.getBorderFillByName("TITLE_BOX_MAIN").id();
+        }
+        
         Style style = styleRegistry.getStyleByName("제목");
 
         Table table = TitleBoxMainBuilder.build(title, borderFillId, cellBorderFillId, style);
@@ -187,25 +203,94 @@ public class HWPXBuilder {
 
     // 미들 타이틀 박스 추가
     public void addTitleBoxMiddle(String number, String title) {
-        String[] borderFillIds = {
-            borderFillRegistry.getBorderFillByName("TITLE_BOX_MIDDLE_LEFT").id(),
-            borderFillRegistry.getBorderFillByName("TITLE_BOX_MIDDLE_CENTER").id(),
-            borderFillRegistry.getBorderFillByName("TITLE_BOX_MIDDLE_RIGHT").id()
-        };
         Style numberStyle = styleRegistry.getStyleByName("제목 테이블 번호");
         Style contentStyle = styleRegistry.getStyleByName("제목 테이블 내용");
         String tableBorderFillId = borderFillRegistry.getBorderFillByName("default").id();
-
-        Table table = TitleBoxMiddleBuilder.build(
-            number, title,
-            borderFillIds,
-            numberStyle,
-            contentStyle,
-            tableBorderFillId
-        );
+        Table table;
+        
+        // 테마에 따라 다른 빌더 사용
+        if (currentTheme == Theme.GRAY) {
+            // GRAY 테마: 2컬럼 구조 사용
+            String[] borderFillIds = {
+                borderFillRegistry.getBorderFillByName("TITLE_BOX_MIDDLE_LEFT_GRAY").id(),
+                borderFillRegistry.getBorderFillByName("TITLE_BOX_MIDDLE_CENTER_GRAY").id()
+            };
+            table = TitleBoxMiddleGrayBuilder.build(
+                number, title,
+                borderFillIds,
+                numberStyle,
+                contentStyle,
+                tableBorderFillId
+            );
+        } else {
+            // BLUE 테마: 3컬럼 구조 사용 (기존)
+            String[] borderFillIds = {
+                borderFillRegistry.getBorderFillByName("TITLE_BOX_MIDDLE_LEFT").id(),
+                borderFillRegistry.getBorderFillByName("TITLE_BOX_MIDDLE_CENTER").id(),
+                borderFillRegistry.getBorderFillByName("TITLE_BOX_MIDDLE_RIGHT").id()
+            };
+            table = TitleBoxMiddleBuilder.build(
+                number, title,
+                borderFillIds,
+                numberStyle,
+                contentStyle,
+                tableBorderFillId
+            );
+        }
+        
         Para para = createPara("내용", null, false);
         para.addNewRun().addNewTable().copyFrom(table);
         addParaSmart(para);
+    }
+
+    /**
+     * 테마에 따라 다르게 처리되는 헤딩 메서드
+     * level 0: BLUE 테마 → 서브타이틀 박스, GRAY 테마 → heading0 스타일
+     * level 1: 모든 테마에서 개요1 스타일
+     * level 2: 모든 테마에서 개요2 스타일
+     * 
+     * @param level 헤딩 레벨 (0: 서브타이틀/heading0, 1: 개요1, 2: 개요2)
+     * @param number 번호 (BLUE 테마의 서브타이틀에서만 사용)
+     * @param title 제목 텍스트
+     */
+    public void addThemedHeading(int level, String number, String title) {
+        switch (level) {
+            case 0:
+                // level 0만 테마별로 다르게 처리
+                switch (currentTheme) {
+                    case BLUE:
+                        addTitleBoxSub(number, title);
+                        break;
+                    case GRAY:
+                        addParagraph("개요0", title, false); // heading0는 개요0 스타일로 처리
+                        break;
+                    default:
+                        throw new IllegalArgumentException("지원하지 않는 테마: " + currentTheme);
+                }
+                break;
+                
+            case 1:
+                // level 1은 모든 테마에서 개요1
+                addParagraph("개요1", title, false);
+                break;
+                
+            case 2:
+                // level 2는 모든 테마에서 개요2
+                addParagraph("개요2", title, false);
+                break;
+                
+            default:
+                throw new IllegalArgumentException("지원하지 않는 헤딩 레벨: " + level + " (지원: 0-2)");
+        }
+    }
+
+    /**
+     * 번호 없이 레벨과 제목만으로 테마별 헤딩을 추가하는 편의 메서드
+     * @param level 헤딩 레벨
+     * @param title 제목 텍스트
+     */
+    public void addThemedHeading(int level, String title) {
+        addThemedHeading(level, null, title);
     }
 
     public HWPXFile build() {
