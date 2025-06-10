@@ -31,7 +31,7 @@ public class BulletRegistry {
         // }
         System.out.println("BulletRegistry initialize");
 
-        addBullet("개요0", "");
+        addBullet("개요0", "□");
         addBullet("개요1", "❍");
         addBullet("개요2", "-");
     }

@@ -181,6 +181,7 @@ public class BorderFillRegistry {
             fillBrush.createWinBrush();
             fillBrush.winBrush()
                 .faceColorAnd(faceColor)
+                .hatchColorAnd("#999999")
                 .alphaAnd(0.0f);
         }
         return borderFill;
@@ -342,25 +343,15 @@ public class BorderFillRegistry {
             .widthAnd(diagonalWidth != null ? diagonalWidth : LineWidth.MM_0_1)
             .colorAnd(diagonalColor != null ? diagonalColor : "#000000");
 
-        // 그라데이션 FillBrush 생성
-        if (gradationColors != null && gradationColors.length >= 2) {
+        // 단일 회색 색상으로 FillBrush 생성
+        if (gradationColors != null && gradationColors.length >= 1) {
             borderFill.createFillBrush();
             FillBrush fillBrush = borderFill.fillBrush();
-            fillBrush.createGradation();
-            Gradation gradation = fillBrush.gradation();
-            
-            gradation.type(GradationType.LINEAR);
-            gradation.angle(90);
-            gradation.centerX(0);
-            gradation.centerY(0);
-            gradation.step((short) 255);
-            gradation.stepCenter((short) 80);
-            gradation.alpha(0.0f);
-            
-            // 색상들 추가 (colorNum은 자동으로 colorList.size()로 계산됨)
-            for (String color : gradationColors) {
-                gradation.addNewColor().value(color);
-            }
+            fillBrush.createWinBrush();
+            fillBrush.winBrush()
+                .faceColorAnd("#BFBFBF")  // 단일 회색 색상
+                .hatchColorAnd("#999999")
+                .alphaAnd(0.0f);
         }
 
         return borderFill;
