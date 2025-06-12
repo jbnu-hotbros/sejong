@@ -122,6 +122,12 @@ public class HWPXBuilder {
         addParaSmart(para);
     }
 
+    // 본문스타일(기본스타일)로 텍스트를 추가하는 편의 메서드
+    public void addBodyText(String text) {
+        addParagraph("내용", text, false);
+    }
+
+
     // 첫 번째 문단 텍스트를 스타일과 함께 교체
     // 더 이상 필요 없음: addParagraph에서 자동 처리
 

@@ -143,6 +143,10 @@ public class HWPXBuilderExample {
             builder.addThemedHeading(1, "사용자 교육과 변화 관리를 통해 새로운 시스템의 성공적인 정착을 도모해야 합니다.");
             builder.addThemedHeading(1, "이상으로 2024년 Q1 디지털 플랫폼 구축 프로젝트 진행 현황 보고를 마칩니다.");
             builder.addThemedHeading(1, "지속적인 관심과 지원을 부탁드립니다.");
+            builder.addBodyText("");
+            builder.addBodyText("");
+            builder.addBodyText("");
+
 
             HWPXFile hwpxFile = builder.build();
 
