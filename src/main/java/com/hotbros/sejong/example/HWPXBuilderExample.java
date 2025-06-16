@@ -1,4 +1,4 @@
-package com.hotbros.sejong.examples;
+package com.hotbros.sejong.example;
 
 import com.hotbros.sejong.HWPXBuilder;
 import com.hotbros.sejong.style.Theme;
@@ -19,7 +19,7 @@ public class HWPXBuilderExample {
 
     public static void main(String[] args) {
         try {
-            HWPXBuilder builder = new HWPXBuilder(Theme.BLUE);
+            HWPXBuilder builder = new HWPXBuilder(Theme.GRAY);
 
             // 0단계: 대제목(메인)
             builder.addTitleBoxMain("2024년 Q1 디지털 플랫폼 구축 프로젝트 진행 현황 및 성과 보고서");
@@ -58,9 +58,8 @@ public class HWPXBuilderExample {
             
             System.out.println("이미지 데이터 크기: " + chartImageData.length + " bytes");
             
-            // HWPXBuilder에 이미지 추가 (실제 이미지 크기: 675x311)
-            builder.addImage(chartImageData, 675, 311);
-            builder.addBodyText("[ 그림 1. 프로젝트 진행률 현황 차트 ]");
+            // HWPXBuilder에 이미지 추가 (실제 이미지 크기: 675x311, 캡션 포함)
+            builder.addImage(chartImageData, 675, 311, "프로젝트 진행률 현황 차트");
             
             System.out.println("이미지 추가 완료!");
             
@@ -76,7 +75,7 @@ public class HWPXBuilderExample {
                 Arrays.asList("8단계", "사용자 승인 테스트", "사용자팀", "0%", "2024-05-25", "대기"),
                 Arrays.asList("9단계", "배포 및 운영", "운영팀", "0%", "2024-06-01", "대기")
             );
-            builder.addTableWithHeader(stepTable);
+            builder.addTableWithHeader(stepTable, "프로젝트 단계별 진행 현황 및 담당자 정보");
             builder.addThemedHeading(0, "2", "주요 완성 사항");
             builder.addThemedHeading(1, "요구사항 분석 완료: 총 147개 기능 요구사항과 32개 비기능 요구사항 도출");
             builder.addThemedHeading(1, "시스템 아키텍처 설계: 마이크로서비스 기반 확장 가능한 구조 설계");
@@ -104,7 +103,7 @@ public class HWPXBuilderExample {
                 Arrays.asList("기타", "회의 및 출장", "100만원", "90만원", "10만원", "90.0%"),
                 Arrays.asList("총계", "", "5,700만원", "5,190만원", "510만원", "91.1%")
             );
-            builder.addTableWithHeader(budgetTable);
+            builder.addTableWithHeader(budgetTable, "2024년 Q1 프로젝트 예산 집행 현황 상세");
             builder.addThemedHeading(0, "2", "인력 현황");
             builder.addThemedHeading(1, "프로젝트에 총 12명의 전담 인력이 투입되어 있으며, 각 분야별 전문가가 배치되었습니다.");
             builder.addThemedHeading(1, "개발팀 7명, 디자인팀 2명, QA팀 2명, PM 1명으로 구성되어 있습니다.");
@@ -130,7 +129,7 @@ public class HWPXBuilderExample {
                 Arrays.asList("일정 지연", "중간", "높음", "높음", "단계별 마일스톤 관리 강화"),
                 Arrays.asList("예산 초과", "낮음", "높음", "중간", "월별 예산 모니터링 및 통제")
             );
-            builder.addTableWithHeader(riskTable);
+            builder.addTableWithHeader(riskTable, "프로젝트 위험 요소 식별 및 대응 방안");
             builder.addThemedHeading(0, "2", "위험 대응 현황");
             builder.addThemedHeading(1, "핵심 개발자 백업 체계를 구축하여 인력 리스크를 최소화했습니다.");
             builder.addThemedHeading(1, "요구사항 변경 관리 프로세스를 강화하여 변경 영향도를 체계적으로 관리하고 있습니다.");

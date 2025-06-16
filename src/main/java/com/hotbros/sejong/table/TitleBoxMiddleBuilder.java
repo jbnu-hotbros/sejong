@@ -47,7 +47,7 @@ public class TitleBoxMiddleBuilder {
         Table table = new Table();
         table.id("1856248017");
         table.zOrder(0);
-        table.numberingType(NumberingType.TABLE);
+        table.numberingType(NumberingType.NONE);
         table.textWrap(TextWrapMethod.TOP_AND_BOTTOM);
         table.textFlow(TextFlowSide.BOTH_SIDES);
         table.lock(false);

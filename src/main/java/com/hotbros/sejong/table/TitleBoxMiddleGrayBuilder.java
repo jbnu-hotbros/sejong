@@ -41,7 +41,7 @@ public class TitleBoxMiddleGrayBuilder {
         Table table = new Table();
         table.id("1868181556");
         table.zOrder(0);
-        table.numberingType(NumberingType.TABLE);
+        table.numberingType(NumberingType.NONE);
         table.textWrap(TextWrapMethod.TOP_AND_BOTTOM);
         table.textFlow(TextFlowSide.BOTH_SIDES);
         table.lock(false);

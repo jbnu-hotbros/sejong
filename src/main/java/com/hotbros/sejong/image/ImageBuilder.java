@@ -17,6 +17,21 @@ import kr.dogfoot.hwpxlib.object.content.section_xml.enumtype.WidthRelTo;
 import kr.dogfoot.hwpxlib.object.content.section_xml.enumtype.HeightRelTo;
 import kr.dogfoot.hwpxlib.object.content.header_xml.enumtype.ImageEffect;
 import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.object.shapecomponent.Matrix;
+import kr.dogfoot.hwpxlib.object.content.section_xml.enumtype.CaptionSide;
+import kr.dogfoot.hwpxlib.object.content.section_xml.enumtype.TextDirection;
+import kr.dogfoot.hwpxlib.object.content.section_xml.enumtype.LineWrapMethod;
+import kr.dogfoot.hwpxlib.object.content.section_xml.enumtype.VerticalAlign2;
+import kr.dogfoot.hwpxlib.object.content.section_xml.enumtype.NumberType2;
+import kr.dogfoot.hwpxlib.object.content.section_xml.enumtype.NumType;
+import kr.dogfoot.hwpxlib.object.content.section_xml.SubList;
+import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.Para;
+import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.T;
+import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.LineSeg;
+import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.Ctrl;
+import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.ctrl.AutoNum;
+import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.secpr.notepr.AutoNumFormat;
+import kr.dogfoot.hwpxlib.object.content.header_xml.references.Style;
+import com.hotbros.sejong.style.StyleRegistry;
 
 import java.io.IOException;
 
@@ -27,25 +42,27 @@ public class ImageBuilder {
     
     private final SectionXMLFile section0;
     private final ContentHPFFile contentHPF;
-    private String currentImageId;
-    private static long imageCounter = 1;
+    private final StyleRegistry styleRegistry;
+    private long imageCounter = 1;
     
     /**
-     * 생성자 - Section0와 ContentHPF를 받아서 초기화
+     * 생성자 - Section0, ContentHPF, StyleRegistry를 받아서 초기화
      */
-    public ImageBuilder(SectionXMLFile section0, ContentHPFFile contentHPF) {
+    public ImageBuilder(SectionXMLFile section0, ContentHPFFile contentHPF, StyleRegistry styleRegistry) {
         this.section0 = section0;
         this.contentHPF = contentHPF;
+        this.styleRegistry = styleRegistry;
     }
     
     /**
-     * 기존 Picture 객체를 이미지 데이터로 설정합니다.
+     * Picture 객체를 이미지 데이터로 설정합니다.
      * @param picture 설정할 Picture 객체 (Run에서 생성된)
      * @param imageData 이미지 데이터 (바이트 배열)
      * @param width 이미지 너비
      * @param height 이미지 높이
+     * @param captionText 캡션 텍스트 (null일 경우 캡션 생성하지 않음)
      */
-    public void configurePicture(Picture picture, byte[] imageData, int width, int height) {
+    public void configurePicture(Picture picture, byte[] imageData, int width, int height, String captionText) {
         try {
             // 1. ManifestItem 생성 및 이미지 데이터 저장 (bindata 역할)
             String imageId = "image" + imageCounter;
@@ -92,10 +109,10 @@ public class ImageBuilder {
             System.out.println("====================");
             
             // 6. Picture 설정 (절대 답안 기준으로 모든 속성 설정)
-            long timestamp = System.currentTimeMillis();
+            long pictureId = imageCounter;
             
             // 기본 속성 설정
-            picture.id(String.valueOf(timestamp));
+            picture.id(String.valueOf(pictureId));
             picture.zOrder(0);
             picture.numberingType(NumberingType.PICTURE);
             picture.textWrap(TextWrapMethod.TOP_AND_BOTTOM);
@@ -246,43 +263,77 @@ public class ImageBuilder {
             picture.createShapeComment();
             picture.shapeComment().addText("그림입니다.");
             
+            // 캡션 설정 (사용자 제공 XML 구조와 동일하게)
+            if (captionText != null && !captionText.trim().isEmpty()) {
+                picture.createCaption();
+                picture.caption().side(CaptionSide.BOTTOM);
+                picture.caption().fullSz(false);
+                picture.caption().width(8504L);
+                picture.caption().gap(850L);
+                picture.caption().lastWidth(finalWidth);
+                
+                // 캡션의 서브리스트 생성
+                picture.caption().createSubList();
+                SubList subList = picture.caption().subList();
+                subList.id("");
+                subList.textDirection(TextDirection.HORIZONTAL);
+                subList.lineWrap(LineWrapMethod.BREAK);
+                subList.vertAlign(VerticalAlign2.TOP);
+                subList.linkListIDRef("0");
+                subList.linkListNextIDRef("0");
+                subList.textWidth(0);
+                subList.textHeight(0);
+                subList.hasTextRef(false);
+                subList.hasNumRef(false);
+                
+                // 가운데 정렬 스타일 가져오기 (필수)
+                Style centerStyle = styleRegistry.getStyleByName("내용 가운데정렬");
+                if (centerStyle == null) {
+                    throw new RuntimeException("가운데 정렬 스타일을 찾을 수 없습니다.");
+                }
+                
+                String paraPrId = centerStyle.paraPrIDRef();
+                String charPrId = centerStyle.charPrIDRef();
+                String styleId = centerStyle.id();
+                
+                // 캡션 문단 생성
+                Para captionPara = subList.addNewPara();
+                captionPara.id("0");
+                captionPara.paraPrIDRef(paraPrId);
+                captionPara.styleIDRef(styleId);
+                captionPara.pageBreak(false);
+                captionPara.columnBreak(false);
+                captionPara.merged(false);
+                
+                // 캡션 실행 객체 생성
+                Run captionRun = captionPara.addNewRun();
+                captionRun.charPrIDRef(charPrId);
+                
+                // "그림 " 텍스트 추가
+                T figureText = captionRun.addNewT();
+                figureText.addText("그림 ");
+                
+                // 자동 번호 추가 (AutoNum 사용)
+                Ctrl autoNumCtrl = captionRun.addNewCtrl();
+                AutoNum autoNum = autoNumCtrl.addNewAutoNum();
+                autoNum.num(0); // 0으로 설정하면 자동으로 번호가 매겨짐
+                autoNum.numType(NumType.PICTURE);
+                
+                autoNum.createAutoNumFormat();
+                autoNum.autoNumFormat().type(NumberType2.DIGIT);
+                autoNum.autoNumFormat().userChar("");
+                autoNum.autoNumFormat().prefixChar("");
+                autoNum.autoNumFormat().suffixChar("");
+                autoNum.autoNumFormat().supscript(false);
+                
+                // 캡션 텍스트 추가
+                T captionMainText = captionRun.addNewT();
+                captionMainText.addText(" " + captionText);
+            }
+            
         } catch (Exception e) {
             throw new RuntimeException("이미지 설정 중 오류가 발생했습니다.", e);
         }
-    }
-    
-    /**
-     * 이미지 좌표 설정 (사각형 형태)
-     */
-    private void setupImageRect(Picture picture, int width, int height) {
-        picture.createImgRect();
-        
-        // 좌상단
-        picture.imgRect().createPt0();
-        picture.imgRect().pt0().x(0L);
-        picture.imgRect().pt0().y(0L);
-        
-        // 우상단
-        picture.imgRect().createPt1();
-        picture.imgRect().pt1().x((long) width * 75L);
-        picture.imgRect().pt1().y(0L);
-        
-        // 우하단
-        picture.imgRect().createPt2();
-        picture.imgRect().pt2().x((long) width * 75L);
-        picture.imgRect().pt2().y((long) height * 75L);
-        
-        // 좌하단
-        picture.imgRect().createPt3();
-        picture.imgRect().pt3().x(0L);
-        picture.imgRect().pt3().y((long) height * 75L);
-    }
-    
-    /**
-     * 현재 추가된 이미지의 ID 반환
-     */
-    public String getCurrentImageId() {
-        return currentImageId;
     }
 }
 

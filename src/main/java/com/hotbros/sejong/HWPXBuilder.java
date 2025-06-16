@@ -40,6 +40,7 @@ public class HWPXBuilder {
     private final BulletRegistry bulletRegistry;
     private final Theme currentTheme;
     private final ImageBuilder imageBuilder;
+    private final TableBuilder tableBuilder;
 
     private static final String NORMAL_PARA_ID = "0";
 
@@ -64,7 +65,10 @@ public class HWPXBuilder {
         this.styleRegistry = new StyleRegistry(refList, idGenerator, stylePreset.getAllPresets());
 
         // ImageBuilder 초기화
-        this.imageBuilder = new ImageBuilder(section, hwpxFile.contentHPFFile());
+        this.imageBuilder = new ImageBuilder(section, hwpxFile.contentHPFFile(), styleRegistry);
+        
+        // TableBuilder 초기화
+        this.tableBuilder = new TableBuilder(styleRegistry);
 
         SectionPreset.setFirstRunSecPrDefault(section);
     }
@@ -137,8 +141,8 @@ public class HWPXBuilder {
     // 첫 번째 문단 텍스트를 스타일과 함께 교체
     // 더 이상 필요 없음: addParagraph에서 자동 처리
 
-    // 표를 추가하는 함수 (기존과 동일)
-    public void addTableWithHeader(List<List<String>> contents) {
+    // 표를 추가하는 함수 (캡션 지원)
+    public void addTableWithHeader(List<List<String>> contents, String captionText) {
         if (contents == null || contents.isEmpty() || contents.get(0).isEmpty()) {
             throw new IllegalArgumentException("contents가 비어있거나 올바르지 않습니다.");
         }
@@ -155,17 +159,23 @@ public class HWPXBuilder {
         String headerParaPrId = styleRegistry.getStyleByName("표 헤더").paraPrIDRef();
         String bodyParaPrId = styleRegistry.getStyleByName("표 내용").paraPrIDRef();
 
-        Table table = TableBuilder.buildTable(
+        Table table = tableBuilder.buildTable(
             rows, cols, contents,
             normalBorderFill.id(), headerBorderFill.id(),
             headerStyleId, bodyStyleId,
             headerCharPrId, bodyCharPrId,
-            headerParaPrId, bodyParaPrId
+            headerParaPrId, bodyParaPrId,
+            captionText
         );
 
         Para para = createPara("내용 가운데정렬", null, false);
         para.addNewRun().addNewTable().copyFrom(table);
         addParaSmart(para);
+    }
+
+    // 표를 추가하는 함수 (기존 호환성)
+    public void addTableWithHeader(List<List<String>> contents) {
+        addTableWithHeader(contents, null);
     }
 
     // 메인 타이틀 박스 추가
@@ -310,8 +320,9 @@ public class HWPXBuilder {
      * @param imageData 이미지 데이터 (바이트 배열)
      * @param width 이미지 너비
      * @param height 이미지 높이
+     * @param captionText 캡션 텍스트 (null일 경우 캡션 생성하지 않음)
      */
-    public void addImage(byte[] imageData, int width, int height) {
+    public void addImage(byte[] imageData, int width, int height, String captionText) {
         try {
             // 새로운 문단 생성
             Para para = createPara("내용 가운데정렬", null, false);
@@ -321,7 +332,7 @@ public class HWPXBuilder {
             Picture picture = run.addNewPicture();
             
             // ImageBuilder로 Picture 설정
-            imageBuilder.configurePicture(picture, imageData, width, height);
+            imageBuilder.configurePicture(picture, imageData, width, height, captionText);
             
             // 문단 추가
             addParaSmart(para);
@@ -332,11 +343,21 @@ public class HWPXBuilder {
     }
 
     /**
+     * 캡션 없이 이미지를 문서에 추가합니다.
+     * @param imageData 이미지 데이터 (바이트 배열)
+     * @param width 이미지 너비
+     * @param height 이미지 높이
+     */
+    public void addImage(byte[] imageData, int width, int height) {
+        addImage(imageData, width, height, null);
+    }
+
+    /**
      * 기본 크기로 이미지를 문서에 추가합니다.
      * @param imageData 이미지 데이터 (바이트 배열)
      */
     public void addImage(byte[] imageData) {
-        addImage(imageData, 400, 300); // 기본 크기: 400x300
+        addImage(imageData, 400, 300, null); // 기본 크기: 400x300, 캡션 없음
     }
 
     public HWPXFile build() {

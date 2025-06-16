@@ -38,7 +38,7 @@ public class TitleBoxSubBuilder {
         Table table = new Table();
         table.id("1856856435");
         table.zOrder(0);
-        table.numberingType(NumberingType.TABLE);
+        table.numberingType(NumberingType.NONE);
         table.textWrap(TextWrapMethod.TOP_AND_BOTTOM);
         table.textFlow(TextFlowSide.BOTH_SIDES);
         table.lock(false);
