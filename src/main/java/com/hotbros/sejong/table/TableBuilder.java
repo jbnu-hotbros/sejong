@@ -191,26 +191,9 @@ public class TableBuilder {
             Run captionRun = captionPara.addNewRun();
             captionRun.charPrIDRef(charPrId);
             
-            // "표 " 텍스트 추가
-            T tableText = captionRun.addNewT();
-            tableText.addText("표 ");
-            
-            // 자동 번호 추가 (AutoNum 사용)
-            Ctrl autoNumCtrl = captionRun.addNewCtrl();
-            AutoNum autoNum = autoNumCtrl.addNewAutoNum();
-            autoNum.num(0); // 0으로 설정하면 자동으로 번호가 매겨짐
-            autoNum.numType(NumType.TABLE);
-            
-            autoNum.createAutoNumFormat();
-            autoNum.autoNumFormat().type(NumberType2.DIGIT);
-            autoNum.autoNumFormat().userChar("");
-            autoNum.autoNumFormat().prefixChar("");
-            autoNum.autoNumFormat().suffixChar("");
-            autoNum.autoNumFormat().supscript(false);
-            
-            // 캡션 텍스트 추가
+            // 캡션 텍스트만 추가 (autonum 제거)
             T captionMainText = captionRun.addNewT();
-            captionMainText.addText(" " + captionText);
+            captionMainText.addText(captionText);
         }
         
         return table;
