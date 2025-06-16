@@ -9,7 +9,7 @@ import kr.dogfoot.hwpxlib.object.content.section_xml.enumtype.*;
 public class TitleBoxSubBuilder {
     // XML 예시 기준 값
     private static final long CELL_HEIGHT = 2697L;
-    private static final long[] CELL_WIDTHS = { 2573L, 1131L, 17073L };
+    private static final long[] CELL_WIDTHS = { 2573L, 1131L, 25073L };
     private static final long TOTAL_WIDTH = Arrays.stream(CELL_WIDTHS).sum();
     private static final long OUT_MARGIN = 283L;
     private static final long IN_MARGIN_LEFT_RIGHT = 510L;

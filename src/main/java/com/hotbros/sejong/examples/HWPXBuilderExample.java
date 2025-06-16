@@ -13,7 +13,7 @@ import java.util.List;
 public class HWPXBuilderExample {
     public static void main(String[] args) {
         try {
-            HWPXBuilder builder = new HWPXBuilder(Theme.GRAY);
+            HWPXBuilder builder = new HWPXBuilder(Theme.BLUE);
 
             // 0단계: 대제목(메인)
             builder.addTitleBoxMain("2024년 Q1 디지털 플랫폼 구축 프로젝트 진행 현황 및 성과 보고서");

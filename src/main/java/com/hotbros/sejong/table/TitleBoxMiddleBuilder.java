@@ -23,9 +23,9 @@ import kr.dogfoot.hwpxlib.object.content.section_xml.enumtype.LineWrapMethod;
 import kr.dogfoot.hwpxlib.object.content.section_xml.enumtype.VerticalAlign2;
 
 public class TitleBoxMiddleBuilder {
-    private static final long TOTAL_WIDTH = 53625L; // 총 너비 조정
+    private static final long TOTAL_WIDTH = 47890L; // 총 너비 조정
     private static final long CELL_HEIGHT = 3414L;
-    private static final long[] CELL_WIDTHS = { 3060L, 565L, 50000L }; // 가장 오른쪽 셀 크기 증가
+    private static final long[] CELL_WIDTHS = { 3060L, 565L, 44265L }; // 가장 오른쪽 셀 크기 증가
     public static final String[] BORDER_FILL_NAMES = { "TITLE_BOX_MIDDLE_LEFT", "TITLE_BOX_MIDDLE_CENTER", "TITLE_BOX_MIDDLE_RIGHT" };
 
     /**
