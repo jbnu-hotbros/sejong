@@ -15,9 +15,11 @@ import com.hotbros.sejong.table.TitleBoxMiddleBuilder;
 import com.hotbros.sejong.table.TitleBoxMiddleGrayBuilder;
 import com.hotbros.sejong.table.TitleBoxMainBuilder;
 import com.hotbros.sejong.table.TitleBoxSubBuilder;
+import com.hotbros.sejong.image.ImageBuilder;
 
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.BorderFill;
 import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.object.Table;
+import kr.dogfoot.hwpxlib.object.content.section_xml.paragraph.object.Picture;
 
 import kr.dogfoot.hwpxlib.object.HWPXFile;
 import kr.dogfoot.hwpxlib.object.content.header_xml.references.Style;
@@ -37,6 +39,7 @@ public class HWPXBuilder {
     private final RefList refList;
     private final BulletRegistry bulletRegistry;
     private final Theme currentTheme;
+    private final ImageBuilder imageBuilder;
 
     private static final String NORMAL_PARA_ID = "0";
 
@@ -59,6 +62,9 @@ public class HWPXBuilder {
 
         StylePreset stylePreset = new StylePreset(refList, fontRegistry, bulletRegistry, this.currentTheme);
         this.styleRegistry = new StyleRegistry(refList, idGenerator, stylePreset.getAllPresets());
+
+        // ImageBuilder 초기화
+        this.imageBuilder = new ImageBuilder(section, hwpxFile.contentHPFFile());
 
         SectionPreset.setFirstRunSecPrDefault(section);
     }
@@ -297,6 +303,40 @@ public class HWPXBuilder {
      */
     public void addThemedHeading(int level, String title) {
         addThemedHeading(level, null, title);
+    }
+
+    /**
+     * 이미지를 문서에 추가합니다.
+     * @param imageData 이미지 데이터 (바이트 배열)
+     * @param width 이미지 너비
+     * @param height 이미지 높이
+     */
+    public void addImage(byte[] imageData, int width, int height) {
+        try {
+            // 새로운 문단 생성
+            Para para = createPara("내용 가운데정렬", null, false);
+            
+            // Run 생성 및 Picture 추가 (올바른 hwpxlib 패턴)
+            Run run = para.addNewRun();
+            Picture picture = run.addNewPicture();
+            
+            // ImageBuilder로 Picture 설정
+            imageBuilder.configurePicture(picture, imageData, width, height);
+            
+            // 문단 추가
+            addParaSmart(para);
+            
+        } catch (Exception e) {
+            throw new RuntimeException("이미지 추가 중 오류가 발생했습니다.", e);
+        }
+    }
+
+    /**
+     * 기본 크기로 이미지를 문서에 추가합니다.
+     * @param imageData 이미지 데이터 (바이트 배열)
+     */
+    public void addImage(byte[] imageData) {
+        addImage(imageData, 400, 300); // 기본 크기: 400x300
     }
 
     public HWPXFile build() {

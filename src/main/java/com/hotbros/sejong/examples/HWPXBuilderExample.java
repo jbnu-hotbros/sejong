@@ -7,10 +7,16 @@ import com.hotbros.sejong.util.HWPXWriter;
 import kr.dogfoot.hwpxlib.object.HWPXFile;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Base64;
 
 public class HWPXBuilderExample {
+
     public static void main(String[] args) {
         try {
             HWPXBuilder builder = new HWPXBuilder(Theme.BLUE);
@@ -43,6 +49,21 @@ public class HWPXBuilderExample {
             builder.addThemedHeading(0, "1", "단계별 진행 상황");
             builder.addThemedHeading(1, "전체 9단계 중 3단계가 완료되었으며, 4-5단계가 활발히 진행 중입니다.");
             builder.addThemedHeading(1, "전체 진행률은 계획 대비 95% 수준으로 양호한 상태입니다.");
+            
+            // 진행률 차트 이미지 추가 (실제 파일 읽기 패턴)
+            System.out.println("이미지 추가 시뮬레이션 시작...");
+            
+            // 실제 파일에서 이미지 데이터 로드 (Base64 변환 과정 포함)
+            byte[] chartImageData = loadImageFromFile("example.png");
+            
+            System.out.println("이미지 데이터 크기: " + chartImageData.length + " bytes");
+            
+            // HWPXBuilder에 이미지 추가 (실제 이미지 크기: 675x311)
+            builder.addImage(chartImageData, 675, 311);
+            builder.addBodyText("[ 그림 1. 프로젝트 진행률 현황 차트 ]");
+            
+            System.out.println("이미지 추가 완료!");
+            
             List<List<String>> stepTable = Arrays.asList(
                 Arrays.asList("단계", "작업 내용", "담당자", "진행률", "예정 완료일", "상태"),
                 Arrays.asList("1단계", "요구사항 분석 및 기획", "김기획", "100%", "2024-03-15", "완료"),
@@ -165,5 +186,32 @@ public class HWPXBuilderExample {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    
+    /**
+     * 실제 이미지 파일을 읽어서 Base64로 변환 후 다시 바이트 배열로 변환
+     * (실제 환경에서 파일 업로드를 시뮬레이션)
+     */
+    private static byte[] loadImageFromFile(String fileName) throws IOException {
+        // 1. 현재 디렉토리에서 이미지 파일 읽기
+        Path imagePath = Paths.get("output/"+fileName);
+        
+        if (!Files.exists(imagePath)) {
+            throw new IOException("이미지 파일을 찾을 수 없습니다: " + imagePath.toAbsolutePath());
+        }
+        
+        // 2. 파일을 바이트 배열로 읽기
+        byte[] originalBytes = Files.readAllBytes(imagePath);
+        System.out.println("원본 파일에서 " + originalBytes.length + " bytes 읽음");
+        
+        // 3. Base64로 인코딩 (실제 환경에서의 전송/저장 과정 시뮬레이션)
+        String base64String = Base64.getEncoder().encodeToString(originalBytes);
+        System.out.println("Base64 변환 완료. 길이: " + base64String.length() + " characters");
+        
+        // 4. Base64에서 다시 바이트 배열로 디코딩 (실제 사용 시점)
+        byte[] decodedBytes = Base64.getDecoder().decode(base64String);
+        System.out.println("Base64 디코딩 완료. 최종 크기: " + decodedBytes.length + " bytes");
+        
+        return decodedBytes;
     }
 }
