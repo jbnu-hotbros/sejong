@@ -16,8 +16,6 @@
 | XML 처리 | hwpxlib 1.0.5 | `kr.dogfoot:hwpxlib:1.0.5` 명시 |
 | 빌드 도구 | Gradle (Kotlin DSL) | `build.gradle.kts` 사용 |
 | 패키징 도구 | Maven Publish | `maven-publish` 플러그인 사용, `mavenLocal()` 등록 |
-| 테스트 | JUnit 4.11 | 단위 테스트 기반 (예: `SejongTest` 가능) |
-| 실행 구조 | CLI 기반 실행 가능 | `mainClass = "com.hotbros.sejong.example.HWPXBuilderExample"` 설정 |
 
 ## 2. 전체 아키텍처 및 데이터 흐름
 
